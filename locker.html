@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unlock Your Free Guide</title>
+    <style>
+        :root {
+            --bg-dark: #070a09;
+            --card-bg: #0d1612;
+            --border-color: #16261f;
+            --neon-blue: #00e5ff;
+            --text-main: #ffffff;
+            --text-muted: #84968f;
+        }
+        body { background-color: var(--bg-dark); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { width: 100%; max-width: 450px; }
+        
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { color: var(--neon-blue); margin-top: 0; font-weight: 900; letter-spacing: -0.5px; text-transform: uppercase; font-size: 22px;}
+        p { color: var(--text-muted); font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
+        
+        /* Progress Bar */
+        .progress-container { width: 100%; background: #111d18; border-radius: 20px; margin-bottom: 20px; overflow: hidden; border: 1px solid var(--border-color); }
+        .progress-bar { height: 12px; width: 0%; background: var(--neon-blue); transition: width 0.5s ease-in-out; }
+        .progress-text { font-size: 12px; color: var(--neon-blue); font-weight: bold; margin-bottom: 15px; display: block; text-transform: uppercase; letter-spacing: 1px;}
+
+        /* Buttons */
+        .share-btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; margin-bottom: 12px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 10px;}
+        .btn-wa { background: #25D366; }
+        .btn-fb { background: #1877F2; }
+        
+        /* Step 2 (Hidden initially) */
+        #step2 { display: none; margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px; }
+        input { width: 100%; box-sizing: border-box; padding: 15px; background: #111d18; border: 1px solid var(--border-color); color: white; border-radius: 8px; font-size: 15px; outline: none; margin-bottom: 15px; text-align: center;}
+        input:focus { border-color: var(--neon-blue); }
+        .submit-btn { width: 100%; background: var(--neon-blue); color: black; font-weight: 900; padding: 16px; border: none; border-radius: 30px; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3); text-transform: uppercase;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>UNLOCK YOUR FREE PDF</h2>
+        <p>Discover the exact methods to secure employment in the UK without a university degree. Complete the steps below to unlock your guide.</p>
+        
+        <!-- STEP 1: VIRAL LOCKER -->
+        <div id="step1">
+            <span class="progress-text">Step 1: Share to unlock (<span id="progress-percent">0</span>%)</span>
+            <div class="progress-container">
+                <div class="progress-bar" id="pbar"></div>
+            </div>
+
+            <button class="share-btn btn-wa" onclick="shareTo('whatsapp')">
+                Share on WhatsApp
+            </button>
+            <button class="share-btn btn-fb" onclick="shareTo('facebook')">
+                Share on Facebook
+            </button>
+        </div>
+
+        <!-- STEP 2: LEAD CAPTURE (Revealed at 100%) -->
+        <div id="step2">
+            <span class="progress-text" style="color: #fff;">Step 2: Enter your WhatsApp Number</span>
+            <input type="tel" id="userPhone" placeholder="e.g., 08012345678" required>
+            <button class="submit-btn" onclick="sendToDM()">GET FREE GUIDE NOW</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let progress = 0;
+    let waShared = false;
+    let fbShared = false;
+
+    function shareTo(platform) {
+        // The link and message you want your visitors to post on their social media
+        const viralLink = encodeURIComponent("https://your-future-website-link.com");
+        const shareText = encodeURIComponent("I just found this amazing free guide on getting UK jobs! Check it out here: ");
+        
+        if (platform === 'whatsapp') {
+            window.open(`https://api.whatsapp.com/send?text=${shareText} ${viralLink}`, '_blank');
+            if (!waShared) { 
+                waShared = true; 
+                updateProgress(50); 
+            }
+        } else if (platform === 'facebook') {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${viralLink}`, '_blank');
+            if (!fbShared) { 
+                fbShared = true; 
+                updateProgress(50); 
+            }
+        }
+    }
+
+    function updateProgress(amount) {
+        progress += amount;
+        document.getElementById('pbar').style.width = progress + '%';
+        document.getElementById('progress-percent').innerText = progress;
+
+        // When the bar hits 100%, hide Step 1 and show Step 2
+        if (progress >= 100) {
+            setTimeout(() => {
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+            }, 1000); // 1-second delay so they can see the bar fill up
+        }
+    }
+
+    function sendToDM() {
+        const userNum = document.getElementById('userPhone').value;
+        if (userNum.length < 8) {
+            alert("Please enter a valid WhatsApp number.");
+            return;
+        }
+        
+        // YOUR ADMIN WHATSAPP NUMBER GOES HERE (Include country code, e.g., 234)
+        const yourAdminNumber = "2349136835891"
+        
+        // The automated text the user will send to your DM
+        const message = encodeURIComponent(`Hi! My number is ${userNum} and I just completed the share steps. Please send me the Free UK Job Guide!`);
+        
+        // Redirect them straight to your WhatsApp DM
+        window.location.href = `https://wa.me/${yourAdminNumber}?text=${message}`;
+    }
+</script>
+
+</body>
+</html>
