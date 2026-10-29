@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free UK Employment Guide</title>
+    <style>
+        :root {
+            --bg-dark: #070a09;
+            --card-bg: #0d1612;
+            --border-color: #16261f;
+            --neon-blue: #00e5ff;
+            --text-main: #ffffff;
+            --text-muted: #84968f;
+        }
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            font-family: -apple-system, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+        }
+        .container { width: 100%; max-width: 450px; text-align: center; }
+        
+        /* Inserted File / Image Section */
+        .image-container {
+            width: 100%;
+            height: 200px;
+            background: #111d18;
+            border: 1px dashed var(--neon-blue);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h1 { 
+            color: var(--text-main); 
+            margin-top: 0; 
+            font-weight: 900; 
+            letter-spacing: -0.5px; 
+            text-transform: uppercase; 
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        h1 span { color: var(--neon-blue); }
+        
+        /* The Message Interface */
+        .message-interface {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .message-interface p { 
+            color: var(--text-muted); 
+            font-size: 14px; 
+            line-height: 1.6; 
+            margin: 0 0 10px 0; 
+        }
+        .message-interface p:last-child { margin-bottom: 0; }
+        .message-interface strong { color: var(--text-main); }
+        
+        .cta-btn { 
+            display: block; 
+            width: 100%; 
+            box-sizing: border-box; 
+            background: var(--neon-blue); 
+            color: #000; 
+            font-weight: 900; 
+            padding: 18px; 
+            border: none; 
+            border-radius: 30px; 
+            font-size: 15px; 
+            cursor: pointer; 
+            box-shadow: 0 4px 20px rgba(0, 229, 255, 0.4); 
+            text-transform: uppercase; 
+            text-decoration: none;
+        }
+        
+        .secure-text { font-size: 11px; color: var(--text-muted); margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- INSERT YOUR ATTACHED FILE / IMAGE HERE -->
+    <!-- Replace the src link with the link to your actual image -->
+    <div class="image-container">
+        <img src="https://via.placeholder.com/400x200/0d1612/00e5ff?text=Insert+Guide+Cover+Image+Here" alt="Guide Cover Image">
+    </div>
+
+    <h1>UK Employment <span>Guide</span></h1>
+    
+    <!-- YOUR MESSAGE INTERFACE (Design your text here) -->
+    <div class="message-interface">
+        <p><strong>What you will learn:</strong></p>
+        <p>✔️ The exact blueprint to finding UK sponsors.</p>
+        <p>✔️ How to secure employment <strong>without</strong> a university degree.</p>
+        <p>✔️ Step-by-step visa application hacks.</p>
+    </div>
+    
+    <!-- YOUR WHATSAPP LINK -->
+    <a href="https://wa.me/2349136835891?text=I+want+the+free+UK+Job+Guide" class="cta-btn">
+        CLICK HERE TO GET YOUR FREE GUIDE
+    </a>
+    
+    <div class="secure-text">🔒 Secure & direct delivery via WhatsApp</div>
+</div>
+
+</body>
+</html>
