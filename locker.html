@@ -3,127 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unlock Your Free Guide</title>
+    <title>Unlock Your Free PDF</title>
     <style>
         :root {
-            --bg-dark: #070a09;
-            --card-bg: #0d1612;
-            --border-color: #16261f;
+            --bg-color: #121418;
+            --panel-bg: #1a1d24;
             --neon-blue: #00e5ff;
+            --neon-green: #25D366; 
+            --fb-blue: #1877F2; 
             --text-main: #ffffff;
-            --text-muted: #84968f;
+            --shadow-light: #242830;
+            --shadow-dark: #101216;
         }
-        body { background-color: var(--bg-dark); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 450px; }
-        
-        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { color: var(--neon-blue); margin-top: 0; font-weight: 900; letter-spacing: -0.5px; text-transform: uppercase; font-size: 22px;}
-        p { color: var(--text-muted); font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
-        
-        /* Progress Bar */
-        .progress-container { width: 100%; background: #111d18; border-radius: 20px; margin-bottom: 20px; overflow: hidden; border: 1px solid var(--border-color); }
-        .progress-bar { height: 12px; width: 0%; background: var(--neon-blue); transition: width 0.5s ease-in-out; }
-        .progress-text { font-size: 12px; color: var(--neon-blue); font-weight: bold; margin-bottom: 15px; display: block; text-transform: uppercase; letter-spacing: 1px;}
-
-        /* Buttons */
-        .share-btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; margin-bottom: 12px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; gap: 10px;}
-        .btn-wa { background: #25D366; }
-        .btn-fb { background: #1877F2; }
-        
-        /* Step 2 (Hidden initially) */
-        #step2 { display: none; margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px; }
-        input { width: 100%; box-sizing: border-box; padding: 15px; background: #111d18; border: 1px solid var(--border-color); color: white; border-radius: 8px; font-size: 15px; outline: none; margin-bottom: 15px; text-align: center;}
-        input:focus { border-color: var(--neon-blue); }
-        .submit-btn { width: 100%; background: var(--neon-blue); color: black; font-weight: 900; padding: 16px; border: none; border-radius: 30px; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3); text-transform: uppercase;}
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .locker-box {
+            background-color: var(--panel-bg);
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+        }
+        h2 {
+            color: var(--neon-blue);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        p.desc {
+            font-size: 14px;
+            color: #8a99a8;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+        .progress-text {
+            color: var(--neon-blue);
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .progress-bar-bg {
+            background-color: #101216;
+            border-radius: 10px;
+            height: 12px;
+            width: 100%;
+            margin-bottom: 30px;
+            box-shadow: inset 3px 3px 5px var(--shadow-dark), inset -3px -3px 5px var(--shadow-light);
+            overflow: hidden;
+        }
+        .progress-fill {
+            background-color: var(--neon-blue);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        button {
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            transition: all 0.2s ease;
+        }
+        button:active {
+            box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
+        }
+        .btn-wa { background-color: var(--neon-green); }
+        .btn-fb { background-color: var(--fb-blue); }
+        .btn-download { 
+            background-color: var(--neon-blue); 
+            display: none; 
+            margin-top: 20px;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+            color: #000;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="card">
-        <h2>UNLOCK YOUR FREE PDF</h2>
-        <p>Discover the exact methods to secure employment in the UK without a university degree. Complete the steps below to unlock your guide.</p>
+    <div class="locker-box">
+        <h2>Unlock Your Free PDF</h2>
+        <p class="desc">Discover the exact methods to secure employment in the UK without a university degree. Complete the steps below to unlock your guide.</p>
         
-        <!-- STEP 1: VIRAL LOCKER -->
-        <div id="step1">
-            <span class="progress-text">Step 1: Share to unlock (<span id="progress-percent">0</span>%)</span>
-            <div class="progress-container">
-                <div class="progress-bar" id="pbar"></div>
-            </div>
-
-            <button class="share-btn btn-wa" onclick="shareTo('whatsapp')">
-                Share on WhatsApp
-            </button>
-            <button class="share-btn btn-fb" onclick="shareTo('facebook')">
-                Share on Facebook
-            </button>
+        <div class="progress-text" id="progressText">Step 1: Share to Unlock (0%)</div>
+        <div class="progress-bar-bg">
+            <div class="progress-fill" id="progressFill"></div>
         </div>
 
-        <!-- STEP 2: LEAD CAPTURE (Revealed at 100%) -->
-        <div id="step2">
-            <span class="progress-text" style="color: #fff;">Step 2: Enter your WhatsApp Number</span>
-            <input type="tel" id="userPhone" placeholder="e.g., 08012345678" required>
-            <button class="submit-btn" onclick="sendToDM()">GET FREE GUIDE NOW</button>
-        </div>
+        <button class="btn-wa" id="waBtn" onclick="shareWhatsApp()">Share on WhatsApp</button>
+        <button class="btn-fb" id="fbBtn" onclick="shareFacebook()">Share on Facebook</button>
+
+        <button class="btn-download" id="downloadBtn" onclick="downloadPDF()">DOWNLOAD FREE PDF NOW</button>
     </div>
-</div>
 
-<script>
-    let progress = 0;
-    let waShared = false;
-    let fbShared = false;
+    <script>
+        // Temporary placeholders while Firebase loads
+        window.viralLink = encodeURIComponent("https://degold44y-dotcom.github.io/Viral-funnel/");
+        window.rewardLink = "#"; 
 
-    function shareTo(platform) {
-        // The link and message you want your visitors to post on their social media
-        const viralLink = encodeURIComponent("https://degold44y-dotcom.github.io/Viral-funnel/");
-        const shareText = encodeURIComponent("I just found this amazing free guide on getting UK jobs! Check it out here: ");
-        
-        if (platform === 'whatsapp') {
-            window.open(`https://api.whatsapp.com/send?text=${shareText} ${viralLink}`, '_blank');
-            if (!waShared) { 
-                waShared = true; 
-                updateProgress(50); 
+        let progress = 0;
+        const shareText = encodeURIComponent("I just found this amazing free guide on how to get UK jobs without a degree! Get it here: ");
+
+        function updateProgress() {
+            progress += 50; 
+            if (progress > 100) progress = 100;
+
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').innerText = `Step 1: Share to Unlock (${progress}%)`;
+
+            if (progress >= 100) {
+                document.getElementById('progressText').innerText = "✅ Unlocked Successfully!";
+                document.getElementById('progressText').style.color = "var(--neon-green)";
+                document.getElementById('waBtn').style.display = "none";
+                document.getElementById('fbBtn').style.display = "none";
+                document.getElementById('downloadBtn').style.display = "block";
             }
-        } else if (platform === 'facebook') {
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${viralLink}`, '_blank');
-            if (!fbShared) { 
-                fbShared = true; 
-                updateProgress(50); 
+        }
+
+        function shareWhatsApp() {
+            window.open(`https://api.whatsapp.com/send?text=${shareText}${window.viralLink}`, '_blank');
+            setTimeout(updateProgress, 2000);
+        }
+
+        function shareFacebook() {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.viralLink}`, '_blank');
+            setTimeout(updateProgress, 2000);
+        }
+
+        function downloadPDF() {
+            if(window.rewardLink !== "#") {
+                window.location.href = window.rewardLink;
+            } else {
+                alert("PDF link is still syncing from your dashboard. Please tap again in a second.");
             }
         }
-    }
+    </script>
 
-    function updateProgress(amount) {
-        progress += amount;
-        document.getElementById('pbar').style.width = progress + '%';
-        document.getElementById('progress-percent').innerText = progress;
+    <!-- Firebase Reader Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // When the bar hits 100%, hide Step 1 and show Step 2
-        if (progress >= 100) {
-            setTimeout(() => {
-                document.getElementById('step1').style.display = 'none';
-                document.getElementById('step2').style.display = 'block';
-            }, 1000); // 1-second delay so they can see the bar fill up
+        const firebaseConfig = {
+          apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
+          authDomain: "probet-syndicate.firebaseapp.com",
+          projectId: "probet-syndicate",
+          storageBucket: "probet-syndicate.firebasestorage.app",
+          messagingSenderId: "418866597682",
+          appId: "1:418866597682:web:847007dbaf3c40452d912b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // This instantly overwrites the placeholders with your actual dashboard links
+        async function loadDynamicLinks() {
+            try {
+                const docSnap = await getDoc(doc(db, "funnel", "links"));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    if (data.viral_link) {
+                        window.viralLink = encodeURIComponent(data.viral_link);
+                    }
+                    if (data.pdf_link) {
+                        window.rewardLink = data.pdf_link;
+                    }
+                }
+            } catch(e) {
+                console.error("Database connection error", e);
+            }
         }
-    }
-
-    function sendToDM() {
-        const userNum = document.getElementById('userPhone').value;
-        if (userNum.length < 8) {
-            alert("Please enter a valid WhatsApp number.");
-            return;
-        }
         
-        // YOUR ADMIN WHATSAPP NUMBER GOES HERE (Include country code, e.g., 234)
-        const yourAdminNumber = "2349136835891"
-        
-        // The automated text the user will send to your DM
-        const message = encodeURIComponent(`Hi! My number is ${userNum} and I just completed the share steps. Please send me the Free UK Job Guide!`);
-        
-        // Redirect them straight to your WhatsApp DM
-        window.location.href = `https://wa.me/${yourAdminNumber}?text=${message}`;
-    }
-</script>
-
+        loadDynamicLinks();
+    </script>
 </body>
 </html>
