@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free UK Job Guide</title>
+    <title>Free Guide</title>
     <style>
         :root {
             --bg-color: #121418;
@@ -53,127 +53,56 @@
             margin-bottom: 25px;
             line-height: 1.3;
         }
-        h1 span {
-            color: var(--neon-blue);
-        }
         
-        /* 3D Book CSS Design */
-        .book-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-            perspective: 1000px;
-        }
+        /* 3D Book CSS */
+        .book-container { display: flex; justify-content: center; margin-bottom: 30px; perspective: 1000px; }
         .book {
-            width: 140px;
-            height: 200px;
+            width: 140px; height: 200px;
             background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
             border-radius: 4px 12px 12px 4px;
-            box-shadow: 
-                inset 4px 0 10px rgba(0,0,0,0.5),
-                inset -2px 0 5px rgba(255,255,255,0.2),
-                15px 15px 25px var(--shadow-dark), 
-                -5px -5px 15px var(--shadow-light);
-            position: relative;
-            transform: rotateY(-15deg);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-            text-align: center;
-            border: 1px solid #3a5c6d;
+            box-shadow: inset 4px 0 10px rgba(0,0,0,0.5), inset -2px 0 5px rgba(255,255,255,0.2), 15px 15px 25px var(--shadow-dark), -5px -5px 15px var(--shadow-light);
+            position: relative; transform: rotateY(-15deg);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 15px; text-align: center; border: 1px solid #3a5c6d;
         }
-        .book::before {
-            content: '';
-            position: absolute;
-            left: 6px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: rgba(255,255,255,0.3);
-        }
-        .book-title {
-            color: var(--neon-blue);
-            font-size: 18px;
-            font-weight: 900;
-            text-transform: uppercase;
-            line-height: 1.1;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-        .book-sub {
-            color: #fff;
-            font-size: 10px;
-            margin-top: 10px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
+        .book::before { content: ''; position: absolute; left: 6px; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.3); }
+        .book-title { color: var(--neon-blue); font-size: 18px; font-weight: 900; text-transform: uppercase; line-height: 1.1; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .book-sub { color: #fff; font-size: 10px; margin-top: 10px; letter-spacing: 1px; text-transform: uppercase; }
 
-        .features {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 30px 0;
-        }
-        .features li {
-            font-size: 14px;
-            color: #b0c0d0;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-        }
-        .features li::before {
-            content: '✅';
-            margin-right: 10px;
-            font-size: 16px;
-        }
+        .features { list-style: none; padding: 0; margin: 0 0 30px 0; }
+        .features li { font-size: 14px; color: #b0c0d0; margin-bottom: 12px; display: flex; align-items: center; }
+        .features li::before { content: '✅'; margin-right: 10px; font-size: 16px; }
 
         button {
-            width: 100%;
-            padding: 16px;
-            background-color: var(--neon-green);
-            color: #121418;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
-            transition: all 0.2s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
+            width: 100%; padding: 16px; background-color: var(--neon-green); color: #121418;
+            border: none; border-radius: 12px; font-size: 16px; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            display: flex; justify-content: center; align-items: center; gap: 10px;
         }
-        button:active {
-            box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
-        }
+        button:active { box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light); }
     </style>
 </head>
 <body>
-
     <div class="landing-box">
-        <div style="text-align: center;">
-            <div class="badge">Value: £99 - Yours Free</div>
-        </div>
+        <div style="text-align: center;"><div class="badge">Value: £99 - Yours Free</div></div>
         
-        <h1 style="text-align: center;">How to Relocate to the UK <span>Without a Degree</span></h1>
+        <!-- Text defaults to UK jobs, but gets overwritten by the script if you typed something in your dashboard -->
+        <h1 id="liveMainTitle" style="text-align: center;">How to Relocate to the UK Without a Degree</h1>
         
-        <!-- CSS 3D Book Design -->
         <div class="book-container">
             <div class="book">
-                <div class="book-title">UK Jobs Blueprint</div>
-                <div class="book-sub">No Degree Required</div>
+                <div id="liveBookTitle" class="book-title">UK Jobs Blueprint</div>
+                <div id="liveBookSub" class="book-sub">No Degree Required</div>
             </div>
         </div>
         
         <ul class="features">
-            <li>5 high-demand industries hiring now</li>
-            <li>Visa sponsorship paths explained</li>
-            <li>Step-by-step CV & application guide</li>
+            <li id="liveFeat1">5 high-demand industries hiring now</li>
+            <li id="liveFeat2">Visa sponsorship paths explained</li>
+            <li id="liveFeat3">Step-by-step CV & application guide</li>
         </ul>
         
-        <button id="ctaBtn" onclick="goToWhatsApp()">
+        <button onclick="goToWhatsApp()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.086 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
             Send Message To Unlock
         </button>
@@ -181,17 +110,12 @@
 
     <script>
         window.captureLink = "#";
-
         function goToWhatsApp() {
-            if(window.captureLink !== "#") {
-                window.location.href = window.captureLink;
-            } else {
-                alert("Loading your secure link. Please tap again in a moment.");
-            }
+            if(window.captureLink !== "#") window.location.href = window.captureLink;
+            else alert("Loading your secure link. Please tap again in a moment.");
         }
     </script>
 
-    <!-- Firebase Reader Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -204,25 +128,29 @@
           messagingSenderId: "418866597682",
           appId: "1:418866597682:web:847007dbaf3c40452d912b"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        async function loadDynamicLinks() {
+        async function loadDynamicContent() {
             try {
-                const docSnap = await getDoc(doc(db, "funnel", "links"));
+                // Notice we changed the document to "content" to match the new admin setup
+                const docSnap = await getDoc(doc(db, "funnel", "content"));
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    if (data.fb_link) {
-                        window.captureLink = data.fb_link;
-                    }
+                    
+                    if (data.fbLink) window.captureLink = data.fbLink;
+                    
+                    // Update text elements if you entered new text in the admin panel
+                    if (data.mainTitle) document.getElementById('liveMainTitle').innerText = data.mainTitle;
+                    if (data.bookTitle) document.getElementById('liveBookTitle').innerText = data.bookTitle;
+                    if (data.bookSub) document.getElementById('liveBookSub').innerText = data.bookSub;
+                    if (data.feat1) document.getElementById('liveFeat1').innerText = data.feat1;
+                    if (data.feat2) document.getElementById('liveFeat2').innerText = data.feat2;
+                    if (data.feat3) document.getElementById('liveFeat3').innerText = data.feat3;
                 }
-            } catch(e) {
-                console.error("Database error", e);
-            }
+            } catch(e) { console.error(e); }
         }
-        
-        loadDynamicLinks();
+        loadDynamicContent();
     </script>
 </body>
 </html>
