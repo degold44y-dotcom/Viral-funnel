@@ -36,14 +36,8 @@
             border: 1px solid rgba(255,255,255,0.05);
         }
         h2 { margin-top: 0; font-size: 24px; }
-        .instructions {
-            font-size: 14px;
-            color: var(--text-muted);
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
+        .instructions { font-size: 14px; color: var(--text-muted); margin-bottom: 25px; line-height: 1.5; }
         
-        /* Progress Bar */
         .progress-container {
             background: #0b0d10;
             border-radius: 20px;
@@ -54,67 +48,25 @@
             position: relative;
             overflow: hidden;
         }
-        .progress-fill {
-            background: linear-gradient(90deg, var(--neon-blue), #00ffcc);
-            height: 100%;
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        .progress-text {
-            position: absolute;
-            width: 100%;
-            top: 0;
-            left: 0;
-            line-height: 25px;
-            font-size: 12px;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 0 0 5px rgba(0,0,0,0.8);
-        }
+        .progress-fill { background: linear-gradient(90deg, var(--neon-blue), #00ffcc); height: 100%; width: 0%; transition: width 0.5s ease; }
+        .progress-text { position: absolute; width: 100%; top: 0; left: 0; line-height: 25px; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 0 0 5px rgba(0,0,0,0.8); }
 
-        /* Buttons */
         .btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 16px;
-            margin-bottom: 15px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-            color: #fff;
-            transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; border: none; color: #fff; transition: 0.2s;
         }
         .btn:active { transform: scale(0.98); }
         .btn-wa { background-color: var(--neon-green); box-shadow: 0 0 15px rgba(37,211,102,0.3); }
         .btn-fb { background-color: var(--fb-blue); box-shadow: 0 0 15px rgba(24,119,242,0.3); }
-        .btn-unlock { 
-            background: var(--neon-blue); 
-            color: #000; 
-            box-shadow: 0 0 20px rgba(0,229,255,0.4); 
-            display: none; 
-            animation: pulse 1.5s infinite;
-        }
+        .btn-unlock { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px rgba(0,229,255,0.4); display: none; animation: pulse 1.5s infinite; }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* Icons */
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         .icon { width: 20px; height: 20px; margin-right: 10px; fill: currentColor; }
     </style>
 </head>
 <body>
 
     <div class="locker-card">
-        <h2>🎁 Claim Your Reward</h2>
-        
-        <!-- Fetched from Admin Panel -->
+        <h2 id="lockerTitle">🎁 Claim Your Reward</h2>
         <p class="instructions" id="descText">Loading secure link...</p>
 
         <div class="progress-container">
@@ -141,7 +93,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // EXACT FIREBASE CONFIGURATION INJECTED HERE:
         const firebaseConfig = {
             apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
             authDomain: "probet-syndicate.firebaseapp.com",
@@ -154,46 +105,47 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // System Variables
         let currentProgress = 0;
-        let targetShares = 5; // Default math
+        let targetShares = 5;
         let finalRewardLink = "";
-        const viralMessage = encodeURIComponent("Check out this amazing platform I just found!");
+        let viralMessageText = "Check out this amazing platform I just found!";
+        let successText = "✅ Verification complete! Click below to access.";
 
-        // Load rules from Admin Dashboard
+        // Load all custom text from Admin Dashboard
         db.ref('settings').once('value').then((snapshot) => {
             const data = snapshot.val() || {};
-            
             if (data.requiredShares) targetShares = parseInt(data.requiredShares);
             if (data.rewardLink) finalRewardLink = data.rewardLink;
+            if (data.lockerHeadline) document.getElementById('lockerTitle').innerText = data.lockerHeadline;
             if (data.lockerDescription) document.getElementById('descText').innerText = data.lockerDescription;
+            if (data.viralMessage) viralMessageText = data.viralMessage;
+            if (data.successMessage) successText = data.successMessage;
         });
 
-        // Universal Share Logic
         function triggerShare(platform) {
             let shareUrl = "";
+            let encodedMessage = encodeURIComponent(viralMessageText);
+
             if (platform === 'whatsapp') {
-                shareUrl = `https://api.whatsapp.com/send?text=${viralMessage}`;
+                shareUrl = `https://api.whatsapp.com/send?text=${encodedMessage}`;
             } else if (platform === 'facebook') {
-                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodedMessage}`;
             }
             
-            // Open user's app/browser
             window.open(shareUrl, '_blank');
 
-            // Wait 2 seconds, then process the exact dynamic math set in the Admin Panel
             setTimeout(() => {
                 let progressJump = 100 / targetShares;
                 currentProgress += progressJump;
 
-                // Round the number to avoid decimal glitches (like 99.99%)
                 let visualProgress = Math.round(currentProgress);
 
                 if (visualProgress >= 100) {
                     visualProgress = 100;
                     document.getElementById('shareButtons').style.display = 'none';
                     document.getElementById('unlockBtn').style.display = 'block';
-                    document.getElementById('descText').innerText = "✅ Verification complete! Click below to access.";
+                    // Inject Custom Success Message here:
+                    document.getElementById('descText').innerText = successText; 
                 }
 
                 document.getElementById('progressBar').style.width = visualProgress + '%';
@@ -202,7 +154,6 @@
             }, 2000);
         }
 
-        // Final Redirect
         function claimReward() {
             if (finalRewardLink !== "") {
                 window.location.href = finalRewardLink;
