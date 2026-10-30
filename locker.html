@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unlock Your Free PDF</title>
+    <title>Unlock Your Free Gift</title>
     <style>
         :root {
             --bg-color: #121418;
@@ -100,9 +100,8 @@
 <body>
 
     <div class="locker-box">
-        <h2>Unlock Your Free PDF</h2>
-        <!-- ID added here so Firebase can replace this text -->
-        <p class="desc" id="liveLockerDesc">Discover the exact methods to secure employment in the UK without a university degree. Complete the steps below to unlock your guide.</p>
+        <h2 id="liveLockerTitle">Unlock Your Free Gift</h2>
+        <p class="desc" id="liveLockerDesc">Complete the steps below to unlock your reward.</p>
         
         <div class="progress-text" id="progressText">Step 1: Share to Unlock (0%)</div>
         <div class="progress-bar-bg">
@@ -112,15 +111,14 @@
         <button class="btn-wa" id="waBtn" onclick="shareWhatsApp()">Share on WhatsApp</button>
         <button class="btn-fb" id="fbBtn" onclick="shareFacebook()">Share on Facebook</button>
 
-        <button class="btn-download" id="downloadBtn" onclick="downloadPDF()">DOWNLOAD FREE PDF NOW</button>
+        <button class="btn-download" id="downloadBtn" onclick="downloadPDF()">ACCESS REWARD NOW</button>
     </div>
 
     <script>
         window.viralLink = encodeURIComponent("https://degold44y-dotcom.github.io/Viral-funnel/index.html");
         window.rewardLink = "#"; 
         
-        // This is the default text, but Firebase will overwrite it if you use the admin dashboard
-        window.shareText = encodeURIComponent("I just found this amazing free guide on how to get UK jobs without a degree! Get it here: ");
+        window.shareText = encodeURIComponent("I just found this amazing free guide! Get it here: ");
         let progress = 0;
 
         function updateProgress() {
@@ -153,7 +151,7 @@
             if(window.rewardLink !== "#") {
                 window.location.href = window.rewardLink;
             } else {
-                alert("PDF link is still syncing from your dashboard. Please tap again in a second.");
+                alert("Link is still syncing from your dashboard. Please tap again in a second.");
             }
         }
     </script>
@@ -183,9 +181,10 @@
                     if (data.viralLink) window.viralLink = encodeURIComponent(data.viralLink);
                     if (data.pdfLink) window.rewardLink = data.pdfLink;
                     
-                    // These two lines fetch your custom text from the new admin dashboard
+                    if (data.lockerTitle) document.getElementById('liveLockerTitle').innerText = data.lockerTitle;
                     if (data.lockerDesc) document.getElementById('liveLockerDesc').innerText = data.lockerDesc;
                     if (data.shareMessage) window.shareText = encodeURIComponent(data.shareMessage + " ");
+                    if (data.lockerBtn) document.getElementById('downloadBtn').innerText = data.lockerBtn;
                 }
             } catch(e) {
                 console.error("Database connection error", e);
