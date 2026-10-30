@@ -44,7 +44,6 @@
             font-size: 22px;
         }
         
-        /* Toggle Switch Styling */
         .mode-selector {
             display: flex;
             background: #101216;
@@ -98,8 +97,14 @@
             box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
         }
         select:focus, input:focus { outline: none; box-shadow: inset 2px 2px 5px var(--shadow-dark), 0 0 10px rgba(0, 229, 255, 0.2); }
-        input:disabled { opacity: 0.5; cursor: not-allowed; }
         
+        .hint {
+            font-size: 10px;
+            color: var(--neon-purple);
+            margin-top: 5px;
+            display: none;
+        }
+
         button {
             width: 100%;
             padding: 15px;
@@ -145,35 +150,38 @@
         
         <div class="mode-selector">
             <div class="mode-btn active-targeted" id="btnTargeted" onclick="setMode('targeted')">🎯 Targeted</div>
-            <div class="mode-btn" id="btnMixed" onclick="setMode('mixed')">🎲 Mixed</div>
+            <div class="mode-btn" id="btnMixed" onclick="setMode('mixed')">🎲 Mixed (Wildcard)</div>
         </div>
         
-        <div class="input-group">
-            <label>Target Country</label>
-            <select id="countrySelect" onchange="updateCountryDefaults()">
-                <option value="1">USA (+1)</option>
-                <option value="44">UK (+44)</option>
-                <option value="234" selected>Nigeria (+234)</option>
-                <option value="27">South Africa (+27)</option>
-                <option value="254">Kenya (+254)</option>
-                <option value="233">Ghana (+233)</option>
-            </select>
-        </div>
-
         <div class="input-row">
             <div class="input-group">
-                <label>Base Number</label>
-                <input type="number" id="baseNumber" placeholder="e.g. 8030000000">
+                <label>Target Country</label>
+                <select id="countrySelect" onchange="updateCountryDefaults()">
+                    <option value="234">Nigeria (+234)</option>
+                    <option value="44">UK (+44)</option>
+                    <option value="1">USA/Canada (+1)</option>
+                    <option value="61">Australia (+61)</option>
+                    <option value="27">South Africa (+27)</option>
+                    <option value="254">Kenya (+254)</option>
+                    <option value="233">Ghana (+233)</option>
+                    <option value="91">India (+91)</option>
+                </select>
             </div>
             <div class="input-group">
                 <label>Quantity</label>
-                <input type="number" id="quantity" value="5000">
+                <input type="number" id="quantity" placeholder="Unlimited..." value="10000">
             </div>
+        </div>
+
+        <div class="input-group">
+            <label id="baseLabel">Starting Number (Without Code)</label>
+            <input type="text" id="baseNumber" placeholder="e.g. 8030000000">
+            <div class="hint" id="mixedHint">Type X for random digits (e.g. 77XXXXXXXX)</div>
         </div>
 
         <div class="input-group">
             <label>Contact Niche / Tag</label>
-            <input type="text" id="nicheTag" placeholder="e.g. ProBet Lead">
+            <input type="text" id="nicheTag" placeholder="e.g. Global Lead">
         </div>
 
         <button class="btn-generate" onclick="generateNumbers()">1. Generate Contacts</button>
@@ -190,60 +198,67 @@
         let currentMode = 'targeted';
         let generatedContacts = [];
 
-        // Global Prefix Database for Mixed Randomization
-        const countryDB = {
-            "1": { length: 7, prefixes: ["212", "310", "305", "512", "415", "718", "702", "312", "404", "206"] },
-            "44": { length: 8, prefixes: ["73", "74", "75", "77", "78", "79"] },
-            "234": { length: 7, prefixes: ["803", "806", "813", "903", "703", "805", "807", "815", "905", "802", "808", "812", "902", "809", "817", "818", "909"] },
-            "27": { length: 7, prefixes: ["60", "61", "62", "63", "64", "71", "72", "73", "78", "79", "81", "82", "83", "84"] },
-            "254": { length: 7, prefixes: ["70", "71", "72", "74", "75", "76", "79", "11"] },
-            "233": { length: 7, prefixes: ["24", "25", "53", "54", "55", "59", "20", "50"] }
-        };
-
+        // Auto-fill databases for a better user experience
         const defaultBases = {
-            "1": "2125550000", "44": "7700900000", "234": "8030000000", 
-            "27": "710000000", "254": "700000000", "233": "240000000"
+            "234": "8030000000", "44": "7700000000", "1": "2125550000", 
+            "61": "400000000", "27": "710000000", "254": "700000000", 
+            "233": "240000000", "91": "9800000000"
+        };
+        const defaultWildcards = {
+            "234": "803XXXXXXX", "44": "77XXXXXXXX", "1": "212XXXXXXX", 
+            "61": "4XXXXXXXX", "27": "71XXXXXXX", "254": "70XXXXXXX", 
+            "233": "24XXXXXXX", "91": "98XXXXXXXX"
         };
 
         function setMode(mode) {
             currentMode = mode;
             const baseInput = document.getElementById('baseNumber');
+            const baseLabel = document.getElementById('baseLabel');
+            const hint = document.getElementById('mixedHint');
             
             if (mode === 'targeted') {
                 document.getElementById('btnTargeted').classList.add('active-targeted');
                 document.getElementById('btnMixed').classList.remove('active-mixed');
-                baseInput.disabled = false;
-                updateCountryDefaults();
+                baseLabel.innerText = "Starting Number (Without Code)";
+                baseInput.type = "number";
+                hint.style.display = "none";
             } else {
                 document.getElementById('btnMixed').classList.add('active-mixed');
                 document.getElementById('btnTargeted').classList.remove('active-targeted');
-                baseInput.disabled = true;
-                baseInput.value = "AUTO-RANDOMIZING";
+                baseLabel.innerText = "Wildcard Format (Use 'X')";
+                baseInput.type = "text";
+                hint.style.display = "block";
             }
+            updateCountryDefaults();
         }
 
         function updateCountryDefaults() {
+            const code = document.getElementById('countrySelect').value;
+            const baseInput = document.getElementById('baseNumber');
+            
             if (currentMode === 'targeted') {
-                const code = document.getElementById('countrySelect').value;
-                document.getElementById('baseNumber').value = defaultBases[code];
+                baseInput.value = defaultBases[code] || "";
+            } else {
+                baseInput.value = defaultWildcards[code] || "";
             }
         }
 
         function generateNumbers() {
             const countryCode = document.getElementById('countrySelect').value;
-            const quantity = parseInt(document.getElementById('quantity').value.trim());
+            const quantityVal = document.getElementById('quantity').value.trim();
+            const quantity = parseInt(quantityVal);
             const nicheTag = document.getElementById('nicheTag').value.trim() || "Lead";
+            const baseInput = document.getElementById('baseNumber').value.trim().toUpperCase();
             
-            if (!quantity) return alert("Please enter a quantity.");
+            if (!quantity || quantity <= 0) return alert("Please enter a valid Quantity.");
+            if (!baseInput) return alert("Please enter a Base Number or Wildcard Format.");
 
             generatedContacts = [];
             let previewText = "";
-            const db = countryDB[countryCode];
 
             if (currentMode === 'targeted') {
-                const baseVal = document.getElementById('baseNumber').value.trim();
-                if (!baseVal || isNaN(baseVal)) return alert("Please enter a valid numeric Base Number for Targeted mode.");
-                const baseNumber = parseInt(baseVal);
+                const baseNumber = parseInt(baseInput);
+                if (isNaN(baseNumber)) return alert("Targeted mode requires a numeric Starting Number.");
                 
                 for (let i = 0; i < quantity; i++) {
                     const currentNum = baseNumber + i;
@@ -253,21 +268,28 @@
                     if (i < 10) previewText += `${nicheTag} ${i + 1}: ${fullNumber}\n`;
                 }
             } else {
-                // MIXED MODE LOGIC
+                // MIXED (WILDCARD) MODE
+                if (!baseInput.includes('X')) return alert("Mixed mode requires at least one 'X' in the format (e.g. 77XXXXXXXX).");
+                
                 for (let i = 0; i < quantity; i++) {
-                    const randomPrefix = db.prefixes[Math.floor(Math.random() * db.prefixes.length)];
-                    const randomSuffix = Math.floor(Math.random() * Math.pow(10, db.length)).toString().padStart(db.length, '0');
-                    const localNum = `${randomPrefix}${randomSuffix}`;
-                    const fullNumber = `+${countryCode}${localNum}`;
-                    const rawPhone = `${countryCode}${localNum}`;
+                    let randomLocal = "";
+                    for (let char of baseInput) {
+                        if (char === 'X') {
+                            randomLocal += Math.floor(Math.random() * 10).toString();
+                        } else {
+                            randomLocal += char;
+                        }
+                    }
                     
+                    const fullNumber = `+${countryCode}${randomLocal}`;
+                    const rawPhone = `${countryCode}${randomLocal}`;
                     generatedContacts.push({ name: `${nicheTag} ${i + 1}`, phone: fullNumber, rawPhone: rawPhone });
                     if (i < 10) previewText += `${nicheTag} ${i + 1}: ${fullNumber}\n`;
                 }
             }
 
             document.getElementById('previewBox').style.display = "block";
-            document.getElementById('previewBox').value = `Generated ${quantity} numbers in ${currentMode.toUpperCase()} mode.\n\nPreview (First 10):\n${previewText}`;
+            document.getElementById('previewBox').value = `Generated ${quantity.toLocaleString()} numbers successfully.\n\nPreview (First 10):\n${previewText}`;
             
             document.getElementById('downloadBtn').style.display = "block";
             document.getElementById('testBtn').style.display = "block";
@@ -279,7 +301,6 @@
 
             let vcfContent = '';
             generatedContacts.forEach(contact => {
-                // Integrated waid=[Number] tag specifically for rapid WhatsApp Syncing
                 vcfContent += `BEGIN:VCARD\nVERSION:3.0\nFN:${contact.name}\nTEL;type=CELL;waid=${contact.rawPhone}:${contact.phone}\nEND:VCARD\n`;
             });
 
@@ -289,7 +310,7 @@
             const nicheTag = document.getElementById('nicheTag').value.trim() || "Leads";
             
             a.href = url;
-            a.download = `${nicheTag}_${currentMode.toUpperCase()}_${generatedContacts.length}.vcf`;
+            a.download = `${nicheTag}_Global_${generatedContacts.length}.vcf`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -309,8 +330,8 @@
             }
             container.style.display = "block";
         }
-        
-        // Run on load to set defaults
+
+        // Initialize defaults on load
         updateCountryDefaults();
     </script>
 </body>
