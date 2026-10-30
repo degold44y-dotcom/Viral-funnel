@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unlock Your Free Gift</title>
+    <title>Unlock Your Reward</title>
     <style>
         :root {
-            --bg-color: #121418;
-            --panel-bg: #1a1d24;
+            --bg-color: #0b0d10;
+            --panel-bg: #15181e;
             --neon-blue: #00e5ff;
-            --neon-green: #25D366; 
-            --fb-blue: #1877F2; 
+            --neon-green: #25D366;
+            --fb-blue: #1877F2;
             --text-main: #ffffff;
-            --shadow-light: #242830;
-            --shadow-dark: #101216;
+            --text-muted: #8a99a8;
         }
         body {
             background-color: var(--bg-color);
@@ -25,175 +24,192 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
+            text-align: center;
         }
-        .locker-box {
+        .locker-card {
             background-color: var(--panel-bg);
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 40px 30px;
             width: 100%;
             max-width: 400px;
-            text-align: center;
-            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        h2 {
-            color: var(--neon-blue);
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        p.desc {
+        h2 { margin-top: 0; font-size: 24px; }
+        .instructions {
             font-size: 14px;
-            color: #8a99a8;
+            color: var(--text-muted);
+            margin-bottom: 25px;
             line-height: 1.5;
-            margin-bottom: 30px;
         }
-        .progress-text {
-            color: var(--neon-blue);
-            font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .progress-bar-bg {
-            background-color: #101216;
-            border-radius: 10px;
-            height: 12px;
+        
+        /* Progress Bar */
+        .progress-container {
+            background: #0b0d10;
+            border-radius: 20px;
+            height: 25px;
             width: 100%;
             margin-bottom: 30px;
-            box-shadow: inset 3px 3px 5px var(--shadow-dark), inset -3px -3px 5px var(--shadow-light);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
             overflow: hidden;
         }
         .progress-fill {
-            background-color: var(--neon-blue);
+            background: linear-gradient(90deg, var(--neon-blue), #00ffcc);
             height: 100%;
             width: 0%;
-            transition: width 0.4s ease;
+            transition: width 0.5s ease;
         }
-        button {
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            line-height: 25px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+        }
+
+        /* Buttons */
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
             padding: 16px;
             margin-bottom: 15px;
-            border: none;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
-            color: #fff;
             cursor: pointer;
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
-            transition: all 0.2s ease;
+            border: none;
+            color: #fff;
+            transition: 0.2s;
         }
-        button:active {
-            box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
-        }
-        .btn-wa { background-color: var(--neon-green); }
-        .btn-fb { background-color: var(--fb-blue); }
-        .btn-download { 
-            background-color: var(--neon-blue); 
+        .btn:active { transform: scale(0.98); }
+        .btn-wa { background-color: var(--neon-green); box-shadow: 0 0 15px rgba(37,211,102,0.3); }
+        .btn-fb { background-color: var(--fb-blue); box-shadow: 0 0 15px rgba(24,119,242,0.3); }
+        .btn-unlock { 
+            background: var(--neon-blue); 
+            color: #000; 
+            box-shadow: 0 0 20px rgba(0,229,255,0.4); 
             display: none; 
-            margin-top: 20px;
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
-            color: #000;
+            animation: pulse 1.5s infinite;
         }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Icons */
+        .icon { width: 20px; height: 20px; margin-right: 10px; fill: currentColor; }
     </style>
 </head>
 <body>
 
-    <div class="locker-box">
-        <h2 id="liveLockerTitle">Unlock Your Free Gift</h2>
-        <p class="desc" id="liveLockerDesc">Complete the steps below to unlock your reward.</p>
+    <div class="locker-card">
+        <h2>🎁 Claim Your Reward</h2>
         
-        <div class="progress-text" id="progressText">Share to 5 people or groups to unlock (0%)</div>
-        <div class="progress-bar-bg">
-            <div class="progress-fill" id="progressFill"></div>
+        <!-- Fetched from Admin Panel -->
+        <p class="instructions" id="descText">Loading secure link...</p>
+
+        <div class="progress-container">
+            <div class="progress-fill" id="progressBar"></div>
+            <div class="progress-text" id="progressText">0%</div>
         </div>
 
-        <button class="btn-wa" id="waBtn" onclick="shareWhatsApp()">Share on WhatsApp</button>
-        <button class="btn-fb" id="fbBtn" onclick="shareFacebook()">Share on Facebook</button>
+        <div id="shareButtons">
+            <button class="btn btn-wa" onclick="triggerShare('whatsapp')">
+                <svg class="icon" viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6z"/></svg>
+                Share on WhatsApp
+            </button>
+            <button class="btn btn-fb" onclick="triggerShare('facebook')">
+                <svg class="icon" viewBox="0 0 320 512"><path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>
+                Share on Facebook
+            </button>
+        </div>
 
-        <button class="btn-download" id="downloadBtn" onclick="downloadPDF()">ACCESS REWARD NOW</button>
+        <button class="btn btn-unlock" id="unlockBtn" onclick="claimReward()">🔓 Access Now</button>
     </div>
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
-        window.viralLink = encodeURIComponent("https://degold44y-dotcom.github.io/Viral-funnel/index.html");
-        window.rewardLink = "#"; 
-        
-        window.shareText = encodeURIComponent("I just found this amazing free guide! Get it here: ");
-        let progress = 0;
-
-        function updateProgress() {
-            // Adds 20% per click (5 clicks total)
-            progress += 20; 
-            
-            if (progress > 100) progress = 100;
-
-            document.getElementById('progressFill').style.width = progress + '%';
-            document.getElementById('progressText').innerText = `Share to 5 people or groups to unlock (${progress}%)`;
-
-            if (progress >= 100) {
-                document.getElementById('progressText').innerText = "✅ Unlocked Successfully!";
-                document.getElementById('progressText').style.color = "var(--neon-green)";
-                document.getElementById('waBtn').style.display = "none";
-                document.getElementById('fbBtn').style.display = "none";
-                document.getElementById('downloadBtn').style.display = "block";
-            }
-        }
-
-        function shareWhatsApp() {
-            window.open(`https://api.whatsapp.com/send?text=${window.shareText}${window.viralLink}`, '_blank');
-            setTimeout(updateProgress, 2000);
-        }
-
-        function shareFacebook() {
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.viralLink}`, '_blank');
-            setTimeout(updateProgress, 2000);
-        }
-
-        function downloadPDF() {
-            if(window.rewardLink !== "#") {
-                window.location.href = window.rewardLink;
-            } else {
-                alert("Link is still syncing from your dashboard. Please tap again in a second.");
-            }
-        }
-    </script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+        // EXACT FIREBASE CONFIGURATION INJECTED HERE:
         const firebaseConfig = {
-          apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
-          authDomain: "probet-syndicate.firebaseapp.com",
-          projectId: "probet-syndicate",
-          storageBucket: "probet-syndicate.firebasestorage.app",
-          messagingSenderId: "418866597682",
-          appId: "1:418866597682:web:847007dbaf3c40452d912b"
+            apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
+            authDomain: "probet-syndicate.firebaseapp.com",
+            databaseURL: "https://probet-syndicate-default-rtdb.firebaseio.com",
+            projectId: "probet-syndicate",
+            storageBucket: "probet-syndicate.firebasestorage.app",
+            messagingSenderId: "418866597682",
+            appId: "1:418866597682:web:847007dbaf3c40452d912b"
         };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        // System Variables
+        let currentProgress = 0;
+        let targetShares = 5; // Default math
+        let finalRewardLink = "";
+        const viralMessage = encodeURIComponent("Check out this amazing platform I just found!");
 
-        async function loadDynamicLinks() {
-            try {
-                const docSnap = await getDoc(doc(db, "funnel", "content"));
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    
-                    if (data.viralLink) window.viralLink = encodeURIComponent(data.viralLink);
-                    if (data.pdfLink) window.rewardLink = data.pdfLink;
-                    
-                    if (data.lockerTitle) document.getElementById('liveLockerTitle').innerText = data.lockerTitle;
-                    if (data.lockerDesc) document.getElementById('liveLockerDesc').innerText = data.lockerDesc;
-                    if (data.shareMessage) window.shareText = encodeURIComponent(data.shareMessage + " ");
-                    if (data.lockerBtn) document.getElementById('downloadBtn').innerText = data.lockerBtn;
+        // Load rules from Admin Dashboard
+        db.ref('settings').once('value').then((snapshot) => {
+            const data = snapshot.val() || {};
+            
+            if (data.requiredShares) targetShares = parseInt(data.requiredShares);
+            if (data.rewardLink) finalRewardLink = data.rewardLink;
+            if (data.lockerDescription) document.getElementById('descText').innerText = data.lockerDescription;
+        });
+
+        // Universal Share Logic
+        function triggerShare(platform) {
+            let shareUrl = "";
+            if (platform === 'whatsapp') {
+                shareUrl = `https://api.whatsapp.com/send?text=${viralMessage}`;
+            } else if (platform === 'facebook') {
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+            }
+            
+            // Open user's app/browser
+            window.open(shareUrl, '_blank');
+
+            // Wait 2 seconds, then process the exact dynamic math set in the Admin Panel
+            setTimeout(() => {
+                let progressJump = 100 / targetShares;
+                currentProgress += progressJump;
+
+                // Round the number to avoid decimal glitches (like 99.99%)
+                let visualProgress = Math.round(currentProgress);
+
+                if (visualProgress >= 100) {
+                    visualProgress = 100;
+                    document.getElementById('shareButtons').style.display = 'none';
+                    document.getElementById('unlockBtn').style.display = 'block';
+                    document.getElementById('descText').innerText = "✅ Verification complete! Click below to access.";
                 }
-            } catch(e) {
-                console.error("Database connection error", e);
+
+                document.getElementById('progressBar').style.width = visualProgress + '%';
+                document.getElementById('progressText').innerText = visualProgress + '%';
+                
+            }, 2000);
+        }
+
+        // Final Redirect
+        function claimReward() {
+            if (finalRewardLink !== "") {
+                window.location.href = finalRewardLink;
+            } else {
+                alert("The Admin has not set the reward link yet!");
             }
         }
-        
-        loadDynamicLinks();
     </script>
 </body>
 </html>
