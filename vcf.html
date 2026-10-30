@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VCF Contact Generator</title>
+    <style>
+        :root {
+            --bg-color: #121418;
+            --panel-bg: #1a1d24;
+            --neon-blue: #00e5ff;
+            --neon-green: #00ff66;
+            --text-main: #ffffff;
+            --shadow-light: #242830;
+            --shadow-dark: #101216;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .dashboard-3d {
+            background-color: var(--panel-bg);
+            border-radius: 20px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+        }
+        h2 {
+            text-align: center;
+            color: var(--neon-blue);
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #8a99a8;
+            text-transform: uppercase;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            background-color: var(--panel-bg);
+            border: none;
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 14px;
+            box-sizing: border-box;
+            box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
+            resize: none;
+            margin-bottom: 20px;
+        }
+        textarea:focus { outline: none; box-shadow: inset 2px 2px 5px var(--shadow-dark), 0 0 10px rgba(0, 229, 255, 0.2); }
+        button {
+            width: 100%;
+            padding: 16px;
+            background-color: var(--panel-bg);
+            color: var(--neon-green);
+            border: 1px solid var(--neon-green);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+        }
+        button:active { box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light); }
+        .instructions {
+            font-size: 13px;
+            color: #8a99a8;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-3d">
+        <h2>VCF Generator</h2>
+        <div class="instructions">
+            Paste your captured WhatsApp numbers below to instantly convert them into a downloadable contact list. <br><br>
+            <strong>Format:</strong> Name, Number (one per line)<br>
+            <em>Example: John Doe, +2348000000000</em>
+        </div>
+        
+        <label>Input Contacts</label>
+        <textarea id="contactInput" placeholder="John Doe, +2348000000000&#10;Jane Smith, +1234567890"></textarea>
+
+        <button onclick="generateVCF()">Download .VCF File</button>
+    </div>
+
+    <script>
+        function generateVCF() {
+            const input = document.getElementById('contactInput').value;
+            if (!input.trim()) {
+                alert("Please paste some contacts first!");
+                return;
+            }
+
+            const lines = input.split('\n');
+            let vcfContent = '';
+
+            lines.forEach(line => {
+                const parts = line.split(',');
+                if (parts.length >= 2) {
+                    const name = parts[0].trim();
+                    const phone = parts[1].trim();
+                    vcfContent += `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL:${phone}\nEND:VCARD\n`;
+                }
+            });
+
+            if (!vcfContent) {
+                alert("Please ensure the format is correct (Name, Number).");
+                return;
+            }
+
+            const blob = new Blob([vcfContent], { type: 'text/vcard' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'leads_export.vcf';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
