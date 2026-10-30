@@ -103,7 +103,7 @@
         <h2 id="liveLockerTitle">Unlock Your Free Gift</h2>
         <p class="desc" id="liveLockerDesc">Complete the steps below to unlock your reward.</p>
         
-        <div class="progress-text" id="progressText">Step 1: Share to Unlock (0%)</div>
+        <div class="progress-text" id="progressText">Share to 5 people or groups to unlock (0%)</div>
         <div class="progress-bar-bg">
             <div class="progress-fill" id="progressFill"></div>
         </div>
@@ -122,11 +122,13 @@
         let progress = 0;
 
         function updateProgress() {
-            progress += 50; 
+            // Adds 20% per click (5 clicks total)
+            progress += 20; 
+            
             if (progress > 100) progress = 100;
 
             document.getElementById('progressFill').style.width = progress + '%';
-            document.getElementById('progressText').innerText = `Step 1: Share to Unlock (${progress}%)`;
+            document.getElementById('progressText').innerText = `Share to 5 people or groups to unlock (${progress}%)`;
 
             if (progress >= 100) {
                 document.getElementById('progressText').innerText = "✅ Unlocked Successfully!";
