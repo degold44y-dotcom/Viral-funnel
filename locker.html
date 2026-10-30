@@ -145,7 +145,6 @@
         }
 
         function shareFacebook() {
-            // Checks for a Facebook specific link first, otherwise uses the WhatsApp one
             const shareUrl = window.fbLink || window.viralLink;
             window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank');
             setTimeout(updateProgress, 2000);
@@ -177,21 +176,22 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // This instantly overwrites the placeholders with your actual dashboard links
         async function loadDynamicLinks() {
             try {
-                const docSnap = await getDoc(doc(db, "funnel", "links"));
+                // Now matches the new "content" database folder
+                const docSnap = await getDoc(doc(db, "funnel", "content"));
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     
-                    if (data.viral_link) {
-                        window.viralLink = encodeURIComponent(data.viral_link);
+                    // Now matches the new names from your upgraded admin panel
+                    if (data.viralLink) {
+                        window.viralLink = encodeURIComponent(data.viralLink);
                     }
-                    if (data.fb_link) {
-                        window.fbLink = encodeURIComponent(data.fb_link);
+                    if (data.fbLink) {
+                        window.fbLink = encodeURIComponent(data.fbLink);
                     }
-                    if (data.pdf_link) {
-                        window.rewardLink = data.pdf_link;
+                    if (data.pdfLink) {
+                        window.rewardLink = data.pdfLink;
                     }
                 }
             } catch(e) {
