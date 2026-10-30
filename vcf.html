@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulk WhatsApp Lead Generator</title>
+    <title>Global VCF Engine</title>
     <style>
         :root {
             --bg-color: #121418;
@@ -11,6 +11,7 @@
             --neon-blue: #00e5ff;
             --neon-green: #00ff66;
             --neon-orange: #ff9900;
+            --neon-purple: #b52aff;
             --text-main: #ffffff;
             --shadow-light: #242830;
             --shadow-dark: #101216;
@@ -29,18 +30,52 @@
         .dashboard-3d {
             background-color: var(--panel-bg);
             border-radius: 20px;
-            padding: 40px 30px;
+            padding: 30px 25px;
             width: 100%;
             max-width: 500px;
             box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
         }
         h2 {
             text-align: center;
-            color: var(--neon-blue);
+            color: var(--neon-purple);
             margin-bottom: 25px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-size: 22px;
         }
+        
+        /* Toggle Switch Styling */
+        .mode-selector {
+            display: flex;
+            background: #101216;
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #8a99a8;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .mode-btn.active-targeted {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+        }
+        .mode-btn.active-mixed {
+            background: var(--neon-purple);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(181, 42, 255, 0.4);
+        }
+
         .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .input-group { flex: 1; margin-bottom: 15px; }
         label {
@@ -51,7 +86,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        input {
+        select, input {
             width: 100%;
             padding: 12px;
             background-color: var(--panel-bg);
@@ -62,15 +97,14 @@
             box-sizing: border-box;
             box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
         }
-        input:focus { outline: none; box-shadow: inset 2px 2px 5px var(--shadow-dark), 0 0 10px rgba(0, 229, 255, 0.2); }
+        select:focus, input:focus { outline: none; box-shadow: inset 2px 2px 5px var(--shadow-dark), 0 0 10px rgba(0, 229, 255, 0.2); }
+        input:disabled { opacity: 0.5; cursor: not-allowed; }
         
         button {
             width: 100%;
             padding: 15px;
             margin-bottom: 12px;
             background-color: var(--panel-bg);
-            color: var(--neon-blue);
-            border: 1px solid var(--neon-blue);
             border-radius: 12px;
             font-size: 14px;
             font-weight: bold;
@@ -81,9 +115,9 @@
         }
         button:active { box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light); }
         
-        .btn-generate { color: var(--neon-blue); border-color: var(--neon-blue); }
-        .btn-download { color: var(--neon-green); border-color: var(--neon-green); display: none; }
-        .btn-test { color: var(--neon-orange); border-color: var(--neon-orange); display: none; margin-bottom: 0; }
+        .btn-generate { color: var(--neon-purple); border: 1px solid var(--neon-purple); }
+        .btn-download { color: var(--neon-green); border: 1px solid var(--neon-green); display: none; }
+        .btn-test { color: var(--neon-orange); border: 1px solid var(--neon-orange); display: none; margin-bottom: 0; }
         
         textarea {
             width: 100%;
@@ -101,33 +135,35 @@
             display: none;
         }
         
-        #testLinksContainer {
-            margin-top: 15px;
-            display: none;
-            background: #101216;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 12px;
-        }
-        .test-link {
-            display: block;
-            color: var(--neon-orange);
-            text-decoration: none;
-            margin-bottom: 5px;
-            padding: 5px;
-            border-bottom: 1px solid #1a1d24;
-        }
-        .test-link:hover { color: #fff; }
+        #testLinksContainer { margin-top: 15px; display: none; background: #101216; padding: 10px; border-radius: 8px; font-size: 12px; }
+        .test-link { display: block; color: var(--neon-orange); text-decoration: none; margin-bottom: 5px; padding: 5px; border-bottom: 1px solid #1a1d24; }
     </style>
 </head>
 <body>
     <div class="dashboard-3d">
-        <h2>Bulk WA Generator</h2>
+        <h2>Global VCF Engine</h2>
         
+        <div class="mode-selector">
+            <div class="mode-btn active-targeted" id="btnTargeted" onclick="setMode('targeted')">🎯 Targeted</div>
+            <div class="mode-btn" id="btnMixed" onclick="setMode('mixed')">🎲 Mixed</div>
+        </div>
+        
+        <div class="input-group">
+            <label>Target Country</label>
+            <select id="countrySelect" onchange="updateCountryDefaults()">
+                <option value="1">USA (+1)</option>
+                <option value="44">UK (+44)</option>
+                <option value="234" selected>Nigeria (+234)</option>
+                <option value="27">South Africa (+27)</option>
+                <option value="254">Kenya (+254)</option>
+                <option value="233">Ghana (+233)</option>
+            </select>
+        </div>
+
         <div class="input-row">
             <div class="input-group">
-                <label>Country Code</label>
-                <input type="number" id="countryCode" placeholder="e.g. 234">
+                <label>Base Number</label>
+                <input type="number" id="baseNumber" placeholder="e.g. 8030000000">
             </div>
             <div class="input-group">
                 <label>Quantity</label>
@@ -136,13 +172,8 @@
         </div>
 
         <div class="input-group">
-            <label>Base Phone Number (Without Country Code)</label>
-            <input type="number" id="baseNumber" placeholder="e.g. 8030000000">
-        </div>
-
-        <div class="input-group">
             <label>Contact Niche / Tag</label>
-            <input type="text" id="nicheTag" placeholder="e.g. UK Job Lead">
+            <input type="text" id="nicheTag" placeholder="e.g. ProBet Lead">
         </div>
 
         <button class="btn-generate" onclick="generateNumbers()">1. Generate Contacts</button>
@@ -156,36 +187,87 @@
     </div>
 
     <script>
+        let currentMode = 'targeted';
         let generatedContacts = [];
 
+        // Global Prefix Database for Mixed Randomization
+        const countryDB = {
+            "1": { length: 7, prefixes: ["212", "310", "305", "512", "415", "718", "702", "312", "404", "206"] },
+            "44": { length: 8, prefixes: ["73", "74", "75", "77", "78", "79"] },
+            "234": { length: 7, prefixes: ["803", "806", "813", "903", "703", "805", "807", "815", "905", "802", "808", "812", "902", "809", "817", "818", "909"] },
+            "27": { length: 7, prefixes: ["60", "61", "62", "63", "64", "71", "72", "73", "78", "79", "81", "82", "83", "84"] },
+            "254": { length: 7, prefixes: ["70", "71", "72", "74", "75", "76", "79", "11"] },
+            "233": { length: 7, prefixes: ["24", "25", "53", "54", "55", "59", "20", "50"] }
+        };
+
+        const defaultBases = {
+            "1": "2125550000", "44": "7700900000", "234": "8030000000", 
+            "27": "710000000", "254": "700000000", "233": "240000000"
+        };
+
+        function setMode(mode) {
+            currentMode = mode;
+            const baseInput = document.getElementById('baseNumber');
+            
+            if (mode === 'targeted') {
+                document.getElementById('btnTargeted').classList.add('active-targeted');
+                document.getElementById('btnMixed').classList.remove('active-mixed');
+                baseInput.disabled = false;
+                updateCountryDefaults();
+            } else {
+                document.getElementById('btnMixed').classList.add('active-mixed');
+                document.getElementById('btnTargeted').classList.remove('active-targeted');
+                baseInput.disabled = true;
+                baseInput.value = "AUTO-RANDOMIZING";
+            }
+        }
+
+        function updateCountryDefaults() {
+            if (currentMode === 'targeted') {
+                const code = document.getElementById('countrySelect').value;
+                document.getElementById('baseNumber').value = defaultBases[code];
+            }
+        }
+
         function generateNumbers() {
-            const countryCode = document.getElementById('countryCode').value.trim();
-            const baseNumber = parseInt(document.getElementById('baseNumber').value.trim());
+            const countryCode = document.getElementById('countrySelect').value;
             const quantity = parseInt(document.getElementById('quantity').value.trim());
             const nicheTag = document.getElementById('nicheTag').value.trim() || "Lead";
-
-            if (!countryCode || !baseNumber || !quantity) {
-                alert("Please fill in Country Code, Base Number, and Quantity.");
-                return;
-            }
+            
+            if (!quantity) return alert("Please enter a quantity.");
 
             generatedContacts = [];
             let previewText = "";
+            const db = countryDB[countryCode];
 
-            for (let i = 0; i < quantity; i++) {
-                const currentNum = baseNumber + i;
-                const fullNumber = `+${countryCode}${currentNum}`;
-                const contactName = `${nicheTag} ${i + 1}`;
+            if (currentMode === 'targeted') {
+                const baseVal = document.getElementById('baseNumber').value.trim();
+                if (!baseVal || isNaN(baseVal)) return alert("Please enter a valid numeric Base Number for Targeted mode.");
+                const baseNumber = parseInt(baseVal);
                 
-                generatedContacts.push({ name: contactName, phone: fullNumber, rawPhone: `${countryCode}${currentNum}` });
-                
-                if (i < 10) {
-                    previewText += `${contactName}: ${fullNumber}\n`;
+                for (let i = 0; i < quantity; i++) {
+                    const currentNum = baseNumber + i;
+                    const fullNumber = `+${countryCode}${currentNum}`;
+                    const rawPhone = `${countryCode}${currentNum}`;
+                    generatedContacts.push({ name: `${nicheTag} ${i + 1}`, phone: fullNumber, rawPhone: rawPhone });
+                    if (i < 10) previewText += `${nicheTag} ${i + 1}: ${fullNumber}\n`;
+                }
+            } else {
+                // MIXED MODE LOGIC
+                for (let i = 0; i < quantity; i++) {
+                    const randomPrefix = db.prefixes[Math.floor(Math.random() * db.prefixes.length)];
+                    const randomSuffix = Math.floor(Math.random() * Math.pow(10, db.length)).toString().padStart(db.length, '0');
+                    const localNum = `${randomPrefix}${randomSuffix}`;
+                    const fullNumber = `+${countryCode}${localNum}`;
+                    const rawPhone = `${countryCode}${localNum}`;
+                    
+                    generatedContacts.push({ name: `${nicheTag} ${i + 1}`, phone: fullNumber, rawPhone: rawPhone });
+                    if (i < 10) previewText += `${nicheTag} ${i + 1}: ${fullNumber}\n`;
                 }
             }
 
             document.getElementById('previewBox').style.display = "block";
-            document.getElementById('previewBox').value = `Generated ${quantity} numbers.\n\nPreview (First 10):\n${previewText}`;
+            document.getElementById('previewBox').value = `Generated ${quantity} numbers in ${currentMode.toUpperCase()} mode.\n\nPreview (First 10):\n${previewText}`;
             
             document.getElementById('downloadBtn').style.display = "block";
             document.getElementById('testBtn').style.display = "block";
@@ -197,7 +279,8 @@
 
             let vcfContent = '';
             generatedContacts.forEach(contact => {
-                vcfContent += `BEGIN:VCARD\nVERSION:3.0\nFN:${contact.name}\nTEL:${contact.phone}\nEND:VCARD\n`;
+                // Integrated waid=[Number] tag specifically for rapid WhatsApp Syncing
+                vcfContent += `BEGIN:VCARD\nVERSION:3.0\nFN:${contact.name}\nTEL;type=CELL;waid=${contact.rawPhone}:${contact.phone}\nEND:VCARD\n`;
             });
 
             const blob = new Blob([vcfContent], { type: 'text/vcard' });
@@ -206,7 +289,7 @@
             const nicheTag = document.getElementById('nicheTag').value.trim() || "Leads";
             
             a.href = url;
-            a.download = `${nicheTag}_${generatedContacts.length}.vcf`;
+            a.download = `${nicheTag}_${currentMode.toUpperCase()}_${generatedContacts.length}.vcf`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -215,21 +298,20 @@
 
         function showTestLinks() {
             if (generatedContacts.length === 0) return;
-            
             const container = document.getElementById('testLinksContainer');
             container.innerHTML = '<label>Test Random Links (Checks if active on WhatsApp)</label>';
             
-            // Grab 5 random numbers from the generated list to test
             for(let i = 0; i < 5; i++) {
                 const randomIndex = Math.floor(Math.random() * generatedContacts.length);
                 const contact = generatedContacts[randomIndex];
                 const waLink = `https://wa.me/${contact.rawPhone}`;
-                
                 container.innerHTML += `<a href="${waLink}" target="_blank" class="test-link">🔗 Test: ${contact.name} (${contact.phone})</a>`;
             }
-            
             container.style.display = "block";
         }
+        
+        // Run on load to set defaults
+        updateCountryDefaults();
     </script>
 </body>
 </html>
