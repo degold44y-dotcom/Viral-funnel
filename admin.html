@@ -83,9 +83,18 @@
         <h2>Command Center</h2>
         
         <h3>🔗 System Links</h3>
-        <div class="input-group"><label>Lead Magnet (PDF Link)</label><input type="text" id="pdfLinkInput" placeholder="Link to free gift..."></div>
-        <div class="input-group"><label>WhatsApp Message Link</label><input type="text" id="viralLinkInput" placeholder="For locker sharing..."></div>
-        <div class="input-group"><label>Facebook/Capture Link</label><input type="text" id="fbLinkInput" placeholder="wa.me capture link..."></div>
+        <div class="input-group">
+            <label>1. Lead Magnet (PDF Link)</label>
+            <input type="text" id="pdfLinkInput" placeholder="Link to free gift...">
+        </div>
+        <div class="input-group">
+            <label>2. Locker Share Link (Landing Page URL)</label>
+            <input type="text" id="viralLinkInput" placeholder="e.g. your index.html link...">
+        </div>
+        <div class="input-group">
+            <label>3. Landing Page Button (WA.ME Link)</label>
+            <input type="text" id="fbLinkInput" placeholder="Your wa.me capture link...">
+        </div>
 
         <h3>📝 Landing Page Content</h3>
         <div class="input-group"><label>Main Headline</label><input type="text" id="mainTitleInput" placeholder="e.g. How to Relocate..."></div>
@@ -120,13 +129,12 @@
             statusMsg.style.color = "var(--neon-blue)";
             statusMsg.style.display = "block";
 
-            // Grab all inputs
             const dataToSave = {};
             const fields = ['pdfLink', 'viralLink', 'fbLink', 'mainTitle', 'bookTitle', 'bookSub', 'feat1', 'feat2', 'feat3'];
             
             fields.forEach(field => {
                 const val = document.getElementById(field + 'Input').value;
-                if (val) dataToSave[field] = val; // Only save fields that aren't empty
+                if (val) dataToSave[field] = val; 
             });
 
             try {
@@ -134,7 +142,6 @@
                 statusMsg.textContent = "✅ Live Funnel Successfully Updated!";
                 statusMsg.style.color = "var(--neon-green)";
                 
-                // Clear text boxes after successful save
                 fields.forEach(field => document.getElementById(field + 'Input').value = '');
                 setTimeout(() => { statusMsg.style.display = "none"; }, 4000);
             } catch (error) {
