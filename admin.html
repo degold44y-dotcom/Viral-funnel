@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Funnel Admin Command Center</title>
+    <title>LeadSprint - Command Center</title>
     <style>
         :root {
-            --bg-color: #121418;
-            --panel-bg: #1a1d24;
+            --bg-color: #0b0d10;
+            --panel-bg: #15181e;
+            --card-bg: #1c2028;
             --neon-blue: #00e5ff;
-            --neon-green: #00ff66;
+            --neon-purple: #b52aff;
             --text-main: #ffffff;
-            --shadow-light: #242830;
-            --shadow-dark: #101216;
+            --text-muted: #8a99a8;
         }
         body {
             background-color: var(--bg-color);
@@ -25,139 +25,147 @@
             margin: 0;
             padding: 20px;
         }
-        .dashboard-3d {
+        .dashboard-ui {
             background-color: var(--panel-bg);
-            border-radius: 20px;
-            padding: 40px 30px;
+            border-radius: 24px;
+            padding: 30px;
             width: 100%;
-            max-width: 450px;
-            box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+            max-width: 480px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        h2, h3 {
+        h2 {
             text-align: center;
-            color: var(--neon-blue);
-            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 0;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 20px;
+            font-weight: 800;
         }
-        h3 { font-size: 16px; margin-top: 30px; color: #8a99a8; text-transform: uppercase; letter-spacing: 1px;}
-        
-        .input-group { margin-bottom: 15px; }
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
         label {
             display: block;
-            margin-bottom: 5px;
-            font-size: 12px;
-            color: #8a99a8;
+            margin-bottom: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
             text-transform: uppercase;
+            font-weight: bold;
         }
-        input {
+        input, textarea {
             width: 100%;
-            padding: 12px;
-            background-color: var(--panel-bg);
-            border: none;
-            border-radius: 8px;
+            padding: 14px 12px;
+            background-color: #0b0d10;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
             color: var(--text-main);
             font-size: 14px;
             box-sizing: border-box;
-            box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
+            margin-bottom: 15px;
+            transition: 0.2s;
         }
-        input:focus { outline: none; box-shadow: inset 2px 2px 5px var(--shadow-dark), 0 0 10px rgba(0, 229, 255, 0.2); }
+        textarea { height: 80px; resize: none; }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+        }
         button {
             width: 100%;
             padding: 16px;
-            margin-top: 20px;
-            background-color: var(--panel-bg);
-            color: var(--neon-green);
-            border: 1px solid var(--neon-green);
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             text-transform: uppercase;
             cursor: pointer;
-            box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+            transition: 0.2s;
+            border: none;
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0,229,255,0.3);
         }
-        button:active { box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light); }
-        #status-msg { text-align: center; margin-top: 20px; font-size: 14px; display: none; }
+        button:active { transform: scale(0.98); }
+        .toast {
+            display: none;
+            text-align: center;
+            color: #00ff66;
+            font-size: 13px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <div class="dashboard-3d">
-        <h2>Command Center</h2>
+
+    <div class="dashboard-ui">
+        <h2>System Command Center</h2>
         
-        <h3>🔗 System Links</h3>
-        <div class="input-group">
-            <label>1. Lead Magnet (Reward Link)</label>
-            <input type="text" id="pdfLinkInput" placeholder="Link to free gift, video, or PDF...">
-        </div>
-        <div class="input-group">
-            <label>2. Locker Share Link (Landing Page URL)</label>
-            <input type="text" id="viralLinkInput" placeholder="e.g. your index.html link...">
-        </div>
-        <div class="input-group">
-            <label>3. Landing Page Button (WA.ME Link)</label>
-            <input type="text" id="fbLinkInput" placeholder="Your wa.me capture link...">
+        <div class="card">
+            <label>1. Selar / PDF Reward Link</label>
+            <input type="url" id="rewardLink" placeholder="https://selar.co/your-product">
+
+            <label>2. Required Shares to Unlock</label>
+            <input type="number" id="requiredShares" placeholder="e.g., 5">
+
+            <label>3. Locker Page Instructions</label>
+            <textarea id="lockerDescription" placeholder="Tap the share buttons below to unlock your reward..."></textarea>
         </div>
 
-        <h3>📝 Landing Page Content</h3>
-        <div class="input-group"><label>Main Headline</label><input type="text" id="mainTitleInput" placeholder="e.g. How to Relocate..."></div>
-        <div class="input-group"><label>3D Book Title</label><input type="text" id="bookTitleInput" placeholder="e.g. UK Jobs Blueprint"></div>
-        <div class="input-group"><label>3D Book Subtitle</label><input type="text" id="bookSubInput" placeholder="e.g. No Degree Required"></div>
-        <div class="input-group"><label>Bullet Point 1</label><input type="text" id="feat1Input" placeholder="Benefit 1..."></div>
-        <div class="input-group"><label>Bullet Point 2</label><input type="text" id="feat2Input" placeholder="Benefit 2..."></div>
-        <div class="input-group"><label>Bullet Point 3</label><input type="text" id="feat3Input" placeholder="Benefit 3..."></div>
-
-        <h3>🔒 Locker Page Content</h3>
-        <div class="input-group"><label>Locker Headline</label><input type="text" id="lockerTitleInput" placeholder="e.g. Unlock Your Free Gift"></div>
-        <div class="input-group"><label>Locker Page Description</label><input type="text" id="lockerDescInput" placeholder="e.g. Complete the steps below to unlock..."></div>
-        <div class="input-group"><label>WhatsApp Share Message</label><input type="text" id="shareMessageInput" placeholder="e.g. I just found this amazing guide! Get it here:"></div>
-        <div class="input-group"><label>Final Button Text</label><input type="text" id="lockerBtnInput" placeholder="e.g. Access Now..."></div>
-
-        <button onclick="updateFunnel()">Update Live Funnel</button>
-        <p id="status-msg">✅ Funnel Successfully Updated!</p>
+        <button onclick="saveSettings()">Save & Update Live Funnel</button>
+        <div class="toast" id="successMsg">✅ Live Funnel Updated Successfully!</div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+    <script>
+        // EXACT FIREBASE CONFIGURATION INJECTED HERE:
         const firebaseConfig = {
-          apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
-          authDomain: "probet-syndicate.firebaseapp.com",
-          projectId: "probet-syndicate",
-          storageBucket: "probet-syndicate.firebasestorage.app",
-          messagingSenderId: "418866597682",
-          appId: "1:418866597682:web:847007dbaf3c40452d912b"
+            apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
+            authDomain: "probet-syndicate.firebaseapp.com",
+            databaseURL: "https://probet-syndicate-default-rtdb.firebaseio.com",
+            projectId: "probet-syndicate",
+            storageBucket: "probet-syndicate.firebasestorage.app",
+            messagingSenderId: "418866597682",
+            appId: "1:418866597682:web:847007dbaf3c40452d912b"
         };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        window.updateFunnel = async function() {
-            const statusMsg = document.getElementById('status-msg');
-            statusMsg.textContent = "⏳ Updating database...";
-            statusMsg.style.color = "var(--neon-blue)";
-            statusMsg.style.display = "block";
+        // Load existing settings when page opens
+        db.ref('settings').once('value').then((snapshot) => {
+            const data = snapshot.val() || {};
+            document.getElementById('rewardLink').value = data.rewardLink || '';
+            document.getElementById('requiredShares').value = data.requiredShares || 5;
+            document.getElementById('lockerDescription').value = data.lockerDescription || 'Tap the buttons below to share 5 times to unlock your reward.';
+        });
 
-            const dataToSave = {};
-            const fields = [
-                'pdfLink', 'viralLink', 'fbLink', 'mainTitle', 'bookTitle', 'bookSub', 
-                'feat1', 'feat2', 'feat3', 'lockerTitle', 'lockerDesc', 'shareMessage', 'lockerBtn'
-            ];
+        // Save new settings
+        function saveSettings() {
+            const btn = document.querySelector('button');
+            btn.innerText = "Saving...";
             
-            fields.forEach(field => {
-                const val = document.getElementById(field + 'Input').value;
-                if (val) dataToSave[field] = val; 
+            db.ref('settings').update({
+                rewardLink: document.getElementById('rewardLink').value,
+                requiredShares: parseInt(document.getElementById('requiredShares').value) || 5,
+                lockerDescription: document.getElementById('lockerDescription').value
+            }).then(() => {
+                btn.innerText = "Save & Update Live Funnel";
+                const toast = document.getElementById('successMsg');
+                toast.style.display = 'block';
+                setTimeout(() => toast.style.display = 'none', 3000);
             });
-
-            try {
-                await setDoc(doc(db, "funnel", "content"), dataToSave, { merge: true });
-                statusMsg.textContent = "✅ Live Funnel Successfully Updated!";
-                statusMsg.style.color = "var(--neon-green)";
-                
-                fields.forEach(field => document.getElementById(field + 'Input').value = '');
-                setTimeout(() => { statusMsg.style.display = "none"; }, 4000);
-            } catch (error) {
-                statusMsg.textContent = "❌ Error connecting to database.";
-                statusMsg.style.color = "#ff3333";
-            }
-        };
+        }
     </script>
 </body>
 </html>
