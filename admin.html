@@ -30,7 +30,7 @@
             border-radius: 24px;
             padding: 30px;
             width: 100%;
-            max-width: 480px;
+            max-width: 500px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.05);
         }
@@ -52,7 +52,13 @@
             padding: 20px;
             margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.02);
+            max-height: 60vh;
+            overflow-y: auto;
         }
+        /* Custom Scrollbar for the card */
+        .card::-webkit-scrollbar { width: 6px; }
+        .card::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.3); border-radius: 10px; }
+        
         label {
             display: block;
             margin-bottom: 6px;
@@ -60,7 +66,9 @@
             color: var(--text-muted);
             text-transform: uppercase;
             font-weight: bold;
+            margin-top: 15px;
         }
+        label:first-child { margin-top: 0; }
         input, textarea {
             width: 100%;
             padding: 14px 12px;
@@ -70,10 +78,9 @@
             color: var(--text-main);
             font-size: 14px;
             box-sizing: border-box;
-            margin-bottom: 15px;
             transition: 0.2s;
         }
-        textarea { height: 80px; resize: none; }
+        textarea { height: 70px; resize: none; }
         input:focus, textarea:focus {
             outline: none;
             border-color: var(--neon-blue);
@@ -94,14 +101,7 @@
             box-shadow: 0 0 20px rgba(0,229,255,0.3);
         }
         button:active { transform: scale(0.98); }
-        .toast {
-            display: none;
-            text-align: center;
-            color: #00ff66;
-            font-size: 13px;
-            margin-top: 15px;
-            font-weight: bold;
-        }
+        .toast { display: none; text-align: center; color: #00ff66; font-size: 13px; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -110,14 +110,23 @@
         <h2>System Command Center</h2>
         
         <div class="card">
-            <label>1. Selar / PDF Reward Link</label>
-            <input type="url" id="rewardLink" placeholder="https://selar.co/your-product">
+            <label>1. Final Reward URL (Link to Gift)</label>
+            <input type="url" id="rewardLink" placeholder="https://your-website.com/your-free-gift">
 
             <label>2. Required Shares to Unlock</label>
             <input type="number" id="requiredShares" placeholder="e.g., 5">
 
-            <label>3. Locker Page Instructions</label>
+            <label>3. Locker Headline</label>
+            <input type="text" id="lockerHeadline" placeholder="🎁 Claim Your Reward">
+
+            <label>4. Locker Instructions</label>
             <textarea id="lockerDescription" placeholder="Tap the share buttons below to unlock your reward..."></textarea>
+
+            <label>5. Viral Share Message (WhatsApp Text)</label>
+            <textarea id="viralMessage" placeholder="Check out this amazing platform I just found!"></textarea>
+            
+            <label>6. Success Message (Shows at 100%)</label>
+            <input type="text" id="successMessage" placeholder="✅ Verification complete! Click below to access.">
         </div>
 
         <button onclick="saveSettings()">Save & Update Live Funnel</button>
@@ -129,7 +138,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // EXACT FIREBASE CONFIGURATION INJECTED HERE:
         const firebaseConfig = {
             apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
             authDomain: "probet-syndicate.firebaseapp.com",
@@ -142,15 +150,18 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Load existing settings when page opens
+        // Load existing settings
         db.ref('settings').once('value').then((snapshot) => {
             const data = snapshot.val() || {};
             document.getElementById('rewardLink').value = data.rewardLink || '';
             document.getElementById('requiredShares').value = data.requiredShares || 5;
+            document.getElementById('lockerHeadline').value = data.lockerHeadline || '🎁 Claim Your Reward';
             document.getElementById('lockerDescription').value = data.lockerDescription || 'Tap the buttons below to share 5 times to unlock your reward.';
+            document.getElementById('viralMessage').value = data.viralMessage || 'Check out this amazing platform I just found!';
+            document.getElementById('successMessage').value = data.successMessage || '✅ Verification complete! Click below to access.';
         });
 
-        // Save new settings
+        // Save settings to database
         function saveSettings() {
             const btn = document.querySelector('button');
             btn.innerText = "Saving...";
@@ -158,7 +169,10 @@
             db.ref('settings').update({
                 rewardLink: document.getElementById('rewardLink').value,
                 requiredShares: parseInt(document.getElementById('requiredShares').value) || 5,
-                lockerDescription: document.getElementById('lockerDescription').value
+                lockerHeadline: document.getElementById('lockerHeadline').value,
+                lockerDescription: document.getElementById('lockerDescription').value,
+                viralMessage: document.getElementById('viralMessage').value,
+                successMessage: document.getElementById('successMessage').value
             }).then(() => {
                 btn.innerText = "Save & Update Live Funnel";
                 const toast = document.getElementById('successMsg');
