@@ -115,9 +115,7 @@
     </div>
 
     <script>
-        // Temporary placeholders while Firebase loads
-        window.viralLink = encodeURIComponent("https://degold44y-dotcom.github.io/Viral-funnel/");
-        window.fbLink = ""; 
+        window.viralLink = encodeURIComponent("https://degold44y-dotcom.github.io/Viral-funnel/index.html");
         window.rewardLink = "#"; 
 
         let progress = 0;
@@ -145,8 +143,8 @@
         }
 
         function shareFacebook() {
-            const shareUrl = window.fbLink || window.viralLink;
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank');
+            // Now shares exactly what Box 2 has (your landing page)
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.viralLink}`, '_blank');
             setTimeout(updateProgress, 2000);
         }
 
@@ -159,7 +157,6 @@
         }
     </script>
 
-    <!-- Firebase Reader Script -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -178,17 +175,12 @@
 
         async function loadDynamicLinks() {
             try {
-                // Now matches the new "content" database folder
                 const docSnap = await getDoc(doc(db, "funnel", "content"));
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     
-                    // Now matches the new names from your upgraded admin panel
                     if (data.viralLink) {
                         window.viralLink = encodeURIComponent(data.viralLink);
-                    }
-                    if (data.fbLink) {
-                        window.fbLink = encodeURIComponent(data.fbLink);
                     }
                     if (data.pdfLink) {
                         window.rewardLink = data.pdfLink;
