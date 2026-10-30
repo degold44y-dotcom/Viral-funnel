@@ -104,6 +104,10 @@
         <div class="input-group"><label>Bullet Point 2</label><input type="text" id="feat2Input" placeholder="Benefit 2..."></div>
         <div class="input-group"><label>Bullet Point 3</label><input type="text" id="feat3Input" placeholder="Benefit 3..."></div>
 
+        <h3>🔒 Locker Page Content</h3>
+        <div class="input-group"><label>Locker Page Description</label><input type="text" id="lockerDescInput" placeholder="e.g. Complete the steps below to unlock..."></div>
+        <div class="input-group"><label>WhatsApp Share Message</label><input type="text" id="shareMessageInput" placeholder="e.g. I just found this amazing guide! Get it here:"></div>
+
         <button onclick="updateFunnel()">Update Live Funnel</button>
         <p id="status-msg">✅ Funnel Successfully Updated!</p>
     </div>
@@ -130,7 +134,8 @@
             statusMsg.style.display = "block";
 
             const dataToSave = {};
-            const fields = ['pdfLink', 'viralLink', 'fbLink', 'mainTitle', 'bookTitle', 'bookSub', 'feat1', 'feat2', 'feat3'];
+            // Added the new locker fields to the save list
+            const fields = ['pdfLink', 'viralLink', 'fbLink', 'mainTitle', 'bookTitle', 'bookSub', 'feat1', 'feat2', 'feat3', 'lockerDesc', 'shareMessage'];
             
             fields.forEach(field => {
                 const val = document.getElementById(field + 'Input').value;
