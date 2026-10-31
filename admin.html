@@ -84,15 +84,15 @@
             <div class="status-msg" id="otcStatus">✔️ OTC Settings saved successfully!</div>
         </div>
 
-        <!-- CONTENT LOCKER CONTROL CARD -->
+        <!-- CONTENT LOCKER RESTORED CONTROL CARD -->
         <div class="card">
-            <div class="card-title">🔒 Content Locker Settings</div>
+            <div class="card-title">🎁 Content Locker Settings</div>
             
-            <label>Locker Target URL / Redirect Link</label>
-            <input type="text" id="lockerTargetUrl" placeholder="https://your-download-link.com">
+            <label>Reward Target URL / Final Link</label>
+            <input type="text" id="lockerTargetUrl" placeholder="https://your-reward-link.com">
 
-            <label>Locker Status Message / Requirements</label>
-            <input type="text" id="lockerMessage" placeholder="Complete task to unlock...">
+            <label>Instructions / Requirement Notice</label>
+            <input type="text" id="lockerMessage" placeholder="Upload screenshot of invited friends...">
 
             <button class="btn-save-locker" onclick="saveLockerSettings()">Save Locker Settings</button>
             <div class="status-msg" id="lockerStatus">✔️ Locker Settings saved successfully!</div>
@@ -102,7 +102,7 @@
             <a href="otc-scanner.html" target="_blank" style="color: var(--neon-blue); font-size: 11px; text-decoration: none; font-weight: bold;">
                 🔗 Open OTC App
             </a>
-            <a href="locker.html" target="_blank" style="color: var(--neon-purple); font-size: 11px; text-decoration: none; font-weight: bold;">
+            <a href="locker.html?v=8" target="_blank" style="color: var(--neon-purple); font-size: 11px; text-decoration: none; font-weight: bold;">
                 🔗 Open Locker App
             </a>
         </div>
@@ -125,7 +125,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Load both OTC and Locker settings on startup
+        // Load OTC settings on startup
         db.ref('adminSettings/otc').once('value').then((snapshot) => {
             const data = snapshot.val() || {};
             if (data.price) document.getElementById('otcPriceInput').value = data.price;
@@ -133,6 +133,7 @@
             if (data.paymentUrl) document.getElementById('otcPaymentLink').value = data.paymentUrl;
         });
 
+        // Load Content Locker settings on startup
         db.ref('adminSettings/locker').once('value').then((snapshot) => {
             const data = snapshot.val() || {};
             if (data.targetUrl) document.getElementById('lockerTargetUrl').value = data.targetUrl;
@@ -163,7 +164,7 @@
 
             db.ref('adminSettings/locker').set({
                 targetUrl: targetUrl || "#",
-                message: message || "Complete tasks to unlock"
+                message: message || "Please upload the screenshot of your invited friends here to get the free gift."
             }).then(() => {
                 const msg = document.getElementById('lockerStatus');
                 msg.style.display = 'block';
