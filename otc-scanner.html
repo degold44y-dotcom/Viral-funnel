@@ -124,7 +124,7 @@
                 <strong>INSTITUTIONAL TIMING REQUIRED:</strong><br><br>
                 1. Upload chart exactly at the <strong>8th minute</strong> of the block.<br>
                 2. Wait for structural matrix analysis.<br>
-                3. Execute strictly at the configured execution second.
+                3. Execute strictly at the configured execution time.
             </div>
             
             <div id="uploadContainer">
@@ -217,6 +217,7 @@
         
         let dynamicVIPKey = "PRO-OTC-777"; 
         let dynamicPaymentUrl = "https://selar.com";
+        let dynamicExecMinute = 9;
         let dynamicExecSecond = 57;
 
         // Unique browser/device fingerprinting to prevent code sharing
@@ -254,6 +255,9 @@
             }
             if (data.price) {
                 document.getElementById('priceDisplay').innerText = data.price;
+            }
+            if (data.execMinute !== undefined) {
+                dynamicExecMinute = parseInt(data.execMinute);
             }
             if (data.execSecond !== undefined) {
                 dynamicExecSecond = parseInt(data.execSecond);
@@ -296,7 +300,6 @@
             const inputKey = document.getElementById('licenseKey').value.trim();
             
             if (inputKey === dynamicVIPKey) {
-                // YOUR LIFETIME ADMIN CODE
                 isVIP = true;
                 localStorage.setItem('ls_is_vip', 'true');
                 localStorage.setItem('ls_sub_type', 'Lifetime Admin');
@@ -306,7 +309,6 @@
                 updateCreditsDisplay();
                 alert("Master Lifetime Admin Access Unlocked!");
             } else if (inputKey.startsWith("SUB-")) {
-                // SUBSCRIBER CODE VERIFICATION
                 let safeCodeKey = inputKey.replace(/[.$#[\]/]/g, "_");
                 
                 db.ref('activeSubscribers/' + safeCodeKey).once('value').then((snapshot) => {
@@ -314,14 +316,14 @@
                     const now = Date.now();
 
                     if (subData) {
-                        // Check Fingerprint to stop code sharing
+                        // Check Fingerprint
                         if (subData.deviceToken !== userDeviceToken && subData.expiry > now) {
                             alert("❌ Security Error: This access code is already locked and active on another device!");
                             return;
                         }
                     }
 
-                    let durationMs = 24 * 60 * 60 * 1000; // 24h default
+                    let durationMs = 24 * 60 * 60 * 1000; 
                     let subName = "24-Hour Access";
                     
                     if(inputKey.includes("7D")) { durationMs = 7 * 24 * 3600 * 1000; subName = "7 Days Access"; }
@@ -386,7 +388,7 @@
         setInterval(() => {
             document.getElementById('liveClock').innerText = new Date().toLocaleTimeString();
             if(isVIP) { checkExpiration(); updateCreditsDisplay(); }
-        }, 60000); // Check expiry every minute
+        }, 60000); 
 
         function previewImage(event) {
             const input = event.target;
@@ -406,28 +408,37 @@
             }
         }
 
-        // STRICT IMAGE VALIDATION: Rejects non-chart pictures & prevents random selfies
-        function isValidChartImage(imgElement) {
+        // ISLAND / ENTROPY METHOD: Aggressively filters out selfies & random photos
+        function isStrictChartImage(imgElement) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = 50; // Use small sampling for pixel check
-            canvas.height = 50;
-            ctx.drawImage(imgElement, 0, 0, 50, 50);
+            canvas.width = 100; // Scan 10,000 pixels
+            canvas.height = 100;
+            ctx.drawImage(imgElement, 0, 0, 100, 100);
             
-            const data = ctx.getImageData(0, 0, 50, 50).data;
-            let colorMap = {};
-            let dominantCount = 0;
+            const data = ctx.getImageData(0, 0, 100, 100).data;
+            let colorBins = new Set();
+            let domColors = {};
+            let maxCount = 0;
 
             for (let i = 0; i < data.length; i += 4) {
+                // Group colors into rough bins to ignore minor shading
                 let r = Math.floor(data[i] / 32);
                 let g = Math.floor(data[i+1] / 32);
                 let b = Math.floor(data[i+2] / 32);
-                let key = r + "," + g + "," + b;
-                colorMap[key] = (colorMap[key] || 0) + 1;
-                if (colorMap[key] > dominantCount) dominantCount = colorMap[key];
+                let key = `${r},${g},${b}`;
+                
+                colorBins.add(key);
+                domColors[key] = (domColors[key] || 0) + 1;
+                if (domColors[key] > maxCount) maxCount = domColors[key];
             }
-            // Financial charts have high background uniformity compared to selfies/scenery
-            return dominantCount >= 800; // Require high uniform background concentration
+            
+            // Island Logic: Real charts have massive "islands" of a single background color.
+            // Entropy Logic: Selfies/random photos have massive color variance (hundreds of bins).
+            let hasSolidBackground = (maxCount >= 3000); // At least 30% of image must be one solid color
+            let isLowEntropy = (colorBins.size < 180);   // Image cannot have too many wild colors
+
+            return (hasSolidBackground && isLowEntropy);
         }
 
         function attemptScan() {
@@ -442,17 +453,17 @@
             const file = input.files[0];
             const previewImg = document.getElementById('imagePreview');
             
-            // STRICT FILE AGE CHECK: Block old files
+            // 1. STRICT AGE CHECK (Rejects old screenshots)
             const fileAgeMs = Date.now() - file.lastModified;
             if (fileAgeMs > 120000) { // Reject if older than 2 minutes
-                document.getElementById('warningMessage').innerHTML = `⚠️ OUTDATED CHART DETECTED.<br>File metadata shows this screenshot is older than 2 minutes. Take a LIVE screenshot.`;
+                document.getElementById('warningMessage').innerHTML = `⚠️ OUTDATED FILE DETECTED.<br>File metadata shows this screenshot is older than 2 minutes. You must take a LIVE screenshot right now.`;
                 document.getElementById('warningArea').style.display = 'block';
                 return;
             }
 
-            // STRICT PIXEL CHECK: Block selfies and random photos
-            if (!isValidChartImage(previewImg)) {
-                document.getElementById('warningMessage').innerHTML = `⚠️ INVALID IMAGE DETECTED.<br>No trading chart structure found. Only real market charts are allowed. Upload rejected.`;
+            // 2. STRICT ISLAND/ENTROPY CHECK (Rejects selfies & random photos)
+            if (!isStrictChartImage(previewImg)) {
+                document.getElementById('warningMessage').innerHTML = `⚠️ INVALID IMAGE (SECURITY FLAG).<br>No valid financial chart background structure found. Selfies, graphics, or unrelated photos are strictly blocked.`;
                 document.getElementById('warningArea').style.display = 'block';
                 return;
             }
@@ -476,14 +487,15 @@
                 return;
             }
 
+            // DYNAMIC EXECUTION MINUTES & SECONDS
             let execTime = new Date(now); 
-            execTime.setMinutes(baseMin + 9); 
+            execTime.setMinutes(baseMin + dynamicExecMinute); 
             execTime.setSeconds(dynamicExecSecond);
             
             let executionText = `
                 <div style="text-transform: uppercase; font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">Execution Protocol:</div>
                 <span style="color:var(--neon-blue); font-size:24px; display:block; margin-bottom: 5px;">${execTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}</span>
-                <span style="color: #fff;">EXACTLY 9 MIN ${dynamicExecSecond} SEC | 3-SEC EXPIRY</span>
+                <span style="color: #fff;">EXACTLY ${dynamicExecMinute} MIN ${dynamicExecSecond} SEC | 3-SEC EXPIRY</span>
             `;
 
             if (!isVIP) {
@@ -497,9 +509,9 @@
             document.getElementById('processingArea').style.display = 'block';
 
             const statusText = document.getElementById('statusText');
-            setTimeout(() => { statusText.innerText = "Extracting Metadata & Time Signatures..."; }, 1000);
-            setTimeout(() => { statusText.innerText = "Scanning Algorithmic Order Blocks..."; }, 2500);
-            setTimeout(() => { statusText.innerText = "Calculating OTC Trend Probability..."; }, 4000);
+            setTimeout(() => { statusText.innerText = "Scanning strict pixel entropy..."; }, 1000);
+            setTimeout(() => { statusText.innerText = "Extracting Order Blocks..."; }, 2500);
+            setTimeout(() => { statusText.innerText = "Calculating OTC Trend..."; }, 4000);
 
             setTimeout(() => {
                 document.getElementById('processingArea').style.display = 'none';
@@ -516,7 +528,7 @@
                 if (randomSeed < 15) {
                     dirElement.innerHTML = "⚠️ NO TRADE<br><span style='font-size: 14px; color: var(--text-muted);'>CONSOLIDATION DETECTED</span>";
                     dirElement.style.color = "var(--neon-yellow)";
-                    execElement.innerHTML = "<span style='color: var(--neon-red);'>Market conditions unstable. Do not execute. Wait for next 10-minute block.</span>";
+                    execElement.innerHTML = "<span style='color: var(--neon-red);'>Market conditions unstable. Wait for next block.</span>";
                     execElement.style.borderLeft = "4px solid var(--neon-red)";
                 } else if (randomSeed < 57) {
                     dirElement.innerText = "🟢 CALL (UP)";
