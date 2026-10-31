@@ -49,6 +49,8 @@
             width: 100%; padding: 12px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1);
             border-radius: 8px; color: #fff; font-size: 13px; box-sizing: border-box; margin-bottom: 12px;
         }
+        .time-row { display: flex; gap: 10px; }
+        .time-row div { flex: 1; }
         button {
             width: 100%; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: bold;
             text-transform: uppercase; cursor: pointer; border: none; transition: 0.2s; background: var(--neon-gold); color: #000; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
@@ -75,20 +77,22 @@
             <label>Payment Gateway URL</label>
             <input type="text" id="otcPaymentLink" placeholder="https://your-payment-link.com">
 
-            <label>Execution Second (e.g. 57 for 9m 57s)</label>
-            <input type="number" id="otcExecSecond" placeholder="57">
+            <div class="time-row">
+                <div>
+                    <label>Exec. Minute (e.g. 9)</label>
+                    <input type="number" id="otcExecMinute" placeholder="9">
+                </div>
+                <div>
+                    <label>Exec. Second (e.g. 57)</label>
+                    <input type="number" id="otcExecSecond" placeholder="57">
+                </div>
+            </div>
 
             <label>Free Scan Limit Before Paywall</label>
             <input type="number" id="otcMaxScans" placeholder="5">
 
             <button onclick="saveOTCSettings()">Save OTC Settings</button>
             <div class="status-msg" id="otcStatus">✔️ OTC Settings saved successfully!</div>
-        </div>
-
-        <div style="text-align: center; margin-top: 10px;">
-            <a href="otc-scanner.html?v=v5" target="_blank" style="color: var(--neon-blue); font-size: 11px; text-decoration: none; font-weight: bold;">
-                🔗 Open Live OTC App
-            </a>
         </div>
     </div>
 
@@ -109,12 +113,12 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Load OTC settings on startup
         db.ref('adminSettings/otc').once('value').then((snapshot) => {
             const data = snapshot.val() || {};
             if (data.price) document.getElementById('otcPriceInput').value = data.price;
             if (data.vipKey) document.getElementById('otcKeyInput').value = data.vipKey;
             if (data.paymentUrl) document.getElementById('otcPaymentLink').value = data.paymentUrl;
+            if (data.execMinute !== undefined) document.getElementById('otcExecMinute').value = data.execMinute;
             if (data.execSecond !== undefined) document.getElementById('otcExecSecond').value = data.execSecond;
             if (data.maxScans !== undefined) document.getElementById('otcMaxScans').value = data.maxScans;
         });
@@ -123,6 +127,7 @@
             const price = document.getElementById('otcPriceInput').value.trim();
             const vipKey = document.getElementById('otcKeyInput').value.trim();
             const paymentUrl = document.getElementById('otcPaymentLink').value.trim();
+            const execMinute = document.getElementById('otcExecMinute').value.trim();
             const execSecond = document.getElementById('otcExecSecond').value.trim();
             const maxScans = document.getElementById('otcMaxScans').value.trim();
 
@@ -130,6 +135,7 @@
                 price: price || "$2.00",
                 vipKey: vipKey || "PRO-OTC-777",
                 paymentUrl: paymentUrl || "https://selar.com",
+                execMinute: execMinute !== "" ? parseInt(execMinute) : 9,
                 execSecond: execSecond !== "" ? parseInt(execSecond) : 57,
                 maxScans: maxScans !== "" ? parseInt(maxScans) : 5
             }).then(() => {
