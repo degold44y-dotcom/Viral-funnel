@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Locker Admin Hub</title>
+    <style>
+        :root {
+            --bg-color: #0b0d10;
+            --panel-bg: #15181e;
+            --card-bg: #1c2028;
+            --neon-purple: #b52aff;
+            --neon-green: #00ff66;
+            --text-main: #ffffff;
+            --text-muted: #8a99a8;
+        }
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 20px;
+        }
+        .dashboard-ui {
+            background-color: var(--panel-bg); border-radius: 24px; padding: 30px;
+            width: 100%; max-width: 480px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05); text-align: left;
+        }
+        h2 {
+            margin-top: 0; margin-bottom: 5px; text-transform: uppercase;
+            letter-spacing: 2px; font-size: 20px; font-weight: 900; color: var(--neon-purple);
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 25px; font-weight: bold; text-align: center;
+        }
+        .card {
+            background: var(--card-bg); border-radius: 16px; padding: 20px;
+            border: 1px solid rgba(255,255,255,0.02); box-shadow: 0 4px 6px rgba(0,0,0,0.2); margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 13px; font-weight: bold; color: var(--neon-purple); text-transform: uppercase;
+            margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;
+        }
+        label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 6px; }
+        input[type="text"] {
+            width: 100%; padding: 12px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: #fff; font-size: 13px; box-sizing: border-box; margin-bottom: 12px;
+        }
+        button {
+            width: 100%; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; border: none; transition: 0.2s; background: var(--neon-purple); color: #fff; box-shadow: 0 0 15px rgba(181, 42, 255, 0.3);
+        }
+        button:active { transform: scale(0.98); }
+        .status-msg { font-size: 11px; color: var(--neon-green); text-align: center; margin-top: 8px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-ui">
+        <h2>Locker Command Hub</h2>
+        <div class="subtitle">Content Locker Control</div>
+
+        <div class="card">
+            <div class="card-title">🎁 Content Locker Settings</div>
+            
+            <label>Locker Headline (Title)</label>
+            <input type="text" id="lockerHeadline" placeholder="🎁 Claim Your Reward">
+
+            <label>Description / Instructions</label>
+            <input type="text" id="lockerDescription" placeholder="Loading secure link...">
+
+            <label>Required Shares Count</label>
+            <input type="text" id="requiredShares" placeholder="5">
+
+            <label>Viral Share Message Text</label>
+            <input type="text" id="viralMessage" placeholder="Check out this amazing platform...">
+
+            <label>Success Message After Verification</label>
+            <input type="text" id="successMessage" placeholder="✅ Verification complete!">
+
+            <label>Final Reward Target URL</label>
+            <input type="text" id="rewardLink" placeholder="https://your-final-link.com">
+
+            <button onclick="saveLockerSettings()">Save Locker Settings</button>
+            <div class="status-msg" id="lockerStatus">✔️ Locker Settings saved successfully!</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 10px;">
+            <a href="locker.html?v=update" target="_blank" style="color: var(--neon-purple); font-size: 11px; text-decoration: none; font-weight: bold;">
+                🔗 Open Live Locker App
+            </a>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
+            authDomain: "probet-syndicate.firebaseapp.com",
+            databaseURL: "https://probet-syndicate-default-rtdb.firebaseio.com",
+            projectId: "probet-syndicate",
+            storageBucket: "probet-syndicate.firebasestorage.app",
+            messagingSenderId: "418866597682",
+            appId: "1:418866597682:web:847007dbaf3c40452d912b"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Load Content Locker settings on startup
+        db.ref('settings').once('value').then((snapshot) => {
+            const data = snapshot.val() || {};
+            if (data.requiredShares) document.getElementById('requiredShares').value = data.requiredShares;
+            if (data.rewardLink) document.getElementById('rewardLink').value = data.rewardLink;
+            if (data.lockerHeadline) document.getElementById('lockerHeadline').value = data.lockerHeadline;
+            if (data.lockerDescription) document.getElementById('lockerDescription').value = data.lockerDescription;
+            if (data.viralMessage) document.getElementById('viralMessage').value = data.viralMessage;
+            if (data.successMessage) document.getElementById('successMessage').value = data.successMessage;
+        });
+
+        function saveLockerSettings() {
+            const requiredShares = document.getElementById('requiredShares').value.trim();
+            const rewardLink = document.getElementById('rewardLink').value.trim();
+            const lockerHeadline = document.getElementById('lockerHeadline').value.trim();
+            const lockerDescription = document.getElementById('lockerDescription').value.trim();
+            const viralMessage = document.getElementById('viralMessage').value.trim();
+            const successMessage = document.getElementById('successMessage').value.trim();
+
+            db.ref('settings').update({
+                requiredShares: requiredShares ? parseInt(requiredShares) : 5,
+                rewardLink: rewardLink || "",
+                lockerHeadline: lockerHeadline || "🎁 Claim Your Reward",
+                lockerDescription: lockerDescription || "Loading secure link...",
+                viralMessage: viralMessage || "Check out this amazing platform I just found!",
+                successMessage: successMessage || "✅ Verification complete! Click below to access."
+            }).then(() => {
+                const msg = document.getElementById('lockerStatus');
+                msg.style.display = 'block';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            });
+        }
+    </script>
+</body>
+</html>
