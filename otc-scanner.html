@@ -46,7 +46,7 @@
         }
         .supported-markets {
             font-size: 11px; color: var(--neon-purple); font-weight: bold;
-            margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1.5px;
+            margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1.5px;
         }
 
         .card {
@@ -73,9 +73,10 @@
         .btn-scan { background: var(--neon-purple); color: #fff; box-shadow: 0 0 20px rgba(181, 42, 255, 0.3); }
         .btn-reset { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); margin-top: 10px; display: none; }
 
-        /* Paywall Modal */
-        #paywallArea { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 13, 16, 0.95); border-radius: 24px; z-index: 100; flex-direction: column; justify-content: center; align-items: center; padding: 30px; box-sizing: border-box; backdrop-filter: blur(5px); }
-        .paywall-box { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid var(--neon-gold); width: 100%; box-shadow: 0 0 30px rgba(255, 215, 0, 0.15); }
+        /* Disclaimer & Paywall Modals */
+        .modal-overlay { display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 13, 16, 0.97); border-radius: 24px; z-index: 100; flex-direction: column; justify-content: center; align-items: center; padding: 30px; box-sizing: border-box; backdrop-filter: blur(5px); }
+        .modal-box { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); width: 100%; box-shadow: 0 0 30px rgba(0,0,0,0.5); text-align: left; }
+        .paywall-box { border: 1px solid var(--neon-gold); box-shadow: 0 0 30px rgba(255, 215, 0, 0.15); text-align: center; }
         .key-input { width: 100%; padding: 14px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center; margin-bottom: 15px; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; box-sizing: border-box; }
         .btn-gold { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
 
@@ -147,16 +148,30 @@
             <button class="btn-reset" id="resetBtn" onclick="resetScanner()">Scan Next Candle</button>
         </div>
 
-        <div id="paywallArea">
-            <div class="paywall-box">
-                <h2 style="color: var(--neon-gold); font-size: 22px; margin-bottom: 10px;">Trial Expired</h2>
-                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">
+        <!-- 18+ & EDUCATIONAL DISCLAIMER MODAL -->
+        <div class="modal-overlay" id="disclaimerModal">
+            <div class="modal-box">
+                <h3 style="color: var(--neon-red); margin-top: 0; text-align: center; font-size: 18px;">⚠️ AGE & RISK WARNING</h3>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 15px;">
+                    • You must be **18 years or older** to use this platform.<br>
+                    • This software is strictly for **educational and analytical simulation purposes only**.<br>
+                    • We are **not responsible for any financial losses** incurred from live trading decisions. Financial markets carry high risk.
+                </p>
+                <button class="btn-scan" onclick="acceptDisclaimer()" style="margin-top: 0;">I Agree & Accept Risk</button>
+            </div>
+        </div>
+
+        <!-- PAYWALL OVERLAY -->
+        <div class="modal-overlay" id="paywallArea" style="display: none;">
+            <div class="modal-box paywall-box">
+                <h2 style="color: var(--neon-gold); font-size: 22px; margin-bottom: 10px; text-align: center;">Trial Expired</h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; text-align: center;">
                     You have used all 5 free scans. Upgrade to VIP for unlimited daily algorithmic signals.
                 </p>
                 <a href="https://selar.com" target="_blank" style="text-decoration: none;">
                     <button class="btn-scan" style="margin-bottom: 20px; background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);">Buy VIP License Key</button>
                 </a>
-                <p style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 8px;">Have a key?</p>
+                <p style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 8px; text-align: center;">Have a key?</p>
                 <input type="text" class="key-input" id="licenseKey" placeholder="Enter VIP Key">
                 <button class="btn-gold" onclick="verifyKey()" style="margin-top: 0;">Unlock App</button>
             </div>
@@ -168,10 +183,27 @@
         let maxScans = 5;
         let scansUsed = localStorage.getItem('ls_scans_used') ? parseInt(localStorage.getItem('ls_scans_used')) : 0;
         let isVIP = localStorage.getItem('ls_is_vip') === 'true';
+        let hasAcceptedDisclaimer = localStorage.getItem('ls_disclaimer_accepted') === 'true';
         const VIP_SECRET_KEY = "PRO-OTC-777"; 
 
         function initApp() {
+            if (!hasAcceptedDisclaimer) {
+                document.getElementById('disclaimerModal').style.display = 'flex';
+            } else {
+                document.getElementById('disclaimerModal').style.display = 'none';
+                checkPaywall();
+            }
             updateCreditsDisplay();
+        }
+
+        function acceptDisclaimer() {
+            hasAcceptedDisclaimer = true;
+            localStorage.setItem('ls_disclaimer_accepted', 'true');
+            document.getElementById('disclaimerModal').style.display = 'none';
+            checkPaywall();
+        }
+
+        function checkPaywall() {
             if (scansUsed >= maxScans && !isVIP) {
                 document.getElementById('paywallArea').style.display = 'flex';
             }
@@ -274,7 +306,6 @@
             const now = new Date();
             const currentMin = now.getMinutes();
             
-            // Extract exact file name for asset labeling
             let cleanAssetName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").toUpperCase();
             if (cleanAssetName.length > 18 || cleanAssetName.includes("SCREENSHOT") || cleanAssetName.includes("IMAGE")) {
                 cleanAssetName = "OTC MARKET ASSET"; 
@@ -303,7 +334,6 @@
                 <span style="color: #fff;">EXACTLY 9 MIN 57 SEC | 3-SEC EXPIRY</span>
             `;
 
-            // Proceed to Scan 
             if (!isVIP) {
                 scansUsed++;
                 localStorage.setItem('ls_scans_used', scansUsed);
@@ -324,7 +354,6 @@
                 document.getElementById('resultArea').style.display = 'block';
                 document.getElementById('resetBtn').style.display = 'block';
                 
-                // Explicitly show the scanned asset name alongside the signal
                 document.getElementById('signalAsset').innerText = "📊 " + cleanAssetName;
 
                 const randomSeed = (now.getMinutes() * 60 + now.getSeconds() + file.size) % 100;
