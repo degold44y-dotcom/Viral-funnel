@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master Admin | Unified Dashboard</title>
+    <title>Master Admin | Unified Command Hub</title>
     <style>
         :root {
             --bg-color: #0b0d10;
@@ -11,7 +11,6 @@
             --card-bg: #1c2028;
             --neon-blue: #00e5ff;
             --neon-green: #00ff66;
-            --neon-red: #ff3366;
             --neon-purple: #b52aff;
             --neon-gold: #ffd700;
             --text-main: #ffffff;
@@ -67,7 +66,7 @@
         <h2>Unified Command Hub</h2>
         <div class="subtitle">Content Locker & OTC Matrix Control</div>
 
-        <!-- OTC MATRIX CONTROL CARD -->
+        <!-- STRICT OTC MATRIX SETTINGS -->
         <div class="card">
             <div class="card-title">📊 Strict OTC Matrix Settings</div>
             
@@ -84,15 +83,27 @@
             <div class="status-msg" id="otcStatus">✔️ OTC Settings saved successfully!</div>
         </div>
 
-        <!-- CONTENT LOCKER RESTORED CONTROL CARD -->
+        <!-- CONTENT LOCKER SETTINGS -->
         <div class="card">
             <div class="card-title">🎁 Content Locker Settings</div>
             
-            <label>Reward Target URL / Final Link</label>
-            <input type="text" id="lockerTargetUrl" placeholder="https://your-reward-link.com">
+            <label>Locker Headline (Title)</label>
+            <input type="text" id="lockerHeadline" placeholder="🎁 Claim Your Reward">
 
-            <label>Instructions / Requirement Notice</label>
-            <input type="text" id="lockerMessage" placeholder="Upload screenshot of invited friends...">
+            <label>Description / Instructions</label>
+            <input type="text" id="lockerDescription" placeholder="Loading secure link...">
+
+            <label>Required Shares Count</label>
+            <input type="text" id="requiredShares" placeholder="5">
+
+            <label>Viral Share Message Text</label>
+            <input type="text" id="viralMessage" placeholder="Check out this amazing platform...">
+
+            <label>Success Message After Verification</label>
+            <input type="text" id="successMessage" placeholder="✅ Verification complete!">
+
+            <label>Final Reward Target URL</label>
+            <input type="text" id="rewardLink" placeholder="https://your-final-link.com">
 
             <button class="btn-save-locker" onclick="saveLockerSettings()">Save Locker Settings</button>
             <div class="status-msg" id="lockerStatus">✔️ Locker Settings saved successfully!</div>
@@ -102,7 +113,7 @@
             <a href="otc-scanner.html" target="_blank" style="color: var(--neon-blue); font-size: 11px; text-decoration: none; font-weight: bold;">
                 🔗 Open OTC App
             </a>
-            <a href="locker.html?v=8" target="_blank" style="color: var(--neon-purple); font-size: 11px; text-decoration: none; font-weight: bold;">
+            <a href="locker.html" target="_blank" style="color: var(--neon-purple); font-size: 11px; text-decoration: none; font-weight: bold;">
                 🔗 Open Locker App
             </a>
         </div>
@@ -134,10 +145,14 @@
         });
 
         // Load Content Locker settings on startup
-        db.ref('adminSettings/locker').once('value').then((snapshot) => {
+        db.ref('settings').once('value').then((snapshot) => {
             const data = snapshot.val() || {};
-            if (data.targetUrl) document.getElementById('lockerTargetUrl').value = data.targetUrl;
-            if (data.message) document.getElementById('lockerMessage').value = data.message;
+            if (data.requiredShares) document.getElementById('requiredShares').value = data.requiredShares;
+            if (data.rewardLink) document.getElementById('rewardLink').value = data.rewardLink;
+            if (data.lockerHeadline) document.getElementById('lockerHeadline').value = data.lockerHeadline;
+            if (data.lockerDescription) document.getElementById('lockerDescription').value = data.lockerDescription;
+            if (data.viralMessage) document.getElementById('viralMessage').value = data.viralMessage;
+            if (data.successMessage) document.getElementById('successMessage').value = data.successMessage;
         });
 
         // Save OTC Settings
@@ -157,14 +172,22 @@
             });
         }
 
-        // Save Content Locker Settings
+        // Save Content Locker Settings (matches your locker script's db.ref('settings'))
         function saveLockerSettings() {
-            const targetUrl = document.getElementById('lockerTargetUrl').value.trim();
-            const message = document.getElementById('lockerMessage').value.trim();
+            const requiredShares = document.getElementById('requiredShares').value.trim();
+            const rewardLink = document.getElementById('rewardLink').value.trim();
+            const lockerHeadline = document.getElementById('lockerHeadline').value.trim();
+            const lockerDescription = document.getElementById('lockerDescription').value.trim();
+            const viralMessage = document.getElementById('viralMessage').value.trim();
+            const successMessage = document.getElementById('successMessage').value.trim();
 
-            db.ref('adminSettings/locker').set({
-                targetUrl: targetUrl || "#",
-                message: message || "Please upload the screenshot of your invited friends here to get the free gift."
+            db.ref('settings').set({
+                requiredShares: requiredShares ? parseInt(requiredShares) : 5,
+                rewardLink: rewardLink || "",
+                lockerHeadline: lockerHeadline || "🎁 Claim Your Reward",
+                lockerDescription: lockerDescription || "Loading secure link...",
+                viralMessage: viralMessage || "Check out this amazing platform I just found!",
+                successMessage: successMessage || "✅ Verification complete! Click below to access."
             }).then(() => {
                 const msg = document.getElementById('lockerStatus');
                 msg.style.display = 'block';
