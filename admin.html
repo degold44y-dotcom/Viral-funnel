@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro OTC Algorithmic Matrix | VIP</title>
+    <title>Master Admin | Unified Command Hub</title>
     <style>
         :root {
             --bg-color: #0b0d10;
@@ -11,10 +11,8 @@
             --card-bg: #1c2028;
             --neon-blue: #00e5ff;
             --neon-green: #00ff66;
-            --neon-red: #ff3366;
             --neon-purple: #b52aff;
             --neon-gold: #ffd700;
-            --neon-yellow: #ffcc00;
             --text-main: #ffffff;
             --text-muted: #8a99a8;
         }
@@ -26,173 +24,107 @@
         }
         .dashboard-ui {
             background-color: var(--panel-bg); border-radius: 24px; padding: 30px;
-            width: 100%; max-width: 460px;
+            width: 100%; max-width: 480px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.05); text-align: center; position: relative;
-            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05); text-align: left;
         }
-        
-        .credits-badge {
-            position: absolute; top: -15px; right: 20px;
-            background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
-            padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0,229,255,0.3); border: 1px solid rgba(255,255,255,0.2);
-            z-index: 10;
-        }
-        .vip-badge { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; display: none; }
-
         h2 {
-            margin-top: 10px; margin-bottom: 5px; text-transform: uppercase;
-            letter-spacing: 2px; font-size: 22px; font-weight: 900; color: var(--text-main);
+            margin-top: 0; margin-bottom: 5px; text-transform: uppercase;
+            letter-spacing: 2px; font-size: 20px; font-weight: 900; color: var(--neon-gold);
+            text-align: center;
         }
-        .supported-markets {
-            font-size: 11px; color: var(--neon-purple); font-weight: bold;
-            margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1.5px;
+        .subtitle {
+            font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 25px; font-weight: bold; text-align: center;
         }
-
         .card {
-            background: var(--card-bg); border-radius: 16px; padding: 25px;
+            background: var(--card-bg); border-radius: 16px; padding: 20px;
             border: 1px solid rgba(255,255,255,0.02); box-shadow: 0 4px 6px rgba(0,0,0,0.2); margin-bottom: 20px;
         }
-
-        .live-clock { font-size: 28px; font-weight: 900; color: var(--text-main); margin-bottom: 15px; font-family: monospace; letter-spacing: 2px; }
-        
-        .mode-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 10px; border-left: 3px solid var(--neon-purple); text-align: left; }
-
-        input[type="file"] { display: none; }
-        .upload-btn {
-            display: block; width: 100%; padding: 16px; background: transparent;
-            border: 2px dashed var(--neon-purple); color: var(--neon-purple);
-            border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s;
+        .card-title {
+            font-size: 13px; font-weight: bold; color: var(--neon-blue); text-transform: uppercase;
+            margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;
         }
-        .upload-btn:hover { background: rgba(181, 42, 255, 0.05); }
-        #imagePreviewContainer { display: none; margin-top: 15px; border-radius: 12px; overflow: hidden; border: 1px solid var(--neon-purple); }
-        #imagePreview { width: 100%; height: auto; display: block; }
-        .file-name { font-size: 11px; color: var(--neon-green); margin-top: 10px; display: block; }
-
-        button { width: 100%; padding: 16px; border-radius: 12px; font-size: 15px; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.2s; border: none; margin-top: 15px; }
-        .btn-scan { background: var(--neon-purple); color: #fff; box-shadow: 0 0 20px rgba(181, 42, 255, 0.3); }
-        .btn-reset { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); margin-top: 10px; display: none; }
-
-        .modal-overlay {
-            display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(11, 13, 16, 0.55); 
-            z-index: 50; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-sizing: border-box;
-            transition: opacity 0.4s ease;
+        label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 6px; }
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 12px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: #fff; font-size: 13px; box-sizing: border-box; margin-bottom: 12px;
         }
-        .modal-box {
-            background: rgba(21, 24, 30, 0.95); padding: 25px; border-radius: 16px;
-            border: 1px solid rgba(255, 51, 102, 0.6); width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.9); text-align: left;
+        button {
+            width: 100%; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; border: none; transition: 0.2s;
         }
-        
-        .paywall-box { border: 1px solid var(--neon-gold); text-align: center; background: rgba(21, 24, 30, 0.98); }
-        .price-tag { font-size: 28px; font-weight: 900; color: var(--neon-gold); margin: 10px 0; letter-spacing: 1px; }
-        .key-input { width: 100%; padding: 14px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center; margin-bottom: 12px; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; box-sizing: border-box; }
-        .btn-gold { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); margin-top: 0; }
-        .btn-buy { background: var(--neon-green); color: #000; box-shadow: 0 0 20px rgba(0, 255, 102, 0.3); text-decoration: none; display: block; padding: 16px; border-radius: 12px; font-size: 15px; font-weight: bold; text-transform: uppercase; margin-bottom: 20px; }
-
-        #processingArea { display: none; padding: 20px 0; }
-        .spinner { width: 40px; height: 40px; border: 4px solid rgba(181, 42, 255, 0.1); border-top-color: var(--neon-purple); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .status-text { font-size: 13px; color: var(--neon-purple); font-weight: bold; }
-        
-        #warningArea { display: none; margin-top: 15px; padding: 15px; border-radius: 10px; background: rgba(255, 51, 102, 0.1); border: 1px solid var(--neon-red); }
-        .warning-text { font-size: 13px; color: var(--neon-red); font-weight: bold; line-height: 1.5; }
-
-        #resultArea { display: none; }
-        .signal-box { background: #0b0d10; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-top: 10px; }
-        .signal-asset { font-size: 20px; font-weight: bold; color: var(--neon-blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
-        .signal-dir { font-size: 34px; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; line-height: 1.2; }
-        .signal-time { font-size: 14px; color: var(--text-main); font-weight: bold; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid var(--neon-blue); }
+        .btn-save-otc { background: var(--neon-gold); color: #000; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
+        .btn-save-locker { background: var(--neon-purple); color: #fff; box-shadow: 0 0 15px rgba(181, 42, 255, 0.3); }
+        .btn-admin-bypass { background: var(--neon-green); color: #000; box-shadow: 0 0 15px rgba(0,255,102,0.3); margin-top: 10px; }
+        button:active { transform: scale(0.98); }
+        .status-msg { font-size: 11px; color: var(--neon-green); text-align: center; margin-top: 8px; display: none; }
     </style>
 </head>
 <body>
 
     <div class="dashboard-ui">
-        
-        <div class="credits-badge" id="creditsBadge">Free Scans: <span id="scanCount">5</span>/5</div>
-        <div class="credits-badge vip-badge" id="vipBadge">👑 VIP ACTIVE</div>
+        <h2>Unified Command Hub</h2>
+        <div class="subtitle">Content Locker & OTC Matrix Control</div>
 
-        <h2>Strict OTC Matrix</h2>
-        <div class="supported-markets">
-            Algorithmic Market Data Only
-        </div>
-
-        <div class="card" id="mainAppCard">
-            <div class="live-clock" id="liveClock">00:00:00</div>
+        <!-- STRICT OTC MATRIX SETTINGS -->
+        <div class="card">
+            <div class="card-title">📊 Strict OTC Matrix Settings</div>
             
-            <div class="mode-desc" id="modeDesc">
-                <strong>INSTITUTIONAL TIMING REQUIRED:</strong><br><br>
-                1. Upload chart exactly at the <strong>8th minute</strong> of the block.<br>
-                2. Wait for structural matrix analysis.<br>
-                3. Execute strictly at the configured execution mark for the final algorithmic flush.
-            </div>
+            <label>Subscription Price Display</label>
+            <input type="text" id="otcPriceInput" placeholder="$2.00">
+
+            <label>VIP License Key (Master Pass)</label>
+            <input type="text" id="otcKeyInput" placeholder="PRO-OTC-777">
+
+            <label>Payment Gateway URL</label>
+            <input type="text" id="otcPaymentLink" placeholder="https://your-payment-link.com">
+
+            <label>Execution Second (e.g. 57 for 9m 57s)</label>
+            <input type="number" id="otcExecSecond" placeholder="57">
+
+            <button class="btn-save-otc" onclick="saveOTCSettings()">Save OTC Settings</button>
+            <div class="status-msg" id="otcStatus">✔️ OTC Settings saved successfully!</div>
+
+            <!-- ADMIN BYPASS BUTTON -->
+            <button class="btn-admin-bypass" onclick="grantAdminAccess()">👑 Activate Admin Free Access on this Device</button>
+            <div class="status-msg" id="adminStatus" style="color: var(--neon-blue);">✔️ Admin VIP Unlocked on this browser!</div>
+        </div>
+
+        <!-- CONTENT LOCKER SETTINGS -->
+        <div class="card">
+            <div class="card-title">🎁 Content Locker Settings</div>
             
-            <div id="uploadContainer">
-                <label class="upload-btn" id="uploadBtnLabel">
-                    📸 Upload OTC Screenshot
-                    <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
-                </label>
-                
-                <div id="imagePreviewContainer"><img id="imagePreview" src="" alt="Chart Preview"></div>
-                <span class="file-name" id="fileNameDisplay">No chart uploaded yet...</span>
-                
-                <button class="btn-scan" onclick="attemptScan()">Initialize OTC Scan</button>
-            </div>
+            <label>Locker Headline (Title)</label>
+            <input type="text" id="lockerHeadline" placeholder="🎁 Claim Your Reward">
 
-            <div id="warningArea"><div class="warning-text" id="warningMessage"></div></div>
+            <label>Description / Instructions</label>
+            <input type="text" id="lockerDescription" placeholder="Loading secure link...">
 
-            <div id="processingArea">
-                <div class="spinner"></div>
-                <div class="status-text" id="statusText">Verifying Algorithmic Structure...</div>
-            </div>
+            <label>Required Shares Count</label>
+            <input type="text" id="requiredShares" placeholder="5">
 
-            <div id="resultArea">
-                <h3 style="margin-top: 0; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Scanned Asset Result</h3>
-                <div class="signal-box">
-                    <div class="signal-asset" id="signalAsset">--</div>
-                    <div class="signal-dir" id="signalDirection">--</div>
-                    <div class="signal-time" id="executionDetails">--</div>
-                </div>
-            </div>
+            <label>Viral Share Message Text</label>
+            <input type="text" id="viralMessage" placeholder="Check out this amazing platform...">
 
-            <button class="btn-reset" id="resetBtn" onclick="resetScanner()">Scan Next Candle</button>
+            <label>Success Message After Verification</label>
+            <input type="text" id="successMessage" placeholder="✅ Verification complete!">
+
+            <label>Final Reward Target URL</label>
+            <input type="text" id="rewardLink" placeholder="https://your-final-link.com">
+
+            <button class="btn-save-locker" onclick="saveLockerSettings()">Save Locker Settings</button>
+            <div class="status-msg" id="lockerStatus">✔️ Locker Settings saved successfully!</div>
         </div>
 
-        <!-- DISCLAIMER MODAL -->
-        <div class="modal-overlay" id="disclaimerModal">
-            <div class="modal-box">
-                <h3 style="color: var(--neon-red); margin-top: 0; text-align: center; font-size: 18px;">⚠️ AGE & RISK WARNING</h3>
-                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 15px;">
-                    • You must be **18 years or older** to use this platform.<br>
-                    • This software is strictly for **educational and analytical simulation purposes only**.<br>
-                    • We are **not responsible for any financial losses** incurred from live trading decisions. Financial markets carry high risk.
-                </p>
-                <button class="btn-scan" onclick="acceptDisclaimer()" style="margin-top: 0;">I Agree & Accept Risk</button>
-            </div>
+        <div style="text-align: center; display: flex; justify-content: space-around; margin-top: 10px;">
+            <a href="otc-scanner.html" target="_blank" style="color: var(--neon-blue); font-size: 11px; text-decoration: none; font-weight: bold;">
+                🔗 Open OTC App
+            </a>
+            <a href="locker.html" target="_blank" style="color: var(--neon-purple); font-size: 11px; text-decoration: none; font-weight: bold;">
+                🔗 Open Locker App
+            </a>
         </div>
-
-        <!-- PAYWALL OVERLAY -->
-        <div class="modal-overlay" id="paywallArea" style="display: none;">
-            <div class="modal-box paywall-box">
-                <h2 style="color: var(--neon-gold); font-size: 20px; margin-bottom: 5px;">Trial Limit Reached</h2>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">You have exhausted your 5 free scans.</p>
-                
-                <div class="price-tag" id="priceDisplay">$2.00</div>
-                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; font-weight: bold;">Lifetime VIP Access</p>
-                
-                <a href="https://selar.com" target="_blank" class="btn-buy" id="payButton">
-                    🛒 Get Access Code (Make Payment)
-                </a>
-
-                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px; margin-top: 5px;">
-                    <p style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 8px;">Already Paid? Input Code:</p>
-                    <input type="text" class="key-input" id="licenseKey" placeholder="ENTER VIP KEY">
-                    <button class="btn-gold" onclick="verifyKey()">Unlock Unlimited Scans</button>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- Firebase SDKs -->
@@ -212,244 +144,76 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let maxScans = 5;
-        let scansUsed = localStorage.getItem('ls_scans_used') ? parseInt(localStorage.getItem('ls_scans_used')) : 0;
-        let isVIP = localStorage.getItem('ls_is_vip') === 'true';
-        let hasAcceptedDisclaimer = localStorage.getItem('ls_disclaimer_accepted') === 'true';
-        
-        let dynamicVIPKey = "PRO-OTC-777"; 
-        let dynamicPaymentUrl = "https://selar.com";
-        let dynamicExecSecond = 57; // Default execution second
-
-        // Fetch live admin settings from Firebase
-        db.ref('adminSettings/otc').on('value', (snapshot) => {
+        // Load OTC settings on startup
+        db.ref('adminSettings/otc').once('value').then((snapshot) => {
             const data = snapshot.val() || {};
-            if (data.vipKey) dynamicVIPKey = data.vipKey;
-            if (data.paymentUrl) {
-                dynamicPaymentUrl = data.paymentUrl;
-                document.getElementById('payButton').href = dynamicPaymentUrl;
-            }
-            if (data.price) {
-                document.getElementById('priceDisplay').innerText = data.price;
-            }
-            if (data.execSecond !== undefined) {
-                dynamicExecSecond = parseInt(data.execSecond);
-            }
+            if (data.price) document.getElementById('otcPriceInput').value = data.price;
+            if (data.vipKey) document.getElementById('otcKeyInput').value = data.vipKey;
+            if (data.paymentUrl) document.getElementById('otcPaymentLink').value = data.paymentUrl;
+            if (data.execSecond !== undefined) document.getElementById('otcExecSecond').value = data.execSecond;
         });
 
-        function initApp() {
-            if (!hasAcceptedDisclaimer) {
-                document.getElementById('disclaimerModal').style.display = 'flex';
-            } else {
-                document.getElementById('disclaimerModal').style.display = 'none';
-                checkPaywall();
-            }
-            updateCreditsDisplay();
+        // Load Content Locker settings on startup
+        db.ref('settings').once('value').then((snapshot) => {
+            const data = snapshot.val() || {};
+            if (data.requiredShares) document.getElementById('requiredShares').value = data.requiredShares;
+            if (data.rewardLink) document.getElementById('rewardLink').value = data.rewardLink;
+            if (data.lockerHeadline) document.getElementById('lockerHeadline').value = data.lockerHeadline;
+            if (data.lockerDescription) document.getElementById('lockerDescription').value = data.lockerDescription;
+            if (data.viralMessage) document.getElementById('viralMessage').value = data.viralMessage;
+            if (data.successMessage) document.getElementById('successMessage').value = data.successMessage;
+        });
+
+        // Save OTC Settings
+        function saveOTCSettings() {
+            const price = document.getElementById('otcPriceInput').value.trim();
+            const vipKey = document.getElementById('otcKeyInput').value.trim();
+            const paymentUrl = document.getElementById('otcPaymentLink').value.trim();
+            const execSecond = document.getElementById('otcExecSecond').value.trim();
+
+            db.ref('adminSettings/otc').update({
+                price: price || "$2.00",
+                vipKey: vipKey || "PRO-OTC-777",
+                paymentUrl: paymentUrl || "https://selar.com",
+                execSecond: execSecond ? parseInt(execSecond) : 57
+            }).then(() => {
+                const msg = document.getElementById('otcStatus');
+                msg.style.display = 'block';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            });
         }
 
-        function acceptDisclaimer() {
-            hasAcceptedDisclaimer = true;
+        // Instant Admin Free Access Activation for this browser
+        function grantAdminAccess() {
+            localStorage.setItem('ls_is_vip', 'true');
             localStorage.setItem('ls_disclaimer_accepted', 'true');
-            
-            const modal = document.getElementById('disclaimerModal');
-            modal.style.opacity = '0';
-            setTimeout(() => {
-                modal.style.display = 'none';
-                checkPaywall();
-            }, 400);
+            const msg = document.getElementById('adminStatus');
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, 3000);
         }
 
-        function checkPaywall() {
-            if (scansUsed >= maxScans && !isVIP) {
-                document.getElementById('paywallArea').style.display = 'flex';
-            }
+        // Save Content Locker Settings
+        function saveLockerSettings() {
+            const requiredShares = document.getElementById('requiredShares').value.trim();
+            const rewardLink = document.getElementById('rewardLink').value.trim();
+            const lockerHeadline = document.getElementById('lockerHeadline').value.trim();
+            const lockerDescription = document.getElementById('lockerDescription').value.trim();
+            const viralMessage = document.getElementById('viralMessage').value.trim();
+            const successMessage = document.getElementById('successMessage').value.trim();
+
+            db.ref('settings').set({
+                requiredShares: requiredShares ? parseInt(requiredShares) : 5,
+                rewardLink: rewardLink || "",
+                lockerHeadline: lockerHeadline || "🎁 Claim Your Reward",
+                lockerDescription: lockerDescription || "Loading secure link...",
+                viralMessage: viralMessage || "Check out this amazing platform I just found!",
+                successMessage: successMessage || "✅ Verification complete! Click below to access."
+            }).then(() => {
+                const msg = document.getElementById('lockerStatus');
+                msg.style.display = 'block';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            });
         }
-
-        function updateCreditsDisplay() {
-            if (isVIP) {
-                document.getElementById('creditsBadge').style.display = 'none';
-                document.getElementById('vipBadge').style.display = 'block';
-            } else {
-                let scansLeft = maxScans - scansUsed;
-                document.getElementById('scanCount').innerText = scansLeft;
-            }
-        }
-
-        function verifyKey() {
-            const inputKey = document.getElementById('licenseKey').value.trim();
-            if (inputKey === dynamicVIPKey) {
-                isVIP = true;
-                localStorage.setItem('ls_is_vip', 'true');
-                
-                const paywall = document.getElementById('paywallArea');
-                paywall.style.opacity = '0';
-                setTimeout(() => {
-                    paywall.style.display = 'none';
-                    updateCreditsDisplay();
-                    alert("VIP Unlocked Successfully! Welcome to Pro OTC.");
-                }, 400);
-            } else {
-                alert("Invalid License Key. Please check your payment receipt email.");
-            }
-        }
-
-        setInterval(() => {
-            document.getElementById('liveClock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
-
-        function previewImage(event) {
-            const input = event.target;
-            const display = document.getElementById('fileNameDisplay');
-            const previewContainer = document.getElementById('imagePreviewContainer');
-            const previewImg = document.getElementById('imagePreview');
-
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    previewContainer.style.display = 'block';
-                    display.innerText = "✔️ File loaded: " + input.files[0].name;
-                    document.getElementById('warningArea').style.display = 'none'; 
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function isValidChartImage(imgElement) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 100;
-            canvas.height = 100;
-            ctx.drawImage(imgElement, 0, 0, 100, 100);
-            
-            const data = ctx.getImageData(0, 0, 100, 100).data;
-            let colorMap = {};
-            let dominantCount = 0;
-
-            for (let i = 0; i < data.length; i += 16) {
-                let r = Math.floor(data[i] / 32);
-                let g = Math.floor(data[i+1] / 32);
-                let b = Math.floor(data[i+2] / 32);
-                let key = r + "," + g + "," + b;
-                colorMap[key] = (colorMap[key] || 0) + 1;
-                if (colorMap[key] > dominantCount) dominantCount = colorMap[key];
-            }
-            return dominantCount >= 250; 
-        }
-
-        function attemptScan() {
-            if (!isVIP && scansUsed >= maxScans) {
-                document.getElementById('paywallArea').style.display = 'flex';
-                return;
-            }
-
-            const input = document.getElementById('imageInput');
-            if (input.files.length === 0) { alert("Upload a chart screenshot first!"); return; }
-
-            const file = input.files[0];
-            const previewImg = document.getElementById('imagePreview');
-            
-            const fileAgeMs = Date.now() - file.lastModified;
-            if (fileAgeMs > 180000) {
-                document.getElementById('warningMessage').innerHTML = `⚠️ OUTDATED CHART DETECTED.<br>File metadata shows this screenshot is old. You must take a LIVE screenshot right now to analyze current price action.`;
-                document.getElementById('warningArea').style.display = 'block';
-                return;
-            }
-
-            if (!isValidChartImage(previewImg)) {
-                document.getElementById('warningMessage').innerHTML = `⚠️ INVALID IMAGE DETECTED.<br>No candlestick structure or valid background found. Please upload a real trading chart screenshot.`;
-                document.getElementById('warningArea').style.display = 'block';
-                return;
-            }
-
-            const now = new Date();
-            const currentMin = now.getMinutes();
-            
-            let cleanAssetName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").toUpperCase();
-            if (cleanAssetName.length > 18 || cleanAssetName.includes("SCREENSHOT") || cleanAssetName.includes("IMAGE")) {
-                cleanAssetName = "OTC MARKET ASSET"; 
-            }
-
-            const baseMin = Math.floor(currentMin / 10) * 10;
-            const signalMin = baseMin + 8;
-            
-            if (currentMin < signalMin) {
-                let waitTime = new Date(now); waitTime.setMinutes(signalMin); waitTime.setSeconds(0);
-                const timeString = waitTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                document.getElementById('warningMessage').innerHTML = `⚠️ ALGORITHMIC TIMING REJECTED.<br><br>The candle requires more structure. Wait until exactly <span style="color:#fff; font-size: 16px;">${timeString}</span> to upload and scan.`;
-                document.getElementById('warningArea').style.display = 'block';
-                return;
-            }
-
-            // DYNAMIC EXECUTION TIME FROM FIREBASE ADMIN SETTINGS
-            let execTime = new Date(now); 
-            execTime.setMinutes(baseMin + 9); 
-            execTime.setSeconds(dynamicExecSecond);
-            
-            let executionText = `
-                <div style="text-transform: uppercase; font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">Execution Protocol:</div>
-                <span style="color:var(--neon-blue); font-size:24px; display:block; margin-bottom: 5px;">${execTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}</span>
-                <span style="color: #fff;">EXACTLY 9 MIN ${dynamicExecSecond} SEC | 3-SEC EXPIRY</span>
-            `;
-
-            if (!isVIP) {
-                scansUsed++;
-                localStorage.setItem('ls_scans_used', scansUsed);
-                updateCreditsDisplay();
-            }
-
-            document.getElementById('warningArea').style.display = 'none';
-            document.getElementById('uploadContainer').style.display = 'none';
-            document.getElementById('processingArea').style.display = 'block';
-
-            const statusText = document.getElementById('statusText');
-            setTimeout(() => { statusText.innerText = "Extracting Metadata & Time Signatures..."; }, 1000);
-            setTimeout(() => { statusText.innerText = "Scanning Algorithmic Order Blocks..."; }, 2500);
-            setTimeout(() => { statusText.innerText = "Calculating OTC Trend Probability..."; }, 4000);
-
-            setTimeout(() => {
-                document.getElementById('processingArea').style.display = 'none';
-                document.getElementById('resultArea').style.display = 'block';
-                document.getElementById('resetBtn').style.display = 'block';
-                
-                document.getElementById('signalAsset').innerText = "📊 " + cleanAssetName;
-
-                const randomSeed = (now.getMinutes() * 60 + now.getSeconds() + file.size) % 100;
-                
-                const dirElement = document.getElementById('signalDirection');
-                const execElement = document.getElementById('executionDetails');
-                
-                if (randomSeed < 15) {
-                    dirElement.innerHTML = "⚠️ NO TRADE<br><span style='font-size: 14px; color: var(--text-muted);'>CONSOLIDATION DETECTED</span>";
-                    dirElement.style.color = "var(--neon-yellow)";
-                    execElement.innerHTML = "<span style='color: var(--neon-red);'>Market conditions unstable. Do not execute. Wait for next 10-minute block.</span>";
-                    execElement.style.borderLeft = "4px solid var(--neon-red)";
-                } else if (randomSeed < 57) {
-                    dirElement.innerText = "🟢 CALL (UP)";
-                    dirElement.style.color = "var(--neon-green)";
-                    execElement.innerHTML = executionText;
-                    execElement.style.borderLeft = "4px solid var(--neon-blue)";
-                } else {
-                    dirElement.innerText = "🔴 PUT (DOWN)";
-                    dirElement.style.color = "var(--neon-red)";
-                    execElement.innerHTML = executionText;
-                    execElement.style.borderLeft = "4px solid var(--neon-blue)";
-                }
-
-            }, 5500);
-        }
-
-        function resetScanner() {
-            document.getElementById('imageInput').value = "";
-            document.getElementById('imagePreviewContainer').style.display = 'none';
-            document.getElementById('imagePreview').src = "";
-            document.getElementById('fileNameDisplay').innerText = "No chart uploaded yet...";
-            document.getElementById('resultArea').style.display = 'none';
-            document.getElementById('resetBtn').style.display = 'none';
-            document.getElementById('uploadContainer').style.display = 'block';
-        }
-
-        initApp();
     </script>
 </body>
 </html>
