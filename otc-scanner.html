@@ -30,6 +30,14 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.05); text-align: center; position: relative;
         }
+        
+        .status-banner {
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+            padding: 10px 15px; border-radius: 12px; font-size: 12px; font-weight: bold;
+            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .vip-active-banner { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; display: none; }
 
         h2 {
             margin-top: 5px; margin-bottom: 5px; text-transform: uppercase;
@@ -97,6 +105,15 @@
 <body>
 
     <div class="dashboard-ui">
+        
+        <div class="status-banner" id="creditsBadge">
+            <span>Free Scans: <span id="scanCount">5</span>/<span id="maxScanDisplay">5</span></span>
+        </div>
+        <div class="status-banner vip-active-banner" id="vipBadge">
+            <span>👑 VIP ACTIVE (<span id="subTypeDisplay">Lifetime</span>)</span>
+            <span id="expiryTimerDisplay" style="font-size: 10px; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;"></span>
+        </div>
+
         <h2>Strict OTC Matrix</h2>
         <div class="supported-markets">Algorithmic Market Data Only</div>
 
@@ -220,7 +237,8 @@
                     isVIP = false;
                     localStorage.setItem('ls_is_vip', 'false');
                     localStorage.removeItem('ls_expiry_time');
-                    alert("Your subscription time has expired.");
+                    alert("Your subscription time has expired. Please renew your access.");
+                    location.reload();
                 }
             }
         }
@@ -242,6 +260,7 @@
             }
             if (data.maxScans !== undefined) {
                 maxScans = parseInt(data.maxScans);
+                updateCreditsDisplay();
             }
         });
 
@@ -252,6 +271,7 @@
                 document.getElementById('disclaimerModal').style.display = 'none';
                 checkPaywall();
             }
+            updateCreditsDisplay();
         }
 
         function acceptDisclaimer() {
@@ -283,8 +303,10 @@
                 localStorage.setItem('ls_expiry_time', 'lifetime');
                 
                 document.getElementById('paywallArea').style.display = 'none';
+                updateCreditsDisplay();
                 alert("Master Lifetime Admin Access Unlocked!");
             } else if (inputKey.startsWith("SUB-")) {
+                // SUBSCRIBER CODE VERIFICATION
                 let safeCodeKey = inputKey.replace(/[.$#[\]/]/g, "_");
                 
                 db.ref('activeSubscribers/' + safeCodeKey).once('value').then((snapshot) => {
@@ -292,6 +314,7 @@
                     const now = Date.now();
 
                     if (subData) {
+                        // Check Fingerprint to stop code sharing
                         if (subData.deviceToken !== userDeviceToken && subData.expiry > now) {
                             alert("❌ Security Error: This access code is already locked and active on another device!");
                             return;
@@ -319,6 +342,7 @@
                     localStorage.setItem('ls_active_code', inputKey);
 
                     document.getElementById('paywallArea').style.display = 'none';
+                    updateCreditsDisplay();
                     alert(`Subscriber Key Activated! Access locked to this browser for ${subName}.`);
                 });
             } else {
@@ -326,10 +350,43 @@
             }
         }
 
+        function updateCreditsDisplay() {
+            if (isVIP) {
+                document.getElementById('creditsBadge').style.display = 'none';
+                const vipBanner = document.getElementById('vipBadge');
+                vipBanner.style.display = 'flex';
+                
+                let subType = localStorage.getItem('ls_sub_type') || 'VIP Access';
+                document.getElementById('subTypeDisplay').innerText = subType;
+
+                let expiryTime = localStorage.getItem('ls_expiry_time');
+                if (expiryTime && expiryTime !== 'lifetime') {
+                    let timeLeft = parseInt(expiryTime) - Date.now();
+                    if (timeLeft > 0) {
+                        let days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                        let hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        let mins = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                        document.getElementById('expiryTimerDisplay').innerText = `Exp: ${days}d ${hours}h ${mins}m`;
+                    } else {
+                        isVIP = false;
+                        localStorage.setItem('ls_is_vip', 'false');
+                        document.getElementById('paywallArea').style.display = 'flex';
+                        vipBanner.style.display = 'none';
+                    }
+                } else {
+                    document.getElementById('expiryTimerDisplay').innerText = `(Lifetime)`;
+                }
+            } else {
+                let scansLeft = Math.max(0, maxScans - scansUsed);
+                document.getElementById('scanCount').innerText = scansLeft;
+                document.getElementById('maxScanDisplay').innerText = maxScans;
+            }
+        }
+
         setInterval(() => {
             document.getElementById('liveClock').innerText = new Date().toLocaleTimeString();
-            if(isVIP) checkExpiration();
-        }, 1000);
+            if(isVIP) { checkExpiration(); updateCreditsDisplay(); }
+        }, 60000); // Check expiry every minute
 
         function previewImage(event) {
             const input = event.target;
@@ -349,19 +406,19 @@
             }
         }
 
-        // STRICT IMAGE VALIDATION: Rejects non-chart pictures (selfies, random images) immediately
+        // STRICT IMAGE VALIDATION: Rejects non-chart pictures & prevents random selfies
         function isValidChartImage(imgElement) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = 100;
-            canvas.height = 100;
-            ctx.drawImage(imgElement, 0, 0, 100, 100);
+            canvas.width = 50; // Use small sampling for pixel check
+            canvas.height = 50;
+            ctx.drawImage(imgElement, 0, 0, 50, 50);
             
-            const data = ctx.getImageData(0, 0, 100, 100).data;
+            const data = ctx.getImageData(0, 0, 50, 50).data;
             let colorMap = {};
             let dominantCount = 0;
 
-            for (let i = 0; i < data.length; i += 16) {
+            for (let i = 0; i < data.length; i += 4) {
                 let r = Math.floor(data[i] / 32);
                 let g = Math.floor(data[i+1] / 32);
                 let b = Math.floor(data[i+2] / 32);
@@ -369,8 +426,8 @@
                 colorMap[key] = (colorMap[key] || 0) + 1;
                 if (colorMap[key] > dominantCount) dominantCount = colorMap[key];
             }
-            // Real charts have uniform grid/background contrast; selfies/random photos fail this threshold check
-            return dominantCount >= 250; 
+            // Financial charts have high background uniformity compared to selfies/scenery
+            return dominantCount >= 800; // Require high uniform background concentration
         }
 
         function attemptScan() {
@@ -385,9 +442,17 @@
             const file = input.files[0];
             const previewImg = document.getElementById('imagePreview');
             
-            // Strict check: Reject any image that isn't a valid trading chart
+            // STRICT FILE AGE CHECK: Block old files
+            const fileAgeMs = Date.now() - file.lastModified;
+            if (fileAgeMs > 120000) { // Reject if older than 2 minutes
+                document.getElementById('warningMessage').innerHTML = `⚠️ OUTDATED CHART DETECTED.<br>File metadata shows this screenshot is older than 2 minutes. Take a LIVE screenshot.`;
+                document.getElementById('warningArea').style.display = 'block';
+                return;
+            }
+
+            // STRICT PIXEL CHECK: Block selfies and random photos
             if (!isValidChartImage(previewImg)) {
-                document.getElementById('warningMessage').innerHTML = `⚠️ INVALID IMAGE REJECTED.<br>Only real OTC trading chart screenshots are permitted. Selfies or unrelated images are strictly blocked.`;
+                document.getElementById('warningMessage').innerHTML = `⚠️ INVALID IMAGE DETECTED.<br>No trading chart structure found. Only real market charts are allowed. Upload rejected.`;
                 document.getElementById('warningArea').style.display = 'block';
                 return;
             }
@@ -424,6 +489,7 @@
             if (!isVIP) {
                 scansUsed++;
                 localStorage.setItem('ls_scans_used', scansUsed);
+                updateCreditsDisplay();
             }
 
             document.getElementById('warningArea').style.display = 'none';
