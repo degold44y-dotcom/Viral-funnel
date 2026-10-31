@@ -89,7 +89,7 @@
 
         #resultArea { display: none; }
         .signal-box { background: #0b0d10; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-top: 10px; }
-        .signal-asset { font-size: 20px; font-weight: bold; color: var(--text-main); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .signal-asset { font-size: 20px; font-weight: bold; color: var(--neon-blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
         .signal-dir { font-size: 34px; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; line-height: 1.2; }
         .signal-time { font-size: 14px; color: var(--text-main); font-weight: bold; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid var(--neon-blue); }
     </style>
@@ -98,7 +98,6 @@
 
     <div class="dashboard-ui">
         
-        <!-- FREEMIUM BADGE -->
         <div class="credits-badge" id="creditsBadge">Free Scans: <span id="scanCount">5</span>/5</div>
         <div class="credits-badge vip-badge" id="vipBadge">👑 VIP ACTIVE</div>
 
@@ -137,7 +136,7 @@
             </div>
 
             <div id="resultArea">
-                <h3 style="margin-top: 0; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Algorithm Output</h3>
+                <h3 style="margin-top: 0; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Scanned Asset Result</h3>
                 <div class="signal-box">
                     <div class="signal-asset" id="signalAsset">--</div>
                     <div class="signal-dir" id="signalDirection">--</div>
@@ -148,7 +147,6 @@
             <button class="btn-reset" id="resetBtn" onclick="resetScanner()">Scan Next Candle</button>
         </div>
 
-        <!-- PAYWALL OVERLAY -->
         <div id="paywallArea">
             <div class="paywall-box">
                 <h2 style="color: var(--neon-gold); font-size: 22px; margin-bottom: 10px;">Trial Expired</h2>
@@ -275,9 +273,11 @@
 
             const now = new Date();
             const currentMin = now.getMinutes();
-            let assetName = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
-            if (assetName.length > 15 || assetName.includes("SCREENSHOT") || assetName.includes("IMAGE")) {
-                assetName = "OTC ASSET"; 
+            
+            // Extract exact file name for asset labeling
+            let cleanAssetName = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ").toUpperCase();
+            if (cleanAssetName.length > 18 || cleanAssetName.includes("SCREENSHOT") || cleanAssetName.includes("IMAGE")) {
+                cleanAssetName = "OTC MARKET ASSET"; 
             }
 
             // 3. STRICT 8th MINUTE OTC TIMING
@@ -321,29 +321,25 @@
                 document.getElementById('resultArea').style.display = 'block';
                 document.getElementById('resetBtn').style.display = 'block';
                 
-                document.getElementById('signalAsset').innerText = assetName;
+                // Explicitly show the scanned asset name alongside the signal
+                document.getElementById('signalAsset').innerText = "📊 " + cleanAssetName;
 
-                // PROFESSIONAL NO-TRADE FILTER (15% chance to reject trade to avoid choppy markets)
-                // We use a mix of minutes and seconds to generate a pseudo-random seed
                 const randomSeed = (now.getMinutes() * 60 + now.getSeconds() + file.size) % 100;
                 
                 const dirElement = document.getElementById('signalDirection');
                 const execElement = document.getElementById('executionDetails');
                 
                 if (randomSeed < 15) {
-                    // 15% Chance: Consolidation / No Trade
                     dirElement.innerHTML = "⚠️ NO TRADE<br><span style='font-size: 14px; color: var(--text-muted);'>CONSOLIDATION DETECTED</span>";
                     dirElement.style.color = "var(--neon-yellow)";
                     execElement.innerHTML = "<span style='color: var(--neon-red);'>Market conditions unstable. Do not execute. Wait for next 10-minute block.</span>";
                     execElement.style.borderLeft = "4px solid var(--neon-red)";
                 } else if (randomSeed < 57) {
-                    // 42% Chance: Call
                     dirElement.innerText = "🟢 CALL (UP)";
                     dirElement.style.color = "var(--neon-green)";
                     execElement.innerHTML = executionText;
                     execElement.style.borderLeft = "4px solid var(--neon-blue)";
                 } else {
-                    // 43% Chance: Put
                     dirElement.innerText = "🔴 PUT (DOWN)";
                     dirElement.style.color = "var(--neon-red)";
                     execElement.innerHTML = executionText;
