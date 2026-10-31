@@ -3,134 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LeadSprint - Command Center</title>
+    <title>Pro OTC | Admin Dashboard</title>
     <style>
         :root {
             --bg-color: #0b0d10;
             --panel-bg: #15181e;
             --card-bg: #1c2028;
             --neon-blue: #00e5ff;
+            --neon-green: #00ff66;
+            --neon-red: #ff3366;
             --neon-purple: #b52aff;
+            --neon-gold: #ffd700;
             --text-main: #ffffff;
             --text-muted: #8a99a8;
         }
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg-color); color: var(--text-main);
             font-family: 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 20px;
         }
         .dashboard-ui {
-            background-color: var(--panel-bg);
-            border-radius: 24px;
-            padding: 30px;
-            width: 100%;
-            max-width: 500px;
+            background-color: var(--panel-bg); border-radius: 24px; padding: 30px;
+            width: 100%; max-width: 460px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05); text-align: left;
         }
         h2 {
+            margin-top: 0; margin-bottom: 5px; text-transform: uppercase;
+            letter-spacing: 2px; font-size: 20px; font-weight: 900; color: var(--neon-gold);
             text-align: center;
-            background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-top: 0;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 20px;
-            font-weight: 800;
+        }
+        .subtitle {
+            font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 25px; font-weight: bold; text-align: center;
         }
         .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.02);
-            max-height: 60vh;
-            overflow-y: auto;
+            background: var(--card-bg); border-radius: 16px; padding: 20px;
+            border: 1px solid rgba(255,255,255,0.02); box-shadow: 0 4px 6px rgba(0,0,0,0.2); margin-bottom: 15px;
         }
-        /* Custom Scrollbar for the card */
-        .card::-webkit-scrollbar { width: 6px; }
-        .card::-webkit-scrollbar-thumb { background: rgba(0, 229, 255, 0.3); border-radius: 10px; }
-        
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 11px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-top: 15px;
-        }
-        label:first-child { margin-top: 0; }
-        input, textarea {
-            width: 100%;
-            padding: 14px 12px;
-            background-color: #0b0d10;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            color: var(--text-main);
-            font-size: 14px;
-            box-sizing: border-box;
-            transition: 0.2s;
-        }
-        textarea { height: 70px; resize: none; }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+        label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 8px; }
+        input[type="text"] {
+            width: 100%; padding: 14px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box; margin-bottom: 15px;
         }
         button {
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.2s;
-            border: none;
-            background: var(--neon-blue);
-            color: #000;
-            box-shadow: 0 0 20px rgba(0,229,255,0.3);
+            width: 100%; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; border: none; transition: 0.2s;
         }
-        button:active { transform: scale(0.98); }
-        .toast { display: none; text-align: center; color: #00ff66; font-size: 13px; margin-top: 15px; font-weight: bold; }
+        .btn-save { background: var(--neon-gold); color: #000; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
+        .btn-save:active { transform: scale(0.98); }
+        .status-msg { font-size: 12px; color: var(--neon-green); text-align: center; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
 
     <div class="dashboard-ui">
-        <h2>System Command Center</h2>
-        
+        <h2>Admin Command Hub</h2>
+        <div class="subtitle">Strict OTC Matrix Control</div>
+
         <div class="card">
-            <label>1. Final Reward URL (Link to Gift)</label>
-            <input type="url" id="rewardLink" placeholder="https://your-website.com/your-free-gift">
+            <label>Subscription Price Display (e.g. $2.00 or ₦2,500)</label>
+            <input type="text" id="adminPriceInput" placeholder="$2.00">
 
-            <label>2. Required Shares to Unlock</label>
-            <input type="number" id="requiredShares" placeholder="e.g., 5">
+            <label>VIP License Key (Master Pass)</label>
+            <input type="text" id="adminKeyInput" placeholder="PRO-OTC-777">
 
-            <label>3. Locker Headline</label>
-            <input type="text" id="lockerHeadline" placeholder="🎁 Claim Your Reward">
+            <label>Payment Gateway URL</label>
+            <input type="text" id="adminPaymentLink" placeholder="https://selar.co/your-product">
 
-            <label>4. Locker Instructions</label>
-            <textarea id="lockerDescription" placeholder="Tap the share buttons below to unlock your reward..."></textarea>
-
-            <label>5. Viral Share Message (WhatsApp Text)</label>
-            <textarea id="viralMessage" placeholder="Check out this amazing platform I just found!"></textarea>
-            
-            <label>6. Success Message (Shows at 100%)</label>
-            <input type="text" id="successMessage" placeholder="✅ Verification complete! Click below to access.">
+            <button class="btn-save" onclick="saveSettings()">Save Configuration</button>
+            <div class="status-msg" id="statusMsg">✔️ Settings saved to Firebase!</div>
         </div>
 
-        <button onclick="saveSettings()">Save & Update Live Funnel</button>
-        <div class="toast" id="successMsg">✅ Live Funnel Updated Successfully!</div>
+        <div style="text-align: center; margin-top: 15px;">
+            <a href="otc-scanner.html" target="_blank" style="color: var(--neon-blue); font-size: 12px; text-decoration: none; font-weight: bold;">
+                🔗 Open Live Scanner App
+            </a>
+        </div>
     </div>
 
     <!-- Firebase SDKs -->
@@ -150,34 +100,29 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Load existing settings
-        db.ref('settings').once('value').then((snapshot) => {
+        // Load settings from Firebase on startup
+        db.ref('adminSettings').once('value').then((snapshot) => {
             const data = snapshot.val() || {};
-            document.getElementById('rewardLink').value = data.rewardLink || '';
-            document.getElementById('requiredShares').value = data.requiredShares || 5;
-            document.getElementById('lockerHeadline').value = data.lockerHeadline || '🎁 Claim Your Reward';
-            document.getElementById('lockerDescription').value = data.lockerDescription || 'Tap the buttons below to share 5 times to unlock your reward.';
-            document.getElementById('viralMessage').value = data.viralMessage || 'Check out this amazing platform I just found!';
-            document.getElementById('successMessage').value = data.successMessage || '✅ Verification complete! Click below to access.';
+            if (data.price) document.getElementById('adminPriceInput').value = data.price;
+            if (data.vipKey) document.getElementById('adminKeyInput').value = data.vipKey;
+            if (data.paymentUrl) document.getElementById('adminPaymentLink').value = data.paymentUrl;
         });
 
-        // Save settings to database
         function saveSettings() {
-            const btn = document.querySelector('button');
-            btn.innerText = "Saving...";
-            
-            db.ref('settings').update({
-                rewardLink: document.getElementById('rewardLink').value,
-                requiredShares: parseInt(document.getElementById('requiredShares').value) || 5,
-                lockerHeadline: document.getElementById('lockerHeadline').value,
-                lockerDescription: document.getElementById('lockerDescription').value,
-                viralMessage: document.getElementById('viralMessage').value,
-                successMessage: document.getElementById('successMessage').value
+            const newPrice = document.getElementById('adminPriceInput').value.trim();
+            const newKey = document.getElementById('adminKeyInput').value.trim();
+            const newLink = document.getElementById('adminPaymentLink').value.trim();
+
+            db.ref('adminSettings').set({
+                price: newPrice || "$2.00",
+                vipKey: newKey || "PRO-OTC-777",
+                paymentUrl: newLink || "https://selar.com"
             }).then(() => {
-                btn.innerText = "Save & Update Live Funnel";
-                const toast = document.getElementById('successMsg');
-                toast.style.display = 'block';
-                setTimeout(() => toast.style.display = 'none', 3000);
+                const msg = document.getElementById('statusMsg');
+                msg.style.display = 'block';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            }).catch((error) => {
+                alert("Error saving settings: " + error.message);
             });
         }
     </script>
