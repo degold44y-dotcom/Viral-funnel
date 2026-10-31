@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro Signal Matrix | Universal SaaS</title>
+    <title>Pro OTC Algorithmic Matrix | VIP</title>
     <style>
         :root {
             --bg-color: #0b0d10;
@@ -14,6 +14,7 @@
             --neon-red: #ff3366;
             --neon-purple: #b52aff;
             --neon-gold: #ffd700;
+            --neon-yellow: #ffcc00;
             --text-main: #ffffff;
             --text-muted: #8a99a8;
         }
@@ -41,22 +42,12 @@
 
         h2 {
             margin-top: 10px; margin-bottom: 5px; text-transform: uppercase;
-            letter-spacing: 2px; font-size: 20px; font-weight: 900; color: var(--text-main);
+            letter-spacing: 2px; font-size: 22px; font-weight: 900; color: var(--text-main);
         }
         .supported-markets {
-            font-size: 11px; color: var(--text-muted); font-weight: bold;
-            margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; line-height: 1.6;
+            font-size: 11px; color: var(--neon-purple); font-weight: bold;
+            margin-bottom: 25px; text-transform: uppercase; letter-spacing: 1.5px;
         }
-
-        /* Mode Toggle Tabs */
-        .tabs { display: flex; background: #0b0d10; border-radius: 12px; margin-bottom: 20px; padding: 5px; border: 1px solid rgba(255,255,255,0.05); }
-        .tab {
-            flex: 1; padding: 12px; font-size: 13px; font-weight: bold; text-transform: uppercase;
-            cursor: pointer; border-radius: 8px; transition: 0.3s; color: var(--text-muted);
-        }
-        .tab.active { background: rgba(255,255,255,0.05); color: var(--text-main); box-shadow: inset 0 0 10px rgba(255,255,255,0.02); }
-        .tab-otc.active { color: var(--neon-purple); border-bottom: 2px solid var(--neon-purple); }
-        .tab-open.active { color: var(--neon-blue); border-bottom: 2px solid var(--neon-blue); }
 
         .card {
             background: var(--card-bg); border-radius: 16px; padding: 25px;
@@ -65,21 +56,21 @@
 
         .live-clock { font-size: 28px; font-weight: 900; color: var(--text-main); margin-bottom: 15px; font-family: monospace; letter-spacing: 2px; }
         
-        .mode-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; height: 50px; }
+        .mode-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 10px; border-left: 3px solid var(--neon-purple); text-align: left; }
 
         input[type="file"] { display: none; }
         .upload-btn {
             display: block; width: 100%; padding: 16px; background: transparent;
-            border: 2px dashed var(--neon-blue); color: var(--neon-blue);
+            border: 2px dashed var(--neon-purple); color: var(--neon-purple);
             border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s;
         }
-        .upload-btn:hover { background: rgba(0, 229, 255, 0.05); }
-        #imagePreviewContainer { display: none; margin-top: 15px; border-radius: 12px; overflow: hidden; border: 1px solid var(--neon-blue); }
+        .upload-btn:hover { background: rgba(181, 42, 255, 0.05); }
+        #imagePreviewContainer { display: none; margin-top: 15px; border-radius: 12px; overflow: hidden; border: 1px solid var(--neon-purple); }
         #imagePreview { width: 100%; height: auto; display: block; }
         .file-name { font-size: 11px; color: var(--neon-green); margin-top: 10px; display: block; }
 
         button { width: 100%; padding: 16px; border-radius: 12px; font-size: 15px; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.2s; border: none; margin-top: 15px; }
-        .btn-scan { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px rgba(0,229,255,0.3); }
+        .btn-scan { background: var(--neon-purple); color: #fff; box-shadow: 0 0 20px rgba(181, 42, 255, 0.3); }
         .btn-reset { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); margin-top: 10px; display: none; }
 
         /* Paywall Modal */
@@ -89,9 +80,9 @@
         .btn-gold { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
 
         #processingArea { display: none; padding: 20px 0; }
-        .spinner { width: 40px; height: 40px; border: 4px solid rgba(0,229,255,0.1); border-top-color: var(--neon-blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        .spinner { width: 40px; height: 40px; border: 4px solid rgba(181, 42, 255, 0.1); border-top-color: var(--neon-purple); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .status-text { font-size: 13px; color: var(--neon-blue); font-weight: bold; }
+        .status-text { font-size: 13px; color: var(--neon-purple); font-weight: bold; }
         
         #warningArea { display: none; margin-top: 15px; padding: 15px; border-radius: 10px; background: rgba(255, 51, 102, 0.1); border: 1px solid var(--neon-red); }
         .warning-text { font-size: 13px; color: var(--neon-red); font-weight: bold; line-height: 1.5; }
@@ -99,56 +90,54 @@
         #resultArea { display: none; }
         .signal-box { background: #0b0d10; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-top: 10px; }
         .signal-asset { font-size: 20px; font-weight: bold; color: var(--text-main); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        .signal-dir { font-size: 38px; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; }
-        .signal-time { font-size: 14px; color: var(--text-main); font-weight: bold; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; }
+        .signal-dir { font-size: 34px; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; line-height: 1.2; }
+        .signal-time { font-size: 14px; color: var(--text-main); font-weight: bold; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid var(--neon-blue); }
     </style>
 </head>
 <body>
 
     <div class="dashboard-ui">
         
+        <!-- FREEMIUM BADGE -->
         <div class="credits-badge" id="creditsBadge">Free Scans: <span id="scanCount">5</span>/5</div>
         <div class="credits-badge vip-badge" id="vipBadge">👑 VIP ACTIVE</div>
 
-        <h2>Universal Matrix Matrix</h2>
+        <h2>Strict OTC Matrix</h2>
         <div class="supported-markets">
-            Forex • Commodities • Stocks • Crypto<br>
-            <span style="color: var(--neon-blue);">Quotex | Pocket Option | IQ Option | Deriv</span>
-        </div>
-        
-        <div class="tabs">
-            <div class="tab tab-otc active" id="tabOTC" onclick="setMode('OTC')">OTC Mode</div>
-            <div class="tab tab-open" id="tabOpen" onclick="setMode('OPEN')">Open Market</div>
+            Algorithmic Market Data Only
         </div>
 
         <div class="card" id="mainAppCard">
             <div class="live-clock" id="liveClock">00:00:00</div>
             
             <div class="mode-desc" id="modeDesc">
-                <strong>OTC STRICT TIMING:</strong> Upload chart exactly at the 8th minute (e.g., 2:08). Analyzes 10-min candle structure for 9:00 execution.
+                <strong>INSTITUTIONAL TIMING REQUIRED:</strong><br><br>
+                1. Upload chart exactly at the <strong>8th minute</strong> of the block (e.g., 2:08, 2:18, 2:28).<br>
+                2. Wait for structural matrix analysis.<br>
+                3. Execute strictly at the <strong>9th minute</strong> mark for a 1-minute algorithmic flush.
             </div>
             
             <div id="uploadContainer">
                 <label class="upload-btn" id="uploadBtnLabel">
-                    📸 Upload Chart Screenshot
+                    📸 Upload OTC Screenshot
                     <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
                 </label>
                 
                 <div id="imagePreviewContainer"><img id="imagePreview" src="" alt="Chart Preview"></div>
                 <span class="file-name" id="fileNameDisplay">No chart uploaded yet...</span>
                 
-                <button class="btn-scan" onclick="attemptScan()">Initialize Scan</button>
+                <button class="btn-scan" onclick="attemptScan()">Initialize OTC Scan</button>
             </div>
 
             <div id="warningArea"><div class="warning-text" id="warningMessage"></div></div>
 
             <div id="processingArea">
                 <div class="spinner"></div>
-                <div class="status-text" id="statusText">Verifying Chart Structure...</div>
+                <div class="status-text" id="statusText">Verifying Algorithmic Structure...</div>
             </div>
 
             <div id="resultArea">
-                <h3 style="margin-top: 0; font-size: 12px; color: var(--text-muted); text-transform: uppercase;">Algorithm Result</h3>
+                <h3 style="margin-top: 0; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Algorithm Output</h3>
                 <div class="signal-box">
                     <div class="signal-asset" id="signalAsset">--</div>
                     <div class="signal-dir" id="signalDirection">--</div>
@@ -156,9 +145,10 @@
                 </div>
             </div>
 
-            <button class="btn-reset" id="resetBtn" onclick="resetScanner()">New Scan</button>
+            <button class="btn-reset" id="resetBtn" onclick="resetScanner()">Scan Next Candle</button>
         </div>
 
+        <!-- PAYWALL OVERLAY -->
         <div id="paywallArea">
             <div class="paywall-box">
                 <h2 style="color: var(--neon-gold); font-size: 22px; margin-bottom: 10px;">Trial Expired</h2>
@@ -166,7 +156,7 @@
                     You have used all 5 free scans. Upgrade to VIP for unlimited daily algorithmic signals.
                 </p>
                 <a href="https://selar.com" target="_blank" style="text-decoration: none;">
-                    <button class="btn-scan" style="margin-bottom: 20px;">Buy VIP License Key</button>
+                    <button class="btn-scan" style="margin-bottom: 20px; background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);">Buy VIP License Key</button>
                 </a>
                 <p style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 8px;">Have a key?</p>
                 <input type="text" class="key-input" id="licenseKey" placeholder="Enter VIP Key">
@@ -177,11 +167,10 @@
     </div>
 
     <script>
-        let currentMode = 'OTC';
         let maxScans = 5;
         let scansUsed = localStorage.getItem('ls_scans_used') ? parseInt(localStorage.getItem('ls_scans_used')) : 0;
         let isVIP = localStorage.getItem('ls_is_vip') === 'true';
-        const VIP_SECRET_KEY = "PRO-SIGNAL-777"; 
+        const VIP_SECRET_KEY = "PRO-OTC-777"; 
 
         function initApp() {
             updateCreditsDisplay();
@@ -207,32 +196,10 @@
                 localStorage.setItem('ls_is_vip', 'true');
                 document.getElementById('paywallArea').style.display = 'none';
                 updateCreditsDisplay();
-                alert("VIP Unlocked Successfully! Welcome to Pro.");
+                alert("VIP Unlocked Successfully! Welcome to Pro OTC.");
             } else {
                 alert("Invalid License Key. Please check your purchase receipt.");
             }
-        }
-
-        function setMode(mode) {
-            currentMode = mode;
-            document.getElementById('tabOTC').classList.remove('active');
-            document.getElementById('tabOpen').classList.remove('active');
-            
-            const btnLabel = document.getElementById('uploadBtnLabel');
-            const modeDesc = document.getElementById('modeDesc');
-
-            if (mode === 'OTC') {
-                document.getElementById('tabOTC').classList.add('active');
-                btnLabel.style.borderColor = 'var(--neon-purple)';
-                btnLabel.style.color = 'var(--neon-purple)';
-                modeDesc.innerHTML = '<strong>OTC STRICT TIMING:</strong> Upload chart exactly at the 8th minute (e.g., 2:08). Analyzes 10-min candle structure for 9:00 execution.';
-            } else {
-                document.getElementById('tabOpen').classList.add('active');
-                btnLabel.style.borderColor = 'var(--neon-blue)';
-                btnLabel.style.color = 'var(--neon-blue)';
-                modeDesc.innerHTML = '<strong>OPEN MARKET:</strong> Live volume analysis for any asset/platform. Executes immediately upon signal generation with 5-min expiry.';
-            }
-            resetScanner();
         }
 
         setInterval(() => {
@@ -291,8 +258,7 @@
             const file = input.files[0];
             const previewImg = document.getElementById('imagePreview');
             
-            // 1. FRESHNESS CHECK: Prevent Old/Fake Screenshots using Metadata
-            // 180000 milliseconds = 3 minutes. If the screenshot is older than 3 minutes, reject it.
+            // 1. FRESHNESS CHECK (3 Minutes max)
             const fileAgeMs = Date.now() - file.lastModified;
             if (fileAgeMs > 180000) {
                 document.getElementById('warningMessage').innerHTML = `⚠️ OUTDATED CHART DETECTED.<br>File metadata shows this screenshot is old. You must take a LIVE screenshot right now to analyze current price action.`;
@@ -300,7 +266,7 @@
                 return;
             }
 
-            // 2. STRUCTURAL CHECK: Prevent Selfies/Random Photos
+            // 2. STRUCTURAL CHECK
             if (!isValidChartImage(previewImg)) {
                 document.getElementById('warningMessage').innerHTML = `⚠️ INVALID IMAGE DETECTED.<br>No candlestick structure or valid background found. Please upload a real trading chart screenshot.`;
                 document.getElementById('warningArea').style.display = 'block';
@@ -311,27 +277,28 @@
             const currentMin = now.getMinutes();
             let assetName = file.name.replace(/\.[^/.]+$/, "").toUpperCase();
             if (assetName.length > 15 || assetName.includes("SCREENSHOT") || assetName.includes("IMAGE")) {
-                assetName = "LIVE ASSET"; 
+                assetName = "OTC ASSET"; 
             }
 
-            // 3. TIME CHECKS (OTC Mode Only)
-            let executionText = "";
-            if (currentMode === 'OTC') {
-                const baseMin = Math.floor(currentMin / 10) * 10;
-                const signalMin = baseMin + 8;
-                
-                if (currentMin < signalMin) {
-                    let waitTime = new Date(now); waitTime.setMinutes(signalMin); waitTime.setSeconds(0);
-                    const timeString = waitTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    document.getElementById('warningMessage').innerHTML = `⚠️ OTC TIMING REJECTED.<br>Wait until exactly <span style="color:#fff; font-size: 16px;">${timeString}</span> to scan.`;
-                    document.getElementById('warningArea').style.display = 'block';
-                    return;
-                }
-                let execTime = new Date(now); execTime.setMinutes(baseMin + 9); execTime.setSeconds(0);
-                executionText = `Execute Trade At Exactly:<br><span style="color:var(--neon-purple); font-size:22px; display:block; margin-top:8px;">${execTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}</span><span style="font-size:11px; display:block; margin-top:5px;">(10-Min Candle Close)</span>`;
-            } else {
-                executionText = `Execute Trade:<br><span style="color:var(--neon-blue); font-size:22px; display:block; margin-top:8px;">IMMEDIATELY</span><span style="font-size:11px; display:block; margin-top:5px;">(Set Expiry to 5 Minutes)</span>`;
+            // 3. STRICT 8th MINUTE OTC TIMING
+            const baseMin = Math.floor(currentMin / 10) * 10;
+            const signalMin = baseMin + 8;
+            
+            if (currentMin < signalMin) {
+                let waitTime = new Date(now); waitTime.setMinutes(signalMin); waitTime.setSeconds(0);
+                const timeString = waitTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                document.getElementById('warningMessage').innerHTML = `⚠️ ALGORITHMIC TIMING REJECTED.<br><br>The candle requires more structure. Wait until exactly <span style="color:#fff; font-size: 16px;">${timeString}</span> to upload and scan.`;
+                document.getElementById('warningArea').style.display = 'block';
+                return;
             }
+
+            // 4. EXECUTION INSTRUCTIONS (9th Minute, 1-Min Expiry)
+            let execTime = new Date(now); execTime.setMinutes(baseMin + 9); execTime.setSeconds(0);
+            let executionText = `
+                <div style="text-transform: uppercase; font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">Execution Protocol:</div>
+                <span style="color:var(--neon-blue); font-size:24px; display:block; margin-bottom: 5px;">${execTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}</span>
+                <span style="color: #fff;">1-MINUTE EXPIRY ONLY</span>
+            `;
 
             // Proceed to Scan 
             if (!isVIP) {
@@ -346,8 +313,8 @@
 
             const statusText = document.getElementById('statusText');
             setTimeout(() => { statusText.innerText = "Extracting Metadata & Time Signatures..."; }, 1000);
-            setTimeout(() => { statusText.innerText = "Verifying Candlestick Structure..."; }, 2500);
-            setTimeout(() => { statusText.innerText = "Running Directional Matrix..."; }, 4000);
+            setTimeout(() => { statusText.innerText = "Scanning Algorithmic Order Blocks..."; }, 2500);
+            setTimeout(() => { statusText.innerText = "Calculating OTC Trend Probability..."; }, 4000);
 
             setTimeout(() => {
                 document.getElementById('processingArea').style.display = 'none';
@@ -356,18 +323,33 @@
                 
                 document.getElementById('signalAsset').innerText = assetName;
 
-                const isCall = ((now.getMinutes() + now.getSeconds()) % 2 === 0);
-                const dirElement = document.getElementById('signalDirection');
+                // PROFESSIONAL NO-TRADE FILTER (15% chance to reject trade to avoid choppy markets)
+                // We use a mix of minutes and seconds to generate a pseudo-random seed
+                const randomSeed = (now.getMinutes() * 60 + now.getSeconds() + file.size) % 100;
                 
-                if (isCall) {
+                const dirElement = document.getElementById('signalDirection');
+                const execElement = document.getElementById('executionDetails');
+                
+                if (randomSeed < 15) {
+                    // 15% Chance: Consolidation / No Trade
+                    dirElement.innerHTML = "⚠️ NO TRADE<br><span style='font-size: 14px; color: var(--text-muted);'>CONSOLIDATION DETECTED</span>";
+                    dirElement.style.color = "var(--neon-yellow)";
+                    execElement.innerHTML = "<span style='color: var(--neon-red);'>Market conditions unstable. Do not execute. Wait for next 10-minute block.</span>";
+                    execElement.style.borderLeft = "4px solid var(--neon-red)";
+                } else if (randomSeed < 57) {
+                    // 42% Chance: Call
                     dirElement.innerText = "🟢 CALL (UP)";
                     dirElement.style.color = "var(--neon-green)";
+                    execElement.innerHTML = executionText;
+                    execElement.style.borderLeft = "4px solid var(--neon-blue)";
                 } else {
+                    // 43% Chance: Put
                     dirElement.innerText = "🔴 PUT (DOWN)";
                     dirElement.style.color = "var(--neon-red)";
+                    execElement.innerHTML = executionText;
+                    execElement.style.borderLeft = "4px solid var(--neon-blue)";
                 }
 
-                document.getElementById('executionDetails').innerHTML = executionText;
             }, 5500);
         }
 
