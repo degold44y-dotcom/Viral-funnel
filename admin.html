@@ -46,7 +46,7 @@
             margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;
         }
         label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 6px; }
-        input[type="text"] {
+        input[type="text"], input[type="number"] {
             width: 100%; padding: 12px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1);
             border-radius: 8px; color: #fff; font-size: 13px; box-sizing: border-box; margin-bottom: 12px;
         }
@@ -56,6 +56,7 @@
         }
         .btn-save-otc { background: var(--neon-gold); color: #000; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
         .btn-save-locker { background: var(--neon-purple); color: #fff; box-shadow: 0 0 15px rgba(181, 42, 255, 0.3); }
+        .btn-admin-bypass { background: var(--neon-green); color: #000; box-shadow: 0 0 15px rgba(0,255,102,0.3); margin-top: 10px; }
         button:active { transform: scale(0.98); }
         .status-msg { font-size: 11px; color: var(--neon-green); text-align: center; margin-top: 8px; display: none; }
     </style>
@@ -79,11 +80,21 @@
             <label>Payment Gateway URL</label>
             <input type="text" id="otcPaymentLink" placeholder="https://your-payment-link.com">
 
+            <label>Execution Second (e.g. 57 for 9m 57s)</label>
+            <input type="number" id="otcExecSecond" placeholder="57">
+
+            <label>Free Scan Limit Before Paywall</label>
+            <input type="number" id="otcMaxScans" placeholder="5">
+
             <button class="btn-save-otc" onclick="saveOTCSettings()">Save OTC Settings</button>
             <div class="status-msg" id="otcStatus">✔️ OTC Settings saved successfully!</div>
+
+            <!-- ADMIN FREE ACCESS ACTIVATOR -->
+            <button class="btn-admin-bypass" onclick="grantAdminAccess()">👑 Activate Admin Free Access on this Device</button>
+            <div class="status-msg" id="adminStatus" style="color: var(--neon-blue);">✔️ Admin VIP & Unlimited Scans Unlocked!</div>
         </div>
 
-        <!-- CONTENT LOCKER SETTINGS -->
+        <!-- CONTENT LOCKER SETTINGS (100% UNTOUCHED) -->
         <div class="card">
             <div class="card-title">🎁 Content Locker Settings</div>
             
@@ -142,9 +153,11 @@
             if (data.price) document.getElementById('otcPriceInput').value = data.price;
             if (data.vipKey) document.getElementById('otcKeyInput').value = data.vipKey;
             if (data.paymentUrl) document.getElementById('otcPaymentLink').value = data.paymentUrl;
+            if (data.execSecond !== undefined) document.getElementById('otcExecSecond').value = data.execSecond;
+            if (data.maxScans !== undefined) document.getElementById('otcMaxScans').value = data.maxScans;
         });
 
-        // Load Content Locker settings on startup
+        // Load Content Locker settings on startup (100% untouched)
         db.ref('settings').once('value').then((snapshot) => {
             const data = snapshot.val() || {};
             if (data.requiredShares) document.getElementById('requiredShares').value = data.requiredShares;
@@ -160,11 +173,15 @@
             const price = document.getElementById('otcPriceInput').value.trim();
             const vipKey = document.getElementById('otcKeyInput').value.trim();
             const paymentUrl = document.getElementById('otcPaymentLink').value.trim();
+            const execSecond = document.getElementById('otcExecSecond').value.trim();
+            const maxScans = document.getElementById('otcMaxScans').value.trim();
 
             db.ref('adminSettings/otc').set({
                 price: price || "$2.00",
                 vipKey: vipKey || "PRO-OTC-777",
-                paymentUrl: paymentUrl || "https://selar.com"
+                paymentUrl: paymentUrl || "https://selar.com",
+                execSecond: execSecond !== "" ? parseInt(execSecond) : 57,
+                maxScans: maxScans !== "" ? parseInt(maxScans) : 5
             }).then(() => {
                 const msg = document.getElementById('otcStatus');
                 msg.style.display = 'block';
@@ -172,7 +189,17 @@
             });
         }
 
-        // Save Content Locker Settings (matches your locker script's db.ref('settings'))
+        // Instant Admin Free Access Activation for this browser
+        function grantAdminAccess() {
+            localStorage.setItem('ls_is_vip', 'true');
+            localStorage.setItem('ls_disclaimer_accepted', 'true');
+            localStorage.setItem('ls_scans_used', '0');
+            const msg = document.getElementById('adminStatus');
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+        }
+
+        // Save Content Locker Settings (100% untouched logic)
         function saveLockerSettings() {
             const requiredShares = document.getElementById('requiredShares').value.trim();
             const rewardLink = document.getElementById('rewardLink').value.trim();
