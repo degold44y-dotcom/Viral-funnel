@@ -30,14 +30,6 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.05); text-align: center; position: relative;
         }
-        
-        .status-banner {
-            background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
-            padding: 10px 15px; border-radius: 12px; font-size: 12px; font-weight: bold;
-            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .vip-active-banner { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; display: none; }
 
         h2 {
             margin-top: 5px; margin-bottom: 5px; text-transform: uppercase;
@@ -105,15 +97,6 @@
 <body>
 
     <div class="dashboard-ui">
-        
-        <div class="status-banner" id="creditsBadge">
-            <span>Free Scans: <span id="scanCount">5</span>/<span id="maxScanDisplay">5</span></span>
-        </div>
-        <div class="status-banner vip-active-banner" id="vipBadge">
-            <span>👑 VIP ACTIVE (<span id="subTypeDisplay">Lifetime</span>)</span>
-            <span id="expiryTimerDisplay" style="font-size: 10px;"></span>
-        </div>
-
         <h2>Strict OTC Matrix</h2>
         <div class="supported-markets">Algorithmic Market Data Only</div>
 
@@ -171,11 +154,11 @@
             </div>
         </div>
 
-        <!-- PAYWALL OVERLAY -->
+        <!-- PAYWALL & LICENSE INPUT MODAL -->
         <div class="modal-overlay" id="paywallArea" style="display: none;">
             <div class="modal-box">
-                <h2 style="color: var(--neon-gold); font-size: 20px; margin-bottom: 5px; text-align: center;">Trial Limit Reached</h2>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; text-align: center;">Enter your secure access code to unlock unlimited scans.</p>
+                <h2 style="color: var(--neon-gold); font-size: 20px; margin-bottom: 5px; text-align: center;">Access Required</h2>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px; text-align: center;">Enter your access code to unlock scanning rights.</p>
                 
                 <div class="price-tag" id="priceDisplay">$2.00</div>
                 
@@ -184,7 +167,7 @@
                 </a>
 
                 <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
-                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 5px; text-transform: uppercase;">Input Code (Device-Locked):</label>
+                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 5px; text-transform: uppercase;">Input Code (Admin or Subscriber):</label>
                     <input type="text" class="key-input" id="licenseKey" placeholder="ENTER ACCESS CODE">
                     <button class="btn-gold" onclick="verifyKey()">Activate Access</button>
                 </div>
@@ -219,7 +202,7 @@
         let dynamicPaymentUrl = "https://selar.com";
         let dynamicExecSecond = 57;
 
-        // Generate a unique browser/device fingerprint
+        // Unique browser/device fingerprinting to prevent code sharing
         function getDeviceFingerprint() {
             let fp = localStorage.getItem('device_fingerprint');
             if (!fp) {
@@ -230,7 +213,6 @@
         }
         const userDeviceToken = getDeviceFingerprint();
 
-        // Check expiration and local session validity
         function checkExpiration() {
             let expiryTime = localStorage.getItem('ls_expiry_time');
             if (isVIP && expiryTime !== 'lifetime' && expiryTime) {
@@ -238,7 +220,6 @@
                     isVIP = false;
                     localStorage.setItem('ls_is_vip', 'false');
                     localStorage.removeItem('ls_expiry_time');
-                    localStorage.removeItem('ls_active_code');
                     alert("Your subscription time has expired.");
                 }
             }
@@ -261,8 +242,6 @@
             }
             if (data.maxScans !== undefined) {
                 maxScans = parseInt(data.maxScans);
-                document.getElementById('maxScanDisplay').innerText = maxScans;
-                updateCreditsDisplay();
             }
         });
 
@@ -273,7 +252,6 @@
                 document.getElementById('disclaimerModal').style.display = 'none';
                 checkPaywall();
             }
-            updateCreditsDisplay();
         }
 
         function acceptDisclaimer() {
@@ -294,69 +272,33 @@
             }
         }
 
-        function updateCreditsDisplay() {
-            if (isVIP) {
-                document.getElementById('creditsBadge').style.display = 'none';
-                const vipBanner = document.getElementById('vipBadge');
-                vipBanner.style.display = 'flex';
-                
-                let subType = localStorage.getItem('ls_sub_type') || 'VIP Access';
-                document.getElementById('subTypeDisplay').innerText = subType;
-
-                let expiryTime = localStorage.getItem('ls_expiry_time');
-                if (expiryTime && expiryTime !== 'lifetime') {
-                    let timeLeft = parseInt(expiryTime) - Date.now();
-                    if (timeLeft > 0) {
-                        let hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                        let mins = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                        document.getElementById('expiryTimerDisplay').innerText = `Exp: ${hours}h ${mins}m`;
-                    } else {
-                        isVIP = false;
-                        localStorage.setItem('ls_is_vip', 'false');
-                        updateCreditsDisplay();
-                        document.getElementById('paywallArea').style.display = 'flex';
-                    }
-                } else {
-                    document.getElementById('expiryTimerDisplay').innerText = `(Lifetime)`;
-                }
-            } else {
-                let scansLeft = Math.max(0, maxScans - scansUsed);
-                document.getElementById('scanCount').innerText = scansLeft;
-                document.getElementById('maxScanDisplay').innerText = maxScans;
-            }
-        }
-
         function verifyKey() {
             const inputKey = document.getElementById('licenseKey').value.trim();
             
             if (inputKey === dynamicVIPKey) {
-                // MASTER LIFETIME ADMIN CODE (Can be used anytime by you)
+                // YOUR LIFETIME ADMIN CODE
                 isVIP = true;
                 localStorage.setItem('ls_is_vip', 'true');
                 localStorage.setItem('ls_sub_type', 'Lifetime Admin');
                 localStorage.setItem('ls_expiry_time', 'lifetime');
                 
                 document.getElementById('paywallArea').style.display = 'none';
-                updateCreditsDisplay();
                 alert("Master Lifetime Admin Access Unlocked!");
             } else if (inputKey.startsWith("SUB-")) {
-                // SUBSCRIBER CODE: Check Firebase to see if code is already bound to another device
-                let safeCodeKey = inputKey.replace(/[.$#[\]/]/g, "_"); // sanitize key for Firebase node path
+                let safeCodeKey = inputKey.replace(/[.$#[\]/]/g, "_");
                 
                 db.ref('activeSubscribers/' + safeCodeKey).once('value').then((snapshot) => {
                     const subData = snapshot.val();
                     const now = Date.now();
 
                     if (subData) {
-                        // Code exists in database. Check if it belongs to this browser fingerprint or if it expired.
                         if (subData.deviceToken !== userDeviceToken && subData.expiry > now) {
-                            alert("❌ Security Error: This access code is already locked and active on another user's browser/device!");
+                            alert("❌ Security Error: This access code is already locked and active on another device!");
                             return;
                         }
                     }
 
-                    // Calculate duration
-                    let durationMs = 24 * 60 * 60 * 1000; // Default 24 hours
+                    let durationMs = 24 * 60 * 60 * 1000; // 24h default
                     let subName = "24-Hour Access";
                     
                     if(inputKey.includes("7D")) { durationMs = 7 * 24 * 3600 * 1000; subName = "7 Days Access"; }
@@ -364,14 +306,12 @@
 
                     let expiryTimestamp = now + durationMs;
 
-                    // Save binding to Firebase
                     db.ref('activeSubscribers/' + safeCodeKey).set({
                         deviceToken: userDeviceToken,
                         expiry: expiryTimestamp,
                         activatedAt: now
                     });
 
-                    // Save locally
                     isVIP = true;
                     localStorage.setItem('ls_is_vip', 'true');
                     localStorage.setItem('ls_sub_type', subName);
@@ -379,11 +319,10 @@
                     localStorage.setItem('ls_active_code', inputKey);
 
                     document.getElementById('paywallArea').style.display = 'none';
-                    updateCreditsDisplay();
                     alert(`Subscriber Key Activated! Access locked to this browser for ${subName}.`);
                 });
             } else {
-                alert("Invalid Access Code. Please check your key.");
+                alert("Invalid Access Code.");
             }
         }
 
@@ -410,6 +349,7 @@
             }
         }
 
+        // STRICT IMAGE VALIDATION: Rejects non-chart pictures (selfies, random images) immediately
         function isValidChartImage(imgElement) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -429,6 +369,7 @@
                 colorMap[key] = (colorMap[key] || 0) + 1;
                 if (colorMap[key] > dominantCount) dominantCount = colorMap[key];
             }
+            // Real charts have uniform grid/background contrast; selfies/random photos fail this threshold check
             return dominantCount >= 250; 
         }
 
@@ -444,15 +385,9 @@
             const file = input.files[0];
             const previewImg = document.getElementById('imagePreview');
             
-            const fileAgeMs = Date.now() - file.lastModified;
-            if (fileAgeMs > 180000) {
-                document.getElementById('warningMessage').innerHTML = `⚠️ OUTDATED CHART DETECTED.<br>File metadata shows this screenshot is old. Take a live screenshot.`;
-                document.getElementById('warningArea').style.display = 'block';
-                return;
-            }
-
+            // Strict check: Reject any image that isn't a valid trading chart
             if (!isValidChartImage(previewImg)) {
-                document.getElementById('warningMessage').innerHTML = `⚠️ INVALID IMAGE DETECTED.<br>No candlestick structure found. Upload a real chart screenshot.`;
+                document.getElementById('warningMessage').innerHTML = `⚠️ INVALID IMAGE REJECTED.<br>Only real OTC trading chart screenshots are permitted. Selfies or unrelated images are strictly blocked.`;
                 document.getElementById('warningArea').style.display = 'block';
                 return;
             }
@@ -471,7 +406,7 @@
             if (currentMin < signalMin) {
                 let waitTime = new Date(now); waitTime.setMinutes(signalMin); waitTime.setSeconds(0);
                 const timeString = waitTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                document.getElementById('warningMessage').innerHTML = `⚠️ ALGORITHmic TIMING REJECTED.<br><br>Wait until exactly <span style="color:#fff; font-size: 16px;">${timeString}</span> to upload and scan.`;
+                document.getElementById('warningMessage').innerHTML = `⚠️ ALGORITHMIC TIMING REJECTED.<br><br>Wait until exactly <span style="color:#fff; font-size: 16px;">${timeString}</span> to upload and scan.`;
                 document.getElementById('warningArea').style.display = 'block';
                 return;
             }
@@ -489,7 +424,6 @@
             if (!isVIP) {
                 scansUsed++;
                 localStorage.setItem('ls_scans_used', scansUsed);
-                updateCreditsDisplay();
             }
 
             document.getElementById('warningArea').style.display = 'none';
