@@ -75,16 +75,15 @@
         .btn-scan { background: var(--neon-purple); color: #fff; box-shadow: 0 0 20px rgba(181, 42, 255, 0.3); }
         .btn-reset { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); margin-top: 10px; display: none; }
 
-        /* TRULY TRANSPARENT WARNING OVERLAY */
+        /* NO BLUR - APP IS CLEARLY VISIBLE BEHIND SEMI-TRANSPARENT OVERLAY */
         .modal-overlay {
             display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(11, 13, 16, 0.45); /* Highly transparent so the background app is clearly visible */
-            backdrop-filter: blur(4px); /* Light frosted glass blur */
+            background: rgba(11, 13, 16, 0.55); /* Clean semi-transparent tint without blur */
             z-index: 50; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-sizing: border-box;
             transition: opacity 0.4s ease;
         }
         .modal-box {
-            background: rgba(21, 24, 30, 0.9); padding: 25px; border-radius: 16px;
+            background: rgba(21, 24, 30, 0.95); padding: 25px; border-radius: 16px;
             border: 1px solid rgba(255, 51, 102, 0.6); width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.9); text-align: left;
         }
         .paywall-box { border: 1px solid var(--neon-gold); text-align: center; background: rgba(21, 24, 30, 0.98); }
@@ -159,7 +158,7 @@
             <button class="btn-reset" id="resetBtn" onclick="resetScanner()">Scan Next Candle</button>
         </div>
 
-        <!-- TRANSPARENT 18+ & EDUCATIONAL DISCLAIMER MODAL -->
+        <!-- TRANSPARENT WARNING OVERLAPPING OPEN INTERFACE -->
         <div class="modal-overlay" id="disclaimerModal">
             <div class="modal-box">
                 <h3 style="color: var(--neon-red); margin-top: 0; text-align: center; font-size: 18px;">⚠️ AGE & RISK WARNING</h3>
