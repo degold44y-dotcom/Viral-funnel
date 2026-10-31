@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTC Matrix Admin Hub</title>
+    <style>
+        :root {
+            --bg-color: #0b0d10;
+            --panel-bg: #15181e;
+            --card-bg: #1c2028;
+            --neon-blue: #00e5ff;
+            --neon-green: #00ff66;
+            --neon-gold: #ffd700;
+            --text-main: #ffffff;
+            --text-muted: #8a99a8;
+        }
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 20px;
+        }
+        .dashboard-ui {
+            background-color: var(--panel-bg); border-radius: 24px; padding: 30px;
+            width: 100%; max-width: 480px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05); text-align: left;
+        }
+        h2 {
+            margin-top: 0; margin-bottom: 5px; text-transform: uppercase;
+            letter-spacing: 2px; font-size: 20px; font-weight: 900; color: var(--neon-gold);
+            text-align: center;
+        }
+        .subtitle {
+            font-size: 11px; color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 25px; font-weight: bold; text-align: center;
+        }
+        .card {
+            background: var(--card-bg); border-radius: 16px; padding: 20px;
+            border: 1px solid rgba(255,255,255,0.02); box-shadow: 0 4px 6px rgba(0,0,0,0.2); margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 13px; font-weight: bold; color: var(--neon-blue); text-transform: uppercase;
+            margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;
+        }
+        label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 6px; }
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 12px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: #fff; font-size: 13px; box-sizing: border-box; margin-bottom: 12px;
+        }
+        button {
+            width: 100%; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: bold;
+            text-transform: uppercase; cursor: pointer; border: none; transition: 0.2s; background: var(--neon-gold); color: #000; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+        button:active { transform: scale(0.98); }
+        .status-msg { font-size: 11px; color: var(--neon-green); text-align: center; margin-top: 8px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-ui">
+        <h2>OTC Command Hub</h2>
+        <div class="subtitle">Strict OTC Matrix Control</div>
+
+        <div class="card">
+            <div class="card-title">📊 Strict OTC Matrix Settings</div>
+            
+            <label>Subscription Price Display</label>
+            <input type="text" id="otcPriceInput" placeholder="$2.00">
+
+            <label>Master Admin Lifetime Key</label>
+            <input type="text" id="otcKeyInput" placeholder="PRO-OTC-777">
+
+            <label>Payment Gateway URL</label>
+            <input type="text" id="otcPaymentLink" placeholder="https://your-payment-link.com">
+
+            <label>Execution Second (e.g. 57 for 9m 57s)</label>
+            <input type="number" id="otcExecSecond" placeholder="57">
+
+            <label>Free Scan Limit Before Paywall</label>
+            <input type="number" id="otcMaxScans" placeholder="5">
+
+            <button onclick="saveOTCSettings()">Save OTC Settings</button>
+            <div class="status-msg" id="otcStatus">✔️ OTC Settings saved successfully!</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 10px;">
+            <a href="otc-scanner.html?v=update" target="_blank" style="color: var(--neon-blue); font-size: 11px; text-decoration: none; font-weight: bold;">
+                🔗 Open Live OTC App
+            </a>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
+            authDomain: "probet-syndicate.firebaseapp.com",
+            databaseURL: "https://probet-syndicate-default-rtdb.firebaseio.com",
+            projectId: "probet-syndicate",
+            storageBucket: "probet-syndicate.firebasestorage.app",
+            messagingSenderId: "418866597682",
+            appId: "1:418866597682:web:847007dbaf3c40452d912b"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Load OTC settings on startup
+        db.ref('adminSettings/otc').once('value').then((snapshot) => {
+            const data = snapshot.val() || {};
+            if (data.price) document.getElementById('otcPriceInput').value = data.price;
+            if (data.vipKey) document.getElementById('otcKeyInput').value = data.vipKey;
+            if (data.paymentUrl) document.getElementById('otcPaymentLink').value = data.paymentUrl;
+            if (data.execSecond !== undefined) document.getElementById('otcExecSecond').value = data.execSecond;
+            if (data.maxScans !== undefined) document.getElementById('otcMaxScans').value = data.maxScans;
+        });
+
+        function saveOTCSettings() {
+            const price = document.getElementById('otcPriceInput').value.trim();
+            const vipKey = document.getElementById('otcKeyInput').value.trim();
+            const paymentUrl = document.getElementById('otcPaymentLink').value.trim();
+            const execSecond = document.getElementById('otcExecSecond').value.trim();
+            const maxScans = document.getElementById('otcMaxScans').value.trim();
+
+            db.ref('adminSettings/otc').update({
+                price: price || "$2.00",
+                vipKey: vipKey || "PRO-OTC-777",
+                paymentUrl: paymentUrl || "https://selar.com",
+                execSecond: execSecond !== "" ? parseInt(execSecond) : 57,
+                maxScans: maxScans !== "" ? parseInt(maxScans) : 5
+            }).then(() => {
+                const msg = document.getElementById('otcStatus');
+                msg.style.display = 'block';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            });
+        }
+    </script>
+</body>
+</html>
