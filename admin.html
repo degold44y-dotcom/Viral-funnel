@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro OTC | Admin Dashboard</title>
+    <title>Master Admin | Unified Dashboard</title>
     <style>
         :root {
             --bg-color: #0b0d10;
@@ -25,7 +25,7 @@
         }
         .dashboard-ui {
             background-color: var(--panel-bg); border-radius: 24px; padding: 30px;
-            width: 100%; max-width: 460px;
+            width: 100%; max-width: 480px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.05); text-align: left;
         }
@@ -40,45 +40,70 @@
         }
         .card {
             background: var(--card-bg); border-radius: 16px; padding: 20px;
-            border: 1px solid rgba(255,255,255,0.02); box-shadow: 0 4px 6px rgba(0,0,0,0.2); margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.02); box-shadow: 0 4px 6px rgba(0,0,0,0.2); margin-bottom: 20px;
         }
-        label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 8px; }
+        .card-title {
+            font-size: 13px; font-weight: bold; color: var(--neon-blue); text-transform: uppercase;
+            margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;
+        }
+        label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: bold; display: block; margin-bottom: 6px; }
         input[type="text"] {
-            width: 100%; padding: 14px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px; color: #fff; font-size: 14px; box-sizing: border-box; margin-bottom: 15px;
+            width: 100%; padding: 12px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; color: #fff; font-size: 13px; box-sizing: border-box; margin-bottom: 12px;
         }
         button {
-            width: 100%; padding: 14px; border-radius: 10px; font-size: 14px; font-weight: bold;
+            width: 100%; padding: 12px; border-radius: 8px; font-size: 13px; font-weight: bold;
             text-transform: uppercase; cursor: pointer; border: none; transition: 0.2s;
         }
-        .btn-save { background: var(--neon-gold); color: #000; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
-        .btn-save:active { transform: scale(0.98); }
-        .status-msg { font-size: 12px; color: var(--neon-green); text-align: center; margin-top: 10px; display: none; }
+        .btn-save-otc { background: var(--neon-gold); color: #000; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
+        .btn-save-locker { background: var(--neon-purple); color: #fff; box-shadow: 0 0 15px rgba(181, 42, 255, 0.3); }
+        button:active { transform: scale(0.98); }
+        .status-msg { font-size: 11px; color: var(--neon-green); text-align: center; margin-top: 8px; display: none; }
     </style>
 </head>
 <body>
 
     <div class="dashboard-ui">
-        <h2>Admin Command Hub</h2>
-        <div class="subtitle">Strict OTC Matrix Control</div>
+        <h2>Unified Command Hub</h2>
+        <div class="subtitle">Content Locker & OTC Matrix Control</div>
 
+        <!-- OTC MATRIX CONTROL CARD -->
         <div class="card">
-            <label>Subscription Price Display (e.g. $2.00 or ₦2,500)</label>
-            <input type="text" id="adminPriceInput" placeholder="$2.00">
+            <div class="card-title">📊 Strict OTC Matrix Settings</div>
+            
+            <label>Subscription Price Display</label>
+            <input type="text" id="otcPriceInput" placeholder="$2.00">
 
             <label>VIP License Key (Master Pass)</label>
-            <input type="text" id="adminKeyInput" placeholder="PRO-OTC-777">
+            <input type="text" id="otcKeyInput" placeholder="PRO-OTC-777">
 
             <label>Payment Gateway URL</label>
-            <input type="text" id="adminPaymentLink" placeholder="https://selar.co/your-product">
+            <input type="text" id="otcPaymentLink" placeholder="https://your-payment-link.com">
 
-            <button class="btn-save" onclick="saveSettings()">Save Configuration</button>
-            <div class="status-msg" id="statusMsg">✔️ Settings saved to Firebase!</div>
+            <button class="btn-save-otc" onclick="saveOTCSettings()">Save OTC Settings</button>
+            <div class="status-msg" id="otcStatus">✔️ OTC Settings saved successfully!</div>
         </div>
 
-        <div style="text-align: center; margin-top: 15px;">
-            <a href="otc-scanner.html" target="_blank" style="color: var(--neon-blue); font-size: 12px; text-decoration: none; font-weight: bold;">
-                🔗 Open Live Scanner App
+        <!-- CONTENT LOCKER CONTROL CARD -->
+        <div class="card">
+            <div class="card-title">🔒 Content Locker Settings</div>
+            
+            <label>Locker Target URL / Redirect Link</label>
+            <input type="text" id="lockerTargetUrl" placeholder="https://your-download-link.com">
+
+            <label>Locker Status Message / Requirements</label>
+            <input type="text" id="lockerMessage" placeholder="Complete task to unlock...">
+
+            <button class="btn-save-locker" onclick="saveLockerSettings()">Save Locker Settings</button>
+            <div class="status-msg" id="lockerStatus">✔️ Locker Settings saved successfully!</div>
+        </div>
+
+        <div style="text-align: center; display: flex; justify-content: space-around; margin-top: 10px;">
+            <a href="otc-scanner.html" target="_blank" style="color: var(--neon-blue); font-size: 11px; text-decoration: none; font-weight: bold;">
+                🔗 Open OTC App
+            </a>
+            <a href="locker.html" target="_blank" style="color: var(--neon-purple); font-size: 11px; text-decoration: none; font-weight: bold;">
+                🔗 Open Locker App
             </a>
         </div>
     </div>
@@ -100,29 +125,49 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Load settings from Firebase on startup
-        db.ref('adminSettings').once('value').then((snapshot) => {
+        // Load both OTC and Locker settings on startup
+        db.ref('adminSettings/otc').once('value').then((snapshot) => {
             const data = snapshot.val() || {};
-            if (data.price) document.getElementById('adminPriceInput').value = data.price;
-            if (data.vipKey) document.getElementById('adminKeyInput').value = data.vipKey;
-            if (data.paymentUrl) document.getElementById('adminPaymentLink').value = data.paymentUrl;
+            if (data.price) document.getElementById('otcPriceInput').value = data.price;
+            if (data.vipKey) document.getElementById('otcKeyInput').value = data.vipKey;
+            if (data.paymentUrl) document.getElementById('otcPaymentLink').value = data.paymentUrl;
         });
 
-        function saveSettings() {
-            const newPrice = document.getElementById('adminPriceInput').value.trim();
-            const newKey = document.getElementById('adminKeyInput').value.trim();
-            const newLink = document.getElementById('adminPaymentLink').value.trim();
+        db.ref('adminSettings/locker').once('value').then((snapshot) => {
+            const data = snapshot.val() || {};
+            if (data.targetUrl) document.getElementById('lockerTargetUrl').value = data.targetUrl;
+            if (data.message) document.getElementById('lockerMessage').value = data.message;
+        });
 
-            db.ref('adminSettings').set({
-                price: newPrice || "$2.00",
-                vipKey: newKey || "PRO-OTC-777",
-                paymentUrl: newLink || "https://selar.com"
+        // Save OTC Settings
+        function saveOTCSettings() {
+            const price = document.getElementById('otcPriceInput').value.trim();
+            const vipKey = document.getElementById('otcKeyInput').value.trim();
+            const paymentUrl = document.getElementById('otcPaymentLink').value.trim();
+
+            db.ref('adminSettings/otc').set({
+                price: price || "$2.00",
+                vipKey: vipKey || "PRO-OTC-777",
+                paymentUrl: paymentUrl || "https://selar.com"
             }).then(() => {
-                const msg = document.getElementById('statusMsg');
+                const msg = document.getElementById('otcStatus');
                 msg.style.display = 'block';
                 setTimeout(() => { msg.style.display = 'none'; }, 3000);
-            }).catch((error) => {
-                alert("Error saving settings: " + error.message);
+            });
+        }
+
+        // Save Content Locker Settings
+        function saveLockerSettings() {
+            const targetUrl = document.getElementById('lockerTargetUrl').value.trim();
+            const message = document.getElementById('lockerMessage').value.trim();
+
+            db.ref('adminSettings/locker').set({
+                targetUrl: targetUrl || "#",
+                message: message || "Complete tasks to unlock"
+            }).then(() => {
+                const msg = document.getElementById('lockerStatus');
+                msg.style.display = 'block';
+                setTimeout(() => { msg.style.display = 'none'; }, 3000);
             });
         }
     </script>
