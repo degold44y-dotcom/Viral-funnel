@@ -32,7 +32,6 @@
             overflow: hidden;
         }
         
-        /* Freemium Badge */
         .credits-badge {
             position: absolute; top: -15px; right: 20px;
             background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
@@ -75,7 +74,6 @@
         .btn-scan { background: var(--neon-purple); color: #fff; box-shadow: 0 0 20px rgba(181, 42, 255, 0.3); }
         .btn-reset { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); margin-top: 10px; display: none; }
 
-        /* WARNING OVERLAY */
         .modal-overlay {
             display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(11, 13, 16, 0.55); 
@@ -87,7 +85,6 @@
             border: 1px solid rgba(255, 51, 102, 0.6); width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.9); text-align: left;
         }
         
-        /* PAYWALL OVERLAY SPECIFIC STYLING */
         .paywall-box { border: 1px solid var(--neon-gold); text-align: center; background: rgba(21, 24, 30, 0.98); }
         .price-tag { font-size: 28px; font-weight: 900; color: var(--neon-gold); margin: 10px 0; letter-spacing: 1px; }
         .key-input { width: 100%; padding: 14px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center; margin-bottom: 12px; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; box-sizing: border-box; }
@@ -113,7 +110,7 @@
 
     <div class="dashboard-ui">
         
-        <div class="credits-badge" id="creditsBadge">Free Scans: <span id="scanCount">5</span>/5</div>
+        <div class="credits-badge" id="creditsBadge">Free Scans: <span id="scanCount">5</span>/<span id="maxScanDisplay">5</span></div>
         <div class="credits-badge vip-badge" id="vipBadge">👑 VIP ACTIVE</div>
 
         <h2>Strict OTC Matrix</h2>
@@ -126,9 +123,9 @@
             
             <div class="mode-desc" id="modeDesc">
                 <strong>INSTITUTIONAL TIMING REQUIRED:</strong><br><br>
-                1. Upload chart exactly at the <strong>8th minute</strong> of the block (e.g., 2:08, 2:18, 2:28).<br>
+                1. Upload chart exactly at the <strong>8th minute</strong> of the block.<br>
                 2. Wait for structural matrix analysis.<br>
-                3. Execute strictly at <strong>9 minutes 57 seconds</strong> for the final algorithmic flush.
+                3. Execute strictly at the configured execution second for the final algorithmic flush.
             </div>
             
             <div id="uploadContainer">
@@ -162,7 +159,7 @@
             <button class="btn-reset" id="resetBtn" onclick="resetScanner()">Scan Next Candle</button>
         </div>
 
-        <!-- 18+ & EDUCATIONAL DISCLAIMER MODAL -->
+        <!-- DISCLAIMER MODAL -->
         <div class="modal-overlay" id="disclaimerModal">
             <div class="modal-box">
                 <h3 style="color: var(--neon-red); margin-top: 0; text-align: center; font-size: 18px;">⚠️ AGE & RISK WARNING</h3>
@@ -175,11 +172,11 @@
             </div>
         </div>
 
-        <!-- PAYWALL OVERLAY (Synced with Admin Panel) -->
+        <!-- PAYWALL OVERLAY -->
         <div class="modal-overlay" id="paywallArea" style="display: none;">
             <div class="modal-box paywall-box">
                 <h2 style="color: var(--neon-gold); font-size: 20px; margin-bottom: 5px;">Trial Limit Reached</h2>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">You have exhausted your 5 free scans.</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">You have exhausted your free scan limit.</p>
                 
                 <div class="price-tag" id="priceDisplay">$2.00</div>
                 <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; font-weight: bold;">Lifetime VIP Access</p>
@@ -222,9 +219,10 @@
         
         let dynamicVIPKey = "PRO-OTC-777"; 
         let dynamicPaymentUrl = "https://selar.com";
+        let dynamicExecSecond = 57;
 
-        // Fetch live admin settings from Firebase
-        db.ref('adminSettings').on('value', (snapshot) => {
+        // ACTIVE FIREBASE LISTENER FOR REAL-TIME SYNC
+        db.ref('adminSettings/otc').on('value', (snapshot) => {
             const data = snapshot.val() || {};
             if (data.vipKey) dynamicVIPKey = data.vipKey;
             if (data.paymentUrl) {
@@ -233,6 +231,14 @@
             }
             if (data.price) {
                 document.getElementById('priceDisplay').innerText = data.price;
+            }
+            if (data.execSecond !== undefined) {
+                dynamicExecSecond = parseInt(data.execSecond);
+            }
+            if (data.maxScans !== undefined) {
+                maxScans = parseInt(data.maxScans);
+                document.getElementById('maxScanDisplay').innerText = maxScans;
+                updateCreditsDisplay();
             }
         });
 
@@ -269,8 +275,9 @@
                 document.getElementById('creditsBadge').style.display = 'none';
                 document.getElementById('vipBadge').style.display = 'block';
             } else {
-                let scansLeft = maxScans - scansUsed;
+                let scansLeft = Math.max(0, maxScans - scansUsed);
                 document.getElementById('scanCount').innerText = scansLeft;
+                document.getElementById('maxScanDisplay').innerText = maxScans;
             }
         }
 
@@ -288,7 +295,7 @@
                     alert("VIP Unlocked Successfully! Welcome to Pro OTC.");
                 }, 400);
             } else {
-                alert("Invalid License Key. Please check your payment receipt email.");
+                alert("Invalid License Key. Please check your admin configuration.");
             }
         }
 
@@ -382,12 +389,12 @@
 
             let execTime = new Date(now); 
             execTime.setMinutes(baseMin + 9); 
-            execTime.setSeconds(57);
+            execTime.setSeconds(dynamicExecSecond);
             
             let executionText = `
                 <div style="text-transform: uppercase; font-size: 11px; color: var(--text-muted); margin-bottom: 5px;">Execution Protocol:</div>
                 <span style="color:var(--neon-blue); font-size:24px; display:block; margin-bottom: 5px;">${execTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'})}</span>
-                <span style="color: #fff;">EXACTLY 9 MIN 57 SEC | 3-SEC EXPIRY</span>
+                <span style="color: #fff;">EXACTLY 9 MIN ${dynamicExecSecond} SEC | 3-SEC EXPIRY</span>
             `;
 
             if (!isVIP) {
