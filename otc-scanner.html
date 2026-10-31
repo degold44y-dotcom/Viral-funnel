@@ -29,6 +29,7 @@
             width: 100%; max-width: 460px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.05); text-align: center; position: relative;
+            overflow: hidden;
         }
         
         /* Freemium Badge */
@@ -37,6 +38,7 @@
             background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
             padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;
             box-shadow: 0 5px 15px rgba(0,229,255,0.3); border: 1px solid rgba(255,255,255,0.2);
+            z-index: 10;
         }
         .vip-badge { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; display: none; }
 
@@ -73,10 +75,19 @@
         .btn-scan { background: var(--neon-purple); color: #fff; box-shadow: 0 0 20px rgba(181, 42, 255, 0.3); }
         .btn-reset { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); margin-top: 10px; display: none; }
 
-        /* Disclaimer & Paywall Modals */
-        .modal-overlay { display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 13, 16, 0.97); border-radius: 24px; z-index: 100; flex-direction: column; justify-content: center; align-items: center; padding: 30px; box-sizing: border-box; backdrop-filter: blur(5px); }
-        .modal-box { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); width: 100%; box-shadow: 0 0 30px rgba(0,0,0,0.5); text-align: left; }
-        .paywall-box { border: 1px solid var(--neon-gold); box-shadow: 0 0 30px rgba(255, 215, 0, 0.15); text-align: center; }
+        /* Transparent Glass Modal Overlay for Warning */
+        .modal-overlay {
+            display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 13, 16, 0.85); /* Semi-transparent background showing app behind it */
+            backdrop-filter: blur(8px); /* Frosted glass effect */
+            z-index: 50; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-sizing: border-box;
+            transition: opacity 0.4s ease;
+        }
+        .modal-box {
+            background: rgba(28, 32, 40, 0.95); padding: 25px; border-radius: 16px;
+            border: 1px solid rgba(255, 51, 102, 0.4); width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: left;
+        }
+        .paywall-box { border: 1px solid var(--neon-gold); text-align: center; }
         .key-input { width: 100%; padding: 14px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center; margin-bottom: 15px; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; box-sizing: border-box; }
         .btn-gold { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
 
@@ -148,7 +159,7 @@
             <button class="btn-reset" id="resetBtn" onclick="resetScanner()">Scan Next Candle</button>
         </div>
 
-        <!-- 18+ & EDUCATIONAL DISCLAIMER MODAL -->
+        <!-- TRANSPARENT 18+ & EDUCATIONAL DISCLAIMER MODAL -->
         <div class="modal-overlay" id="disclaimerModal">
             <div class="modal-box">
                 <h3 style="color: var(--neon-red); margin-top: 0; text-align: center; font-size: 18px;">⚠️ AGE & RISK WARNING</h3>
@@ -199,8 +210,14 @@
         function acceptDisclaimer() {
             hasAcceptedDisclaimer = true;
             localStorage.setItem('ls_disclaimer_accepted', 'true');
-            document.getElementById('disclaimerModal').style.display = 'none';
-            checkPaywall();
+            
+            // Smooth fade-out effect for the warning modal
+            const modal = document.getElementById('disclaimerModal');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                checkPaywall();
+            }, 400);
         }
 
         function checkPaywall() {
