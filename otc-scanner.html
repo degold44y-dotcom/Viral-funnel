@@ -1,9 +1,208 @@
-<!-- Firebase SDKs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro OTC Algorithmic Matrix | VIP</title>
+    <style>
+        :root {
+            --bg-color: #0b0d10;
+            --panel-bg: #15181e;
+            --card-bg: #1c2028;
+            --neon-blue: #00e5ff;
+            --neon-green: #00ff66;
+            --neon-red: #ff3366;
+            --neon-purple: #b52aff;
+            --neon-gold: #ffd700;
+            --neon-yellow: #ffcc00;
+            --text-main: #ffffff;
+            --text-muted: #8a99a8;
+        }
+        body {
+            background-color: var(--bg-color); color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 20px;
+        }
+        .dashboard-ui {
+            background-color: var(--panel-bg); border-radius: 24px; padding: 30px;
+            width: 100%; max-width: 460px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.05); text-align: center; position: relative;
+            overflow: hidden;
+        }
+        
+        /* Freemium Badge */
+        .credits-badge {
+            position: absolute; top: -15px; right: 20px;
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+            padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,229,255,0.3); border: 1px solid rgba(255,255,255,0.2);
+            z-index: 10;
+        }
+        .vip-badge { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; display: none; }
+
+        h2 {
+            margin-top: 10px; margin-bottom: 5px; text-transform: uppercase;
+            letter-spacing: 2px; font-size: 22px; font-weight: 900; color: var(--text-main);
+        }
+        .supported-markets {
+            font-size: 11px; color: var(--neon-purple); font-weight: bold;
+            margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1.5px;
+        }
+
+        .card {
+            background: var(--card-bg); border-radius: 16px; padding: 25px;
+            border: 1px solid rgba(255,255,255,0.02); box-shadow: 0 4px 6px rgba(0,0,0,0.2); margin-bottom: 20px;
+        }
+
+        .live-clock { font-size: 28px; font-weight: 900; color: var(--text-main); margin-bottom: 15px; font-family: monospace; letter-spacing: 2px; }
+        
+        .mode-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 10px; border-left: 3px solid var(--neon-purple); text-align: left; }
+
+        input[type="file"] { display: none; }
+        .upload-btn {
+            display: block; width: 100%; padding: 16px; background: transparent;
+            border: 2px dashed var(--neon-purple); color: var(--neon-purple);
+            border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s;
+        }
+        .upload-btn:hover { background: rgba(181, 42, 255, 0.05); }
+        #imagePreviewContainer { display: none; margin-top: 15px; border-radius: 12px; overflow: hidden; border: 1px solid var(--neon-purple); }
+        #imagePreview { width: 100%; height: auto; display: block; }
+        .file-name { font-size: 11px; color: var(--neon-green); margin-top: 10px; display: block; }
+
+        button { width: 100%; padding: 16px; border-radius: 12px; font-size: 15px; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.2s; border: none; margin-top: 15px; }
+        .btn-scan { background: var(--neon-purple); color: #fff; box-shadow: 0 0 20px rgba(181, 42, 255, 0.3); }
+        .btn-reset { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); margin-top: 10px; display: none; }
+
+        /* WARNING OVERLAY */
+        .modal-overlay {
+            display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 13, 16, 0.55); 
+            z-index: 50; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-sizing: border-box;
+            transition: opacity 0.4s ease;
+        }
+        .modal-box {
+            background: rgba(21, 24, 30, 0.95); padding: 25px; border-radius: 16px;
+            border: 1px solid rgba(255, 51, 102, 0.6); width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.9); text-align: left;
+        }
+        
+        /* PAYWALL OVERLAY SPECIFIC STYLING */
+        .paywall-box { border: 1px solid var(--neon-gold); text-align: center; background: rgba(21, 24, 30, 0.98); }
+        .price-tag { font-size: 28px; font-weight: 900; color: var(--neon-gold); margin: 10px 0; letter-spacing: 1px; }
+        .key-input { width: 100%; padding: 14px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center; margin-bottom: 12px; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; box-sizing: border-box; }
+        .btn-gold { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); margin-top: 0; }
+        .btn-buy { background: var(--neon-green); color: #000; box-shadow: 0 0 20px rgba(0, 255, 102, 0.3); text-decoration: none; display: block; padding: 16px; border-radius: 12px; font-size: 15px; font-weight: bold; text-transform: uppercase; margin-bottom: 20px; }
+
+        #processingArea { display: none; padding: 20px 0; }
+        .spinner { width: 40px; height: 40px; border: 4px solid rgba(181, 42, 255, 0.1); border-top-color: var(--neon-purple); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .status-text { font-size: 13px; color: var(--neon-purple); font-weight: bold; }
+        
+        #warningArea { display: none; margin-top: 15px; padding: 15px; border-radius: 10px; background: rgba(255, 51, 102, 0.1); border: 1px solid var(--neon-red); }
+        .warning-text { font-size: 13px; color: var(--neon-red); font-weight: bold; line-height: 1.5; }
+
+        #resultArea { display: none; }
+        .signal-box { background: #0b0d10; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; margin-top: 10px; }
+        .signal-asset { font-size: 20px; font-weight: bold; color: var(--neon-blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        .signal-dir { font-size: 34px; font-weight: 900; margin-bottom: 5px; text-transform: uppercase; line-height: 1.2; }
+        .signal-time { font-size: 14px; color: var(--text-main); font-weight: bold; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid var(--neon-blue); }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-ui">
+        
+        <div class="credits-badge" id="creditsBadge">Free Scans: <span id="scanCount">5</span>/5</div>
+        <div class="credits-badge vip-badge" id="vipBadge">👑 VIP ACTIVE</div>
+
+        <h2>Strict OTC Matrix</h2>
+        <div class="supported-markets">
+            Algorithmic Market Data Only
+        </div>
+
+        <div class="card" id="mainAppCard">
+            <div class="live-clock" id="liveClock">00:00:00</div>
+            
+            <div class="mode-desc" id="modeDesc">
+                <strong>INSTITUTIONAL TIMING REQUIRED:</strong><br><br>
+                1. Upload chart exactly at the <strong>8th minute</strong> of the block (e.g., 2:08, 2:18, 2:28).<br>
+                2. Wait for structural matrix analysis.<br>
+                3. Execute strictly at <strong>9 minutes 57 seconds</strong> for the final algorithmic flush.
+            </div>
+            
+            <div id="uploadContainer">
+                <label class="upload-btn" id="uploadBtnLabel">
+                    📸 Upload OTC Screenshot
+                    <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+                </label>
+                
+                <div id="imagePreviewContainer"><img id="imagePreview" src="" alt="Chart Preview"></div>
+                <span class="file-name" id="fileNameDisplay">No chart uploaded yet...</span>
+                
+                <button class="btn-scan" onclick="attemptScan()">Initialize OTC Scan</button>
+            </div>
+
+            <div id="warningArea"><div class="warning-text" id="warningMessage"></div></div>
+
+            <div id="processingArea">
+                <div class="spinner"></div>
+                <div class="status-text" id="statusText">Verifying Algorithmic Structure...</div>
+            </div>
+
+            <div id="resultArea">
+                <h3 style="margin-top: 0; font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Scanned Asset Result</h3>
+                <div class="signal-box">
+                    <div class="signal-asset" id="signalAsset">--</div>
+                    <div class="signal-dir" id="signalDirection">--</div>
+                    <div class="signal-time" id="executionDetails">--</div>
+                </div>
+            </div>
+
+            <button class="btn-reset" id="resetBtn" onclick="resetScanner()">Scan Next Candle</button>
+        </div>
+
+        <!-- 18+ & EDUCATIONAL DISCLAIMER MODAL -->
+        <div class="modal-overlay" id="disclaimerModal">
+            <div class="modal-box">
+                <h3 style="color: var(--neon-red); margin-top: 0; text-align: center; font-size: 18px;">⚠️ AGE & RISK WARNING</h3>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 15px;">
+                    • You must be **18 years or older** to use this platform.<br>
+                    • This software is strictly for **educational and analytical simulation purposes only**.<br>
+                    • We are **not responsible for any financial losses** incurred from live trading decisions. Financial markets carry high risk.
+                </p>
+                <button class="btn-scan" onclick="acceptDisclaimer()" style="margin-top: 0;">I Agree & Accept Risk</button>
+            </div>
+        </div>
+
+        <!-- PAYWALL OVERLAY (Synced with Admin Panel) -->
+        <div class="modal-overlay" id="paywallArea" style="display: none;">
+            <div class="modal-box paywall-box">
+                <h2 style="color: var(--neon-gold); font-size: 20px; margin-bottom: 5px;">Trial Limit Reached</h2>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 5px;">You have exhausted your 5 free scans.</p>
+                
+                <div class="price-tag" id="priceDisplay">$2.00</div>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; font-weight: bold;">Lifetime VIP Access</p>
+                
+                <a href="https://selar.com" target="_blank" class="btn-buy" id="payButton">
+                    🛒 Get Access Code (Make Payment)
+                </a>
+
+                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px; margin-top: 5px;">
+                    <p style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 8px;">Already Paid? Input Code:</p>
+                    <input type="text" class="key-input" id="licenseKey" placeholder="ENTER VIP KEY">
+                    <button class="btn-gold" onclick="verifyKey()">Unlock Unlimited Scans</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script>
-        // Firebase Initialization
         const firebaseConfig = {
             apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
             authDomain: "probet-syndicate.firebaseapp.com",
@@ -21,11 +220,10 @@
         let isVIP = localStorage.getItem('ls_is_vip') === 'true';
         let hasAcceptedDisclaimer = localStorage.getItem('ls_disclaimer_accepted') === 'true';
         
-        // Default Fallbacks (Will be overwritten live by your Admin Panel)
         let dynamicVIPKey = "PRO-OTC-777"; 
         let dynamicPaymentUrl = "https://selar.com";
 
-        // Fetch live admin settings from Firebase on page load
+        // Fetch live admin settings from Firebase
         db.ref('adminSettings').on('value', (snapshot) => {
             const data = snapshot.val() || {};
             if (data.vipKey) dynamicVIPKey = data.vipKey;
@@ -251,3 +449,5 @@
 
         initApp();
     </script>
+</body>
+</html>
