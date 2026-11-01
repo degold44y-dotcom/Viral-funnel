@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global VCF Engine | Pro SaaS</title>
+    <title>Global Lead Engine | VCF Generator</title>
     <style>
         :root {
             --bg-color: #0b0d10;
@@ -11,9 +11,7 @@
             --card-bg: #1c2028;
             --neon-blue: #00e5ff;
             --neon-green: #25D366;
-            --neon-orange: #ff9900;
             --neon-purple: #b52aff;
-            --neon-gold: #ffd700;
             --text-main: #ffffff;
             --text-muted: #8a99a8;
         }
@@ -34,19 +32,9 @@
             padding: 30px;
             width: 100%;
             max-width: 480px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.05);
-            position: relative;
         }
-        
-        .status-banner {
-            padding: 10px 15px; border-radius: 12px; font-size: 12px; font-weight: bold;
-            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2);
-            display: flex; justify-content: space-between; align-items: center;
-            transition: 0.3s;
-        }
-        .vip-active-banner { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; display: none; }
-
         h2 {
             text-align: center;
             background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
@@ -59,89 +47,124 @@
             font-size: 22px;
             font-weight: 800;
         }
-        
         .card {
             background: var(--card-bg);
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 20px;
             border: 1px solid rgba(255,255,255,0.02);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
         .step-title {
-            font-size: 11px; color: var(--text-muted); text-transform: uppercase;
-            letter-spacing: 1px; margin-bottom: 15px; font-weight: bold; display: flex; align-items: center;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
         }
         .step-title span {
-            background: var(--neon-blue); color: #000; padding: 2px 6px; border-radius: 4px; margin-right: 8px;
+            background: var(--neon-blue);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-right: 8px;
         }
-
-        .mode-selector { display: flex; background: #0b0d10; border-radius: 10px; padding: 4px; }
-        .mode-btn { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: bold; color: var(--text-muted); cursor: pointer; border-radius: 8px; transition: 0.3s; }
+        .mode-selector {
+            display: flex;
+            background: #0b0d10;
+            border-radius: 10px;
+            padding: 4px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
         .mode-btn.active-targeted { background: var(--neon-blue); color: #000; }
         .mode-btn.active-mixed { background: var(--neon-purple); color: #fff; }
-
         .input-row { display: flex; gap: 15px; margin-bottom: 15px; }
         .input-group { flex: 1; position: relative; }
-        label { display: block; margin-bottom: 6px; font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
         select, input {
-            width: 100%; padding: 14px 12px; background-color: #0b0d10; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px; color: var(--text-main); font-size: 14px; box-sizing: border-box; transition: 0.2s;
+            width: 100%;
+            padding: 14px 12px;
+            background-color: #0b0d10;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 14px;
+            box-sizing: border-box;
         }
-        input:focus, select:focus { outline: none; border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 229, 255, 0.15); }
-        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+        }
         select {
-            appearance: none; -webkit-appearance: none; cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px;
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
         }
-        
         .hint { font-size: 11px; color: var(--neon-purple); margin-top: 6px; display: none; }
-
         button {
-            width: 100%; padding: 16px; margin-bottom: 12px; border-radius: 12px; font-size: 15px;
-            font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.2s; border: none;
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
         }
         .btn-generate { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px rgba(0,229,255,0.3); }
-        .btn-generate:active { transform: scale(0.98); }
         .btn-download { background: var(--neon-green); color: #000; box-shadow: 0 0 20px rgba(37,211,102,0.3); display: none; }
         .btn-test { background: transparent; color: var(--text-main); border: 1px solid rgba(255,255,255,0.2); display: none; margin-bottom: 0; }
-        
         textarea {
-            width: 100%; height: 100px; padding: 12px; background-color: #0b0d10; border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 10px; color: var(--neon-green); font-size: 12px; font-family: monospace; box-sizing: border-box; resize: none; margin-bottom: 15px; display: none;
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            background-color: #0b0d10;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            color: var(--neon-green);
+            font-size: 12px;
+            font-family: monospace;
+            box-sizing: border-box;
+            resize: none;
+            margin-bottom: 15px;
+            display: none;
         }
-        
         #testLinksContainer { margin-top: 15px; display: none; }
         .test-link { 
-            display: flex; align-items: center; color: var(--text-main); text-decoration: none; margin-bottom: 8px; padding: 12px; background: #0b0d10; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center; color: var(--text-main); 
+            text-decoration: none; margin-bottom: 8px; padding: 12px; 
+            background: #0b0d10; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
         }
         .wa-icon { margin-right: 12px; fill: var(--neon-green); width: 18px; height: 18px; }
-
-        /* Paywall Modal */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(11, 13, 16, 0.95); z-index: 50; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-sizing: border-box; overflow-y: auto;
-        }
-        .modal-box {
-            background: rgba(21, 24, 30, 0.98); padding: 25px; border-radius: 16px; border: 1px solid rgba(255, 215, 0, 0.4); width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.9); margin: auto;
-        }
-        .key-input { width: 100%; padding: 14px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center; margin-bottom: 12px; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; box-sizing: border-box; }
-        .btn-gold { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); width: 100%; margin-top: 0; margin-bottom: 0;}
-
-        /* Admin Panel Styles */
-        .admin-panel { display: none; margin-top: 20px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px; text-align: left; max-height: 300px; overflow-y: auto; }
     </style>
 </head>
 <body>
     <div class="dashboard-ui">
-        
-        <div class="status-banner vip-active-banner" id="vipBadge">
-            <span>👑 ENGINE VIP (<span id="subTypeDisplay">Master</span>)</span>
-            <span id="limitDisplay" style="font-size: 10px; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;"></span>
-        </div>
-
         <h2>Global Lead Engine</h2>
         
         <!-- STEP 1: ENGINE MODE -->
@@ -163,7 +186,7 @@
                 </div>
                 <div class="input-group">
                     <label>Quantity</label>
-                    <input type="number" id="quantity" value="5000">
+                    <input type="number" id="quantity" value="1000">
                 </div>
             </div>
 
@@ -182,216 +205,18 @@
         <!-- STEP 3: EXECUTE -->
         <div class="card" style="margin-bottom: 0;">
             <div class="step-title"><span>3</span> Execute & Export</div>
-            <button class="btn-generate" id="generateBtn" onclick="generateNumbers()">Run Generator</button>
+            <button class="btn-generate" onclick="generateNumbers()">Run Generator</button>
             <textarea id="previewBox" readonly></textarea>
             <button class="btn-download" id="downloadBtn" onclick="downloadVCF()">Export .VCF File</button>
             <button class="btn-test" id="testBtn" onclick="showTestLinks()">Verify Numbers (WhatsApp)</button>
             <div id="testLinksContainer"></div>
         </div>
-
-        <!-- PAYWALL MODAL -->
-        <div class="modal-overlay" id="paywallArea">
-            <div class="modal-box">
-                <div style="text-align: right; cursor: pointer; color: var(--text-muted); font-size: 20px; margin-top: -10px; margin-bottom: 5px;" onclick="document.getElementById('paywallArea').style.display='none'">&times;</div>
-                
-                <h2 style="color: var(--neon-gold); font-size: 20px; margin-bottom: 5px;">SaaS Access Required</h2>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Choose a license tier below to instantly receive your single-use access key.</p>
-                
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;" id="pricingButtonsContainer">
-                    <a href="#" id="btnLink1" target="_blank" style="background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">🛒 Tier 1</a>
-                    <a href="#" id="btnLink2" target="_blank" style="background: rgba(181, 42, 255, 0.1); border: 1px solid var(--neon-purple); color: #fff; text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">🛒 Tier 2</a>
-                    <a href="#" id="btnLink3" target="_blank" style="background: rgba(0, 255, 102, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">🛒 Tier 3</a>
-                </div>
-
-                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
-                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 5px; text-transform: uppercase;">Already have a key? Enter it here:</label>
-                    <input type="text" class="key-input" id="licenseKey" placeholder="VCF-XXXX-XXXX">
-                    <button class="btn-gold" onclick="verifyKey()">Unlock Engine</button>
-                </div>
-
-                <!-- LIVE ADMIN SETTINGS PANEL (Appears via URL #admin) -->
-                <div class="admin-panel" id="adminPanelBox">
-                    <h3 style="color: var(--neon-gold); font-size: 13px; margin-bottom: 10px; text-align: center;">⚙️ Master Admin Control Center</h3>
-                    
-                    <label style="font-size: 9px; color: var(--neon-blue);">Tier 1 Button Label:</label>
-                    <input type="text" id="admLabel1" style="padding: 6px; font-size: 11px; margin-bottom: 6px;">
-                    <label style="font-size: 9px;">Tier 1 Checkout URL (Selar/Paystack/Flutterwave/Stripe):</label>
-                    <input type="text" id="admUrl1" style="padding: 6px; font-size: 11px; margin-bottom: 10px;">
-
-                    <label style="font-size: 9px; color: var(--neon-purple);">Tier 2 Button Label:</label>
-                    <input type="text" id="admLabel2" style="padding: 6px; font-size: 11px; margin-bottom: 6px;">
-                    <label style="font-size: 9px;">Tier 2 Checkout URL:</label>
-                    <input type="text" id="admUrl2" style="padding: 6px; font-size: 11px; margin-bottom: 10px;">
-
-                    <label style="font-size: 9px; color: var(--neon-green);">Tier 3 Button Label:</label>
-                    <input type="text" id="admLabel3" style="padding: 6px; font-size: 11px; margin-bottom: 6px;">
-                    <label style="font-size: 9px;">Tier 3 Checkout URL:</label>
-                    <input type="text" id="admUrl3" style="padding: 6px; font-size: 11px; margin-bottom: 15px;">
-
-                    <button onclick="saveAdminConfig()" style="background: var(--neon-gold); color: #000; padding: 12px; font-size: 12px; font-weight: bold;">Save Configuration to Cloud</button>
-                </div>
-
-            </div>
-        </div>
-
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
-            authDomain: "probet-syndicate.firebaseapp.com",
-            databaseURL: "https://probet-syndicate-default-rtdb.firebaseio.com",
-            projectId: "probet-syndicate",
-            storageBucket: "probet-syndicate.firebasestorage.app",
-            messagingSenderId: "418866597682",
-            appId: "1:418866597682:web:847007dbaf3c40452d912b"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        let isVIP = localStorage.getItem('ls_global_vcf_vip') === 'true';
-        let dynamicVIPKey = "PRO-VCF-777"; 
-
-        // Live Sync Configuration from Firebase
-        db.ref('adminSettings/saasConfig').on('value', (snapshot) => {
-            const config = snapshot.val() || {
-                label1: "🛒 5,000 Contacts ($2.00)", url1: "https://selar.co/YOUR_LINK_1",
-                label2: "🛒 15,000 Contacts ($5.00)", url2: "https://selar.co/YOUR_LINK_2",
-                label3: "🛒 50,000 Contacts ($10.00)", url3: "https://selar.co/YOUR_LINK_3"
-            };
-
-            document.getElementById('btnLink1').innerText = config.label1;
-            document.getElementById('btnLink1').href = config.url1;
-            document.getElementById('admLabel1').value = config.label1;
-            document.getElementById('admUrl1').value = config.url1;
-
-            document.getElementById('btnLink2').innerText = config.label2;
-            document.getElementById('btnLink2').href = config.url2;
-            document.getElementById('admLabel2').value = config.label2;
-            document.getElementById('admUrl2').value = config.url2;
-
-            document.getElementById('btnLink3').innerText = config.label3;
-            document.getElementById('btnLink3').href = config.url3;
-            document.getElementById('admLabel3').value = config.label3;
-            document.getElementById('admUrl3').value = config.url3;
-        });
-
-        function saveAdminConfig() {
-            const label1 = document.getElementById('admLabel1').value.trim();
-            const url1 = document.getElementById('admUrl1').value.trim();
-            const label2 = document.getElementById('admLabel2').value.trim();
-            const url2 = document.getElementById('admUrl2').value.trim();
-            const label3 = document.getElementById('admLabel3').value.trim();
-            const url3 = document.getElementById('admUrl3').value.trim();
-
-            db.ref('adminSettings/saasConfig').set({ label1, url1, label2, url2, label3, url3 }).then(() => {
-                alert("✅ SaaS configuration updated live across all networks!");
-            });
-        }
-
-        function getDeviceFingerprint() {
-            let fp = localStorage.getItem('device_fingerprint');
-            if (!fp) {
-                fp = 'fp_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
-                localStorage.setItem('device_fingerprint', fp);
-            }
-            return fp;
-        }
-        const userDeviceToken = getDeviceFingerprint();
-        
-        function initApp() {
-            if(isVIP) {
-                updateCreditsDisplay();
-            }
-            if(window.location.hash === '#admin') {
-                document.getElementById('paywallArea').style.display = 'flex';
-                document.getElementById('adminPanelBox').style.display = 'block';
-            }
-        }
-
-        db.ref('adminSettings/vcfApp').on('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            if (data.vipKey) dynamicVIPKey = data.vipKey;
-        });
-
-        function verifyKey() {
-            const inputKey = document.getElementById('licenseKey').value.trim();
-            
-            if (inputKey === dynamicVIPKey) {
-                isVIP = true;
-                localStorage.setItem('ls_global_vcf_vip', 'true');
-                localStorage.setItem('ls_global_vcf_sub_type', 'Lifetime Admin');
-                localStorage.setItem('ls_global_vcf_limit', '999999999');
-                localStorage.removeItem('ls_global_vcf_key'); 
-                document.getElementById('paywallArea').style.display = 'none';
-                updateCreditsDisplay();
-                alert("Master Admin Access Unlocked!");
-                generateNumbers(); 
-            } else if (inputKey.startsWith("VCF-")) {
-                let safeCodeKey = inputKey.replace(/[.$#[\]/]/g, "_");
-                db.ref('activeVcfSubscribers/' + safeCodeKey).once('value').then((snapshot) => {
-                    const subData = snapshot.val();
-                    
-                    if (subData && subData.used === true) {
-                        alert("❌ Security Error: This access key has already been consumed.");
-                        return;
-                    }
-
-                    if (subData && subData.deviceToken !== userDeviceToken) {
-                        alert("❌ Security Error: This access key is locked to another user's device.");
-                        return;
-                    }
-                    
-                    let maxLimit = 5000;
-                    let subName = "Custom Tier";
-                    
-                    if(inputKey.includes("15K") || inputKey.includes("15")) { maxLimit = 15000; subName = "Mid Tier"; }
-                    if(inputKey.includes("50K") || inputKey.includes("50")) { maxLimit = 50000; subName = "High Tier"; }
-
-                    db.ref('activeVcfSubscribers/' + safeCodeKey).set({
-                        deviceToken: userDeviceToken,
-                        maxLimit: maxLimit,
-                        activatedAt: Date.now(),
-                        used: false 
-                    });
-
-                    isVIP = true;
-                    localStorage.setItem('ls_global_vcf_vip', 'true');
-                    localStorage.setItem('ls_global_vcf_sub_type', subName);
-                    localStorage.setItem('ls_global_vcf_limit', maxLimit.toString());
-                    localStorage.setItem('ls_global_vcf_key', safeCodeKey); 
-                    document.getElementById('paywallArea').style.display = 'none';
-                    updateCreditsDisplay();
-                    alert(`Access Granted! Generating your contacts now...`);
-                    generateNumbers(); 
-                });
-            } else {
-                alert("Invalid Access Key.");
-            }
-        }
-
-        function updateCreditsDisplay() {
-            if (isVIP) {
-                document.getElementById('vipBadge').style.display = 'flex';
-                document.getElementById('subTypeDisplay').innerText = localStorage.getItem('ls_global_vcf_sub_type') || 'VIP Access';
-                let userLimit = localStorage.getItem('ls_global_vcf_limit');
-                if (userLimit && userLimit !== '999999999') {
-                    document.getElementById('limitDisplay').innerText = `Max Cap: ${parseInt(userLimit).toLocaleString()} Leads`;
-                } else {
-                    document.getElementById('limitDisplay').innerText = `(Unlimited)`;
-                }
-            }
-        }
-
-        // ==========================================
-        // VCF GENERATOR LOGIC
-        // ==========================================
         let currentMode = 'targeted';
         let generatedContacts = [];
+
         const countryString = "Afghanistan:93,Albania:355,Algeria:213,Andorra:376,Angola:244,Argentina:54,Armenia:374,Austria:43,Azerbaijan:994,Bahamas:1,Bahrain:973,Bangladesh:880,Belarus:375,Belgium:32,Belize:501,Benin:229,Bhutan:975,Bolivia:591,Bosnia:387,Botswana:267,Brazil:55,Brunei:673,Bulgaria:359,Burkina Faso:226,Burundi:257,Cambodia:855,Cameroon:237,Canada:1,Cape Verde:238,Central African Rep:236,Chad:235,Chile:56,China:86,Colombia:57,Comoros:269,Congo:242,Costa Rica:506,Croatia:385,Cuba:53,Cyprus:357,Czech Republic:420,Denmark:45,Djibouti:253,Dominican Rep:1,Ecuador:593,Egypt:20,El Salvador:503,Equatorial Guinea:240,Eritrea:291,Estonia:372,Ethiopia:251,Fiji:679,Finland:358,France:33,Gabon:241,Gambia:220,Georgia:995,Germany:49,Greece:30,Guatemala:502,Guinea:224,Guyana:592,Haiti:509,Honduras:504,Hong Kong:852,Hungary:36,Iceland:354,Indonesia:62,Iran:98,Iraq:964,Ireland:353,Israel:972,Italy:39,Ivory Coast:225,Jamaica:1,Japan:81,Jordan:962,Kazakhstan:7,Kuwait:965,Kyrgyzstan:996,Laos:856,Latvia:371,Lebanon:961,Lesotho:266,Liberia:231,Libya:218,Lithuania:370,Luxembourg:352,Macau:853,Macedonia:389,Madagascar:261,Malawi:265,Malaysia:60,Maldives:960,Mali:223,Malta:356,Mauritania:222,Mauritius:230,Mexico:52,Moldova:373,Monaco:377,Mongolia:976,Montenegro:382,Morocco:212,Mozambique:258,Myanmar:95,Namibia:264,Nepal:977,Netherlands:31,New Zealand:64,Nicaragua:505,Niger:227,North Korea:850,Norway:47,Oman:968,Pakistan:92,Palestine:970,Panama:507,Papua New Guinea:675,Paraguay:595,Peru:51,Philippines:63,Poland:48,Portugal:351,Qatar:974,Romania:40,Russia:7,Rwanda:250,Saudi Arabia:966,Senegal:221,Serbia:381,Seychelles:248,Sierra Leone:232,Singapore:65,Slovakia:421,Slovenia:386,Somalia:252,South Korea:82,Spain:34,Sri Lanka:94,Sudan:249,Suriname:597,Swaziland:268,Sweden:46,Switzerland:41,Syria:963,Taiwan:886,Tajikistan:992,Tanzania:255,Thailand:66,Togo:228,Trinidad and Tobago:1,Tunisia:216,Turkey:90,Turkmenistan:993,Uganda:256,Ukraine:380,UAE:971,Uruguay:598,Uzbekistan:998,Venezuela:58,Vietnam:84,Yemen:967,Zambia:260,Zimbabwe:263";
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -411,9 +236,8 @@
                 select.add(new Option(`${n} (+${code})`, code));
             });
             
-            select.value = "1"; 
+            select.value = "1";
             updateCountryDefaults();
-            initApp(); 
         });
 
         const defaultBases = { "234": "8030000000", "44": "7700000000", "1": "2125550000", "61": "400000000", "27": "710000000", "254": "700000000", "233": "240000000", "91": "9800000000" };
@@ -422,14 +246,18 @@
         function setMode(mode) {
             currentMode = mode;
             const baseContainer = document.getElementById('baseNumberContainer');
+            const mixedHint = document.getElementById('mixedHint');
+            
             if (mode === 'targeted') {
                 document.getElementById('btnTargeted').classList.add('active-targeted');
                 document.getElementById('btnMixed').classList.remove('active-mixed');
                 baseContainer.style.display = "block";
+                mixedHint.style.display = "none";
             } else {
                 document.getElementById('btnMixed').classList.add('active-mixed');
                 document.getElementById('btnTargeted').classList.remove('active-targeted');
-                baseContainer.style.display = "none";
+                baseContainer.style.display = "block";
+                mixedHint.style.display = "block";
             }
             updateCountryDefaults();
         }
@@ -437,29 +265,21 @@
         function updateCountryDefaults() {
             const code = document.getElementById('countrySelect').value;
             const baseInput = document.getElementById('baseNumber');
-            if (currentMode === 'targeted') { baseInput.value = defaultBases[code] || "1000000000"; } 
-            else { baseInput.value = defaultWildcards[code] || "XXXXXXXXXX"; }
+            if (currentMode === 'targeted') {
+                baseInput.value = defaultBases[code] || "1000000000";
+            } else {
+                baseInput.value = defaultWildcards[code] || "XXXXXXXXXX";
+            }
         }
 
         function generateNumbers() {
-            if (!isVIP) {
-                document.getElementById('paywallArea').style.display = 'flex';
-                return;
-            }
-
             const countryCode = document.getElementById('countrySelect').value;
             const quantity = parseInt(document.getElementById('quantity').value.trim());
             const nicheTag = document.getElementById('nicheTag').value.trim() || "Lead";
             const baseInput = document.getElementById('baseNumber').value.trim().toUpperCase();
             
             if (!quantity || quantity <= 0) return alert("Please enter a valid Quantity.");
-            if (currentMode === 'targeted' && !baseInput) return alert("Please enter a Base Number.");
-
-            const userLimit = parseInt(localStorage.getItem('ls_global_vcf_limit')) || 0;
-            if (userLimit !== 999999999 && quantity > userLimit) {
-                alert(`❌ License Limit Exceeded\n\nYour current key limits you to ${userLimit.toLocaleString()} contacts per file. Please reduce your quantity or purchase a higher tier.`);
-                return;
-            }
+            if (!baseInput) return alert("Please enter a Base Number or Pattern.");
 
             generatedContacts = [];
             let previewText = "";
@@ -473,38 +293,28 @@
                     if (i < 5) previewText += `👤 ${nicheTag} ${i + 1}: +${countryCode}${currentNum}\n`;
                 }
             } else {
-                let numLength = 10; 
-                if (defaultWildcards[countryCode]) { numLength = defaultWildcards[countryCode].length; }
+                let numLength = baseInput.length;
                 for (let i = 0; i < quantity; i++) {
-                    let randomLocal = "";
-                    randomLocal += Math.floor(Math.random() * 9) + 1;
-                    for (let j = 1; j < numLength; j++) { randomLocal += Math.floor(Math.random() * 10).toString(); }
-                    generatedContacts.push({ name: `${nicheTag} ${i + 1}`, phone: `+${countryCode}${randomLocal}`, rawPhone: `${countryCode}${randomLocal}` });
-                    if (i < 5) previewText += `👤 ${nicheTag} ${i + 1}: +${countryCode}${randomLocal}\n`;
+                    let generatedLocal = "";
+                    for (let j = 0; j < numLength; j++) {
+                        let char = baseInput[j];
+                        if (char === 'X') {
+                            generatedLocal += Math.floor(Math.random() * 10).toString();
+                        } else {
+                            generatedLocal += char;
+                        }
+                    }
+                    generatedContacts.push({ name: `${nicheTag} ${i + 1}`, phone: `+${countryCode}${generatedLocal}`, rawPhone: `${countryCode}${generatedLocal}` });
+                    if (i < 5) previewText += `👤 ${nicheTag} ${i + 1}: +${countryCode}${generatedLocal}\n`;
                 }
             }
 
             document.getElementById('previewBox').style.display = "block";
-            document.getElementById('previewBox').value = `✅ SYSTEM SUCCESS\nGenerated ${quantity.toLocaleString()} contacts.\n\n[ PREVIEW ]\n${previewText}...and ${quantity - 5} more.`;
+            document.getElementById('previewBox').value = `✅ SUCCESS: Generated ${quantity.toLocaleString()} contacts.\n\n[ PREVIEW ]\n${previewText}...and ${quantity - 5} more.`;
+            
             document.getElementById('downloadBtn').style.display = "block";
             document.getElementById('testBtn').style.display = "block";
             document.getElementById('testLinksContainer').style.display = "none";
-
-            let currentKey = localStorage.getItem('ls_global_vcf_key');
-            if (currentKey) { 
-                db.ref('activeVcfSubscribers/' + currentKey).update({ used: true });
-                localStorage.removeItem('ls_global_vcf_vip');
-                localStorage.removeItem('ls_global_vcf_sub_type');
-                localStorage.removeItem('ls_global_vcf_limit');
-                localStorage.removeItem('ls_global_vcf_key');
-                isVIP = false;
-                
-                document.getElementById('generateBtn').style.display = 'none';
-                document.getElementById('vipBadge').style.background = "linear-gradient(90deg, #ff0000, #990000)";
-                document.getElementById('vipBadge').innerHTML = "<span>⚠️ KEY CONSUMED</span><span style='font-size: 10px; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;'>Download Now</span>";
-                
-                alert("⚠️ GENERATION COMPLETE!\n\nYour license key has been securely consumed. Please download your VCF file now. If you refresh or try to generate again, you will be locked out and will need a new key.");
-            }
         }
 
         function downloadVCF() {
@@ -529,7 +339,9 @@
             if (generatedContacts.length === 0) return;
             const container = document.getElementById('testLinksContainer');
             container.innerHTML = '';
+            
             const waIcon = `<svg class="wa-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>`;
+
             for(let i = 0; i < 5; i++) {
                 const randomIndex = Math.floor(Math.random() * generatedContacts.length);
                 const contact = generatedContacts[randomIndex];
