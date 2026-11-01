@@ -119,16 +119,19 @@
         }
         .wa-icon { margin-right: 12px; fill: var(--neon-green); width: 18px; height: 18px; }
 
-        /* Paywall Modal - Hidden by default */
+        /* Paywall Modal */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(11, 13, 16, 0.95); z-index: 50; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-sizing: border-box;
+            background: rgba(11, 13, 16, 0.95); z-index: 50; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-sizing: border-box; overflow-y: auto;
         }
         .modal-box {
-            background: rgba(21, 24, 30, 0.98); padding: 25px; border-radius: 16px; border: 1px solid rgba(255, 215, 0, 0.4); width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+            background: rgba(21, 24, 30, 0.98); padding: 25px; border-radius: 16px; border: 1px solid rgba(255, 215, 0, 0.4); width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.9); margin: auto;
         }
         .key-input { width: 100%; padding: 14px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center; margin-bottom: 12px; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; box-sizing: border-box; }
         .btn-gold { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); width: 100%; margin-top: 0; margin-bottom: 0;}
+
+        /* Admin Panel Styles */
+        .admin-panel { display: none; margin-top: 20px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px; text-align: left; max-height: 300px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -192,18 +195,12 @@
                 <div style="text-align: right; cursor: pointer; color: var(--text-muted); font-size: 20px; margin-top: -10px; margin-bottom: 5px;" onclick="document.getElementById('paywallArea').style.display='none'">&times;</div>
                 
                 <h2 style="color: var(--neon-gold); font-size: 20px; margin-bottom: 5px;">SaaS Access Required</h2>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Choose a license tier below to instantly receive your single-use access key via email.</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Choose a license tier below to instantly receive your single-use access key.</p>
                 
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
-                    <a href="https://selar.co/YOUR_5K_LINK" target="_blank" style="background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">
-                        🛒 5,000 Contacts ($2.00)
-                    </a>
-                    <a href="https://selar.co/YOUR_15K_LINK" target="_blank" style="background: rgba(181, 42, 255, 0.1); border: 1px solid var(--neon-purple); color: #fff; text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">
-                        🛒 15,000 Contacts ($5.00)
-                    </a>
-                    <a href="https://selar.co/YOUR_50K_LINK" target="_blank" style="background: rgba(0, 255, 102, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">
-                        🛒 50,000 Contacts ($10.00)
-                    </a>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;" id="pricingButtonsContainer">
+                    <a href="#" id="btnLink1" target="_blank" style="background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">🛒 Tier 1</a>
+                    <a href="#" id="btnLink2" target="_blank" style="background: rgba(181, 42, 255, 0.1); border: 1px solid var(--neon-purple); color: #fff; text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">🛒 Tier 2</a>
+                    <a href="#" id="btnLink3" target="_blank" style="background: rgba(0, 255, 102, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">🛒 Tier 3</a>
                 </div>
 
                 <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
@@ -211,6 +208,29 @@
                     <input type="text" class="key-input" id="licenseKey" placeholder="VCF-XXXX-XXXX">
                     <button class="btn-gold" onclick="verifyKey()">Unlock Engine</button>
                 </div>
+
+                <!-- LIVE ADMIN SETTINGS PANEL (Appears via URL #admin) -->
+                <div class="admin-panel" id="adminPanelBox">
+                    <h3 style="color: var(--neon-gold); font-size: 13px; margin-bottom: 10px; text-align: center;">⚙️ Master Admin Control Center</h3>
+                    
+                    <label style="font-size: 9px; color: var(--neon-blue);">Tier 1 Button Label:</label>
+                    <input type="text" id="admLabel1" style="padding: 6px; font-size: 11px; margin-bottom: 6px;">
+                    <label style="font-size: 9px;">Tier 1 Checkout URL (Selar/Paystack/Flutterwave/Stripe):</label>
+                    <input type="text" id="admUrl1" style="padding: 6px; font-size: 11px; margin-bottom: 10px;">
+
+                    <label style="font-size: 9px; color: var(--neon-purple);">Tier 2 Button Label:</label>
+                    <input type="text" id="admLabel2" style="padding: 6px; font-size: 11px; margin-bottom: 6px;">
+                    <label style="font-size: 9px;">Tier 2 Checkout URL:</label>
+                    <input type="text" id="admUrl2" style="padding: 6px; font-size: 11px; margin-bottom: 10px;">
+
+                    <label style="font-size: 9px; color: var(--neon-green);">Tier 3 Button Label:</label>
+                    <input type="text" id="admLabel3" style="padding: 6px; font-size: 11px; margin-bottom: 6px;">
+                    <label style="font-size: 9px;">Tier 3 Checkout URL:</label>
+                    <input type="text" id="admUrl3" style="padding: 6px; font-size: 11px; margin-bottom: 15px;">
+
+                    <button onclick="saveAdminConfig()" style="background: var(--neon-gold); color: #000; padding: 12px; font-size: 12px; font-weight: bold;">Save Configuration to Cloud</button>
+                </div>
+
             </div>
         </div>
 
@@ -236,6 +256,43 @@
         let isVIP = localStorage.getItem('ls_global_vcf_vip') === 'true';
         let dynamicVIPKey = "PRO-VCF-777"; 
 
+        // Live Sync Configuration from Firebase
+        db.ref('adminSettings/saasConfig').on('value', (snapshot) => {
+            const config = snapshot.val() || {
+                label1: "🛒 5,000 Contacts ($2.00)", url1: "https://selar.co/YOUR_LINK_1",
+                label2: "🛒 15,000 Contacts ($5.00)", url2: "https://selar.co/YOUR_LINK_2",
+                label3: "🛒 50,000 Contacts ($10.00)", url3: "https://selar.co/YOUR_LINK_3"
+            };
+
+            document.getElementById('btnLink1').innerText = config.label1;
+            document.getElementById('btnLink1').href = config.url1;
+            document.getElementById('admLabel1').value = config.label1;
+            document.getElementById('admUrl1').value = config.url1;
+
+            document.getElementById('btnLink2').innerText = config.label2;
+            document.getElementById('btnLink2').href = config.url2;
+            document.getElementById('admLabel2').value = config.label2;
+            document.getElementById('admUrl2').value = config.url2;
+
+            document.getElementById('btnLink3').innerText = config.label3;
+            document.getElementById('btnLink3').href = config.url3;
+            document.getElementById('admLabel3').value = config.label3;
+            document.getElementById('admUrl3').value = config.url3;
+        });
+
+        function saveAdminConfig() {
+            const label1 = document.getElementById('admLabel1').value.trim();
+            const url1 = document.getElementById('admUrl1').value.trim();
+            const label2 = document.getElementById('admLabel2').value.trim();
+            const url2 = document.getElementById('admUrl2').value.trim();
+            const label3 = document.getElementById('admLabel3').value.trim();
+            const url3 = document.getElementById('admUrl3').value.trim();
+
+            db.ref('adminSettings/saasConfig').set({ label1, url1, label2, url2, label3, url3 }).then(() => {
+                alert("✅ SaaS configuration updated live across all networks!");
+            });
+        }
+
         function getDeviceFingerprint() {
             let fp = localStorage.getItem('device_fingerprint');
             if (!fp) {
@@ -249,6 +306,10 @@
         function initApp() {
             if(isVIP) {
                 updateCreditsDisplay();
+            }
+            if(window.location.hash === '#admin') {
+                document.getElementById('paywallArea').style.display = 'flex';
+                document.getElementById('adminPanelBox').style.display = 'block';
             }
         }
 
@@ -268,7 +329,7 @@
                 localStorage.removeItem('ls_global_vcf_key'); 
                 document.getElementById('paywallArea').style.display = 'none';
                 updateCreditsDisplay();
-                alert("Master Admin Access Unlocked! Generating contacts now...");
+                alert("Master Admin Access Unlocked!");
                 generateNumbers(); 
             } else if (inputKey.startsWith("VCF-")) {
                 let safeCodeKey = inputKey.replace(/[.$#[\]/]/g, "_");
@@ -285,12 +346,11 @@
                         return;
                     }
                     
-                    let maxLimit = 0;
-                    let subName = "Basic Tier";
+                    let maxLimit = 5000;
+                    let subName = "Custom Tier";
                     
-                    if(inputKey.includes("5K")) { maxLimit = 5000; subName = "5K Lead Tier"; }
-                    if(inputKey.includes("15K")) { maxLimit = 15000; subName = "15K Lead Tier"; }
-                    if(inputKey.includes("50K")) { maxLimit = 50000; subName = "50K Lead Tier"; }
+                    if(inputKey.includes("15K") || inputKey.includes("15")) { maxLimit = 15000; subName = "Mid Tier"; }
+                    if(inputKey.includes("50K") || inputKey.includes("50")) { maxLimit = 50000; subName = "High Tier"; }
 
                     db.ref('activeVcfSubscribers/' + safeCodeKey).set({
                         deviceToken: userDeviceToken,
@@ -306,7 +366,7 @@
                     localStorage.setItem('ls_global_vcf_key', safeCodeKey); 
                     document.getElementById('paywallArea').style.display = 'none';
                     updateCreditsDisplay();
-                    alert(`Access Granted! Generating your ${maxLimit.toLocaleString()} contacts now...`);
+                    alert(`Access Granted! Generating your contacts now...`);
                     generateNumbers(); 
                 });
             } else {
@@ -332,12 +392,10 @@
         // ==========================================
         let currentMode = 'targeted';
         let generatedContacts = [];
-        const countryString = "Afghanistan:93,Albania:355,Algeria:213,Andorra:376,Angola:244,Argentina:54,Armenia:374,Austria:43,Azerbaijan:994,Bahamas:1,Bahrain:973,Bangladesh:880,Belarus:375,Belgium:32,Belize:501,Benin:229,Bhutan:975,Bolivia:591,Bosnia:387,Botswana:267,Brazil:55,Brunei:673,Bulgaria:359,Burkina Faso:226,Burundi:257,Cambodia:855,Cameroon:237,Cape Verde:238,Central African Rep:236,Chad:235,Chile:56,China:86,Colombia:57,Comoros:269,Congo:242,Costa Rica:506,Croatia:385,Cuba:53,Cyprus:357,Czech Republic:420,Denmark:45,Djibouti:253,Dominican Rep:1,Ecuador:593,Egypt:20,El Salvador:503,Equatorial Guinea:240,Eritrea:291,Estonia:372,Ethiopia:251,Fiji:679,Finland:358,France:33,Gabon:241,Gambia:220,Georgia:995,Germany:49,Greece:30,Guatemala:502,Guinea:224,Guyana:592,Haiti:509,Honduras:504,Hong Kong:852,Hungary:36,Iceland:354,Indonesia:62,Iran:98,Iraq:964,Ireland:353,Israel:972,Italy:39,Ivory Coast:225,Jamaica:1,Japan:81,Jordan:962,Kazakhstan:7,Kuwait:965,Kyrgyzstan:996,Laos:856,Latvia:371,Lebanon:961,Lesotho:266,Liberia:231,Libya:218,Lithuania:370,Luxembourg:352,Macau:853,Macedonia:389,Madagascar:261,Malawi:265,Malaysia:60,Maldives:960,Mali:223,Malta:356,Mauritania:222,Mauritius:230,Mexico:52,Moldova:373,Monaco:377,Mongolia:976,Montenegro:382,Morocco:212,Mozambique:258,Myanmar:95,Namibia:264,Nepal:977,Netherlands:31,New Zealand:64,Nicaragua:505,Niger:227,North Korea:850,Norway:47,Oman:968,Pakistan:92,Palestine:970,Panama:507,Papua New Guinea:675,Paraguay:595,Peru:51,Philippines:63,Poland:48,Portugal:351,Qatar:974,Romania:40,Russia:7,Rwanda:250,Saudi Arabia:966,Senegal:221,Serbia:381,Seychelles:248,Sierra Leone:232,Singapore:65,Slovakia:421,Slovenia:386,Somalia:252,South Korea:82,Spain:34,Sri Lanka:94,Sudan:249,Suriname:597,Swaziland:268,Sweden:46,Switzerland:41,Syria:963,Taiwan:886,Tajikistan:992,Tanzania:255,Thailand:66,Togo:228,Trinidad and Tobago:1,Tunisia:216,Turkey:90,Turkmenistan:993,Uganda:256,Ukraine:380,UAE:971,Uruguay:598,Uzbekistan:998,Venezuela:58,Vietnam:84,Yemen:967,Zambia:260,Zimbabwe:263";
+        const countryString = "Afghanistan:93,Albania:355,Algeria:213,Andorra:376,Angola:244,Argentina:54,Armenia:374,Austria:43,Azerbaijan:994,Bahamas:1,Bahrain:973,Bangladesh:880,Belarus:375,Belgium:32,Belize:501,Benin:229,Bhutan:975,Bolivia:591,Bosnia:387,Botswana:267,Brazil:55,Brunei:673,Bulgaria:359,Burkina Faso:226,Burundi:257,Cambodia:855,Cameroon:237,Canada:1,Cape Verde:238,Central African Rep:236,Chad:235,Chile:56,China:86,Colombia:57,Comoros:269,Congo:242,Costa Rica:506,Croatia:385,Cuba:53,Cyprus:357,Czech Republic:420,Denmark:45,Djibouti:253,Dominican Rep:1,Ecuador:593,Egypt:20,El Salvador:503,Equatorial Guinea:240,Eritrea:291,Estonia:372,Ethiopia:251,Fiji:679,Finland:358,France:33,Gabon:241,Gambia:220,Georgia:995,Germany:49,Greece:30,Guatemala:502,Guinea:224,Guyana:592,Haiti:509,Honduras:504,Hong Kong:852,Hungary:36,Iceland:354,Indonesia:62,Iran:98,Iraq:964,Ireland:353,Israel:972,Italy:39,Ivory Coast:225,Jamaica:1,Japan:81,Jordan:962,Kazakhstan:7,Kuwait:965,Kyrgyzstan:996,Laos:856,Latvia:371,Lebanon:961,Lesotho:266,Liberia:231,Libya:218,Lithuania:370,Luxembourg:352,Macau:853,Macedonia:389,Madagascar:261,Malawi:265,Malaysia:60,Maldives:960,Mali:223,Malta:356,Mauritania:222,Mauritius:230,Mexico:52,Moldova:373,Monaco:377,Mongolia:976,Montenegro:382,Morocco:212,Mozambique:258,Myanmar:95,Namibia:264,Nepal:977,Netherlands:31,New Zealand:64,Nicaragua:505,Niger:227,North Korea:850,Norway:47,Oman:968,Pakistan:92,Palestine:970,Panama:507,Papua New Guinea:675,Paraguay:595,Peru:51,Philippines:63,Poland:48,Portugal:351,Qatar:974,Romania:40,Russia:7,Rwanda:250,Saudi Arabia:966,Senegal:221,Serbia:381,Seychelles:248,Sierra Leone:232,Singapore:65,Slovakia:421,Slovenia:386,Somalia:252,South Korea:82,Spain:34,Sri Lanka:94,Sudan:249,Suriname:597,Swaziland:268,Sweden:46,Switzerland:41,Syria:963,Taiwan:886,Tajikistan:992,Tanzania:255,Thailand:66,Togo:228,Trinidad and Tobago:1,Tunisia:216,Turkey:90,Turkmenistan:993,Uganda:256,Ukraine:380,UAE:971,Uruguay:598,Uzbekistan:998,Venezuela:58,Vietnam:84,Yemen:967,Zambia:260,Zimbabwe:263";
 
         document.addEventListener('DOMContentLoaded', () => {
             const select = document.getElementById('countrySelect');
-            
-            // 🔥 ORDERED HOT LIST: USA -> Canada -> UK -> Australia -> Nigeria
             const topCountries = ["USA/Canada:1", "Canada:1", "UK:44", "Australia:61", "Nigeria:234"];
             
             topCountries.forEach(c => {
@@ -353,7 +411,7 @@
                 select.add(new Option(`${n} (+${code})`, code));
             });
             
-            select.value = "1"; // Default to US/Canada
+            select.value = "1"; 
             updateCountryDefaults();
             initApp(); 
         });
