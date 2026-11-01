@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global VCF Engine</title>
+    <title>Global VCF Engine | Pro SaaS</title>
     <style>
         :root {
             --bg-color: #0b0d10;
@@ -13,6 +13,7 @@
             --neon-green: #25D366;
             --neon-orange: #ff9900;
             --neon-purple: #b52aff;
+            --neon-gold: #ffd700;
             --text-main: #ffffff;
             --text-muted: #8a99a8;
             --border-glow: rgba(0, 229, 255, 0.3);
@@ -36,7 +37,17 @@
             max-width: 480px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
         }
+        
+        /* VIP Banner Styles */
+        .status-banner {
+            padding: 10px 15px; border-radius: 12px; font-size: 12px; font-weight: bold;
+            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .vip-active-banner { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; display: none; }
+
         h2 {
             text-align: center;
             background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
@@ -106,7 +117,6 @@
             text-transform: uppercase;
         }
         
-        /* Mobile-Safe Premium Inputs */
         select, input {
             width: 100%;
             padding: 14px 12px;
@@ -124,7 +134,6 @@
             box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
         }
         
-        /* Custom Clickable Dropdown Arrow */
         select {
             appearance: none;
             -webkit-appearance: none;
@@ -178,10 +187,29 @@
             background: #0b0d10; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
         }
         .wa-icon { margin-right: 12px; fill: var(--neon-green); width: 18px; height: 18px; }
+
+        /* Paywall Modal Styles */
+        .modal-overlay {
+            display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(11, 13, 16, 0.95); z-index: 50; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-sizing: border-box;
+        }
+        .modal-box {
+            background: rgba(21, 24, 30, 0.98); padding: 25px; border-radius: 16px;
+            border: 1px solid rgba(255, 215, 0, 0.4); width: 100%; max-width: 400px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+        }
+        .key-input { width: 100%; padding: 14px; background: #0b0d10; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; text-align: center; margin-bottom: 12px; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; box-sizing: border-box; }
+        .btn-gold { background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); width: 100%; margin-top: 0; margin-bottom: 0;}
     </style>
 </head>
 <body>
     <div class="dashboard-ui">
+        
+        <div class="status-banner vip-active-banner" id="vipBadge">
+            <span>👑 ENGINE VIP (<span id="subTypeDisplay">Lifetime</span>)</span>
+            <span id="expiryTimerDisplay" style="font-size: 10px; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;"></span>
+        </div>
+
         <h2>Global Lead Engine</h2>
         
         <!-- STEP 1: ENGINE MODE -->
@@ -189,7 +217,6 @@
             <div class="step-title"><span>1</span> Select Engine Mode</div>
             <div class="mode-selector">
                 <div class="mode-btn active-targeted" id="btnTargeted" onclick="setMode('targeted')">🎯 Targeted</div>
-                <!-- Renamed to Mixed -->
                 <div class="mode-btn" id="btnMixed" onclick="setMode('mixed')">🎲 Mixed</div>
             </div>
         </div>
@@ -200,9 +227,7 @@
             <div class="input-row">
                 <div class="input-group">
                     <label>Country Network</label>
-                    <select id="countrySelect" onchange="updateCountryDefaults()">
-                        <!-- Javascript Loads this instantly -->
-                    </select>
+                    <select id="countrySelect" onchange="updateCountryDefaults()"></select>
                 </div>
                 <div class="input-group">
                     <label>Quantity</label>
@@ -210,7 +235,6 @@
                 </div>
             </div>
 
-            <!-- Added an ID to this container so we can hide it in Mixed Mode -->
             <div class="input-group" id="baseNumberContainer" style="margin-bottom: 15px;">
                 <label id="baseLabel">Starting Number (Without Code)</label>
                 <input type="text" id="baseNumber" placeholder="e.g. 8030000000">
@@ -233,15 +257,152 @@
             <div id="testLinksContainer"></div>
         </div>
 
+        <!-- PAYWALL MODAL -->
+        <div class="modal-overlay" id="paywallArea">
+            <div class="modal-box">
+                <h2 style="color: var(--neon-gold); font-size: 20px; margin-bottom: 5px;">SaaS Access Required</h2>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Enter your secure license key to unlock the Global VCF Engine.</p>
+                
+                <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
+                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 5px; text-transform: uppercase;">Input Key (Device-Locked):</label>
+                    <input type="text" class="key-input" id="licenseKey" placeholder="ENTER ACCESS CODE">
+                    <button class="btn-gold" onclick="verifyKey()">Activate Engine</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
+        // ==========================================
+        // FIREBASE SECURITY & PAYWALL LOGIC
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
+            authDomain: "probet-syndicate.firebaseapp.com",
+            databaseURL: "https://probet-syndicate-default-rtdb.firebaseio.com",
+            projectId: "probet-syndicate",
+            storageBucket: "probet-syndicate.firebasestorage.app",
+            messagingSenderId: "418866597682",
+            appId: "1:418866597682:web:847007dbaf3c40452d912b"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let isVIP = localStorage.getItem('ls_global_vcf_vip') === 'true';
+        let dynamicVIPKey = "PRO-VCF-777"; 
+
+        function getDeviceFingerprint() {
+            let fp = localStorage.getItem('device_fingerprint');
+            if (!fp) {
+                fp = 'fp_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+                localStorage.setItem('device_fingerprint', fp);
+            }
+            return fp;
+        }
+        const userDeviceToken = getDeviceFingerprint();
+
+        function checkExpiration() {
+            let expiryTime = localStorage.getItem('ls_global_vcf_expiry_time');
+            if (isVIP && expiryTime !== 'lifetime' && expiryTime) {
+                if (Date.now() > parseInt(expiryTime)) {
+                    isVIP = false;
+                    localStorage.setItem('ls_global_vcf_vip', 'false');
+                    localStorage.removeItem('ls_global_vcf_expiry_time');
+                    alert("Your license has expired. Please renew your key.");
+                    location.reload();
+                }
+            }
+        }
+        
+        function initApp() {
+            checkExpiration();
+            if(isVIP) {
+                document.getElementById('paywallArea').style.display = 'none';
+                updateCreditsDisplay();
+            }
+        }
+
+        db.ref('adminSettings/vcfApp').on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            if (data.vipKey) dynamicVIPKey = data.vipKey;
+        });
+
+        function verifyKey() {
+            const inputKey = document.getElementById('licenseKey').value.trim();
+            
+            if (inputKey === dynamicVIPKey) {
+                isVIP = true;
+                localStorage.setItem('ls_global_vcf_vip', 'true');
+                localStorage.setItem('ls_global_vcf_sub_type', 'Lifetime Admin');
+                localStorage.setItem('ls_global_vcf_expiry_time', 'lifetime');
+                document.getElementById('paywallArea').style.display = 'none';
+                updateCreditsDisplay();
+                alert("Master Admin Access Unlocked!");
+            } else if (inputKey.startsWith("VCF-")) {
+                let safeCodeKey = inputKey.replace(/[.$#[\]/]/g, "_");
+                db.ref('activeVcfSubscribers/' + safeCodeKey).once('value').then((snapshot) => {
+                    const subData = snapshot.val();
+                    const now = Date.now();
+                    if (subData && subData.deviceToken !== userDeviceToken && subData.expiry > now) {
+                        alert("❌ Security Error: This access key is locked to another user's device.");
+                        return;
+                    }
+                    let durationMs = 24 * 60 * 60 * 1000; 
+                    let subName = "24-Hour Pass";
+                    if(inputKey.includes("7D")) { durationMs = 7 * 24 * 3600 * 1000; subName = "7 Day Pass"; }
+                    if(inputKey.includes("30D")) { durationMs = 30 * 24 * 3600 * 1000; subName = "30 Day Pass"; }
+
+                    let expiryTimestamp = now + durationMs;
+                    db.ref('activeVcfSubscribers/' + safeCodeKey).set({
+                        deviceToken: userDeviceToken,
+                        expiry: expiryTimestamp,
+                        activatedAt: now
+                    });
+
+                    isVIP = true;
+                    localStorage.setItem('ls_global_vcf_vip', 'true');
+                    localStorage.setItem('ls_global_vcf_sub_type', subName);
+                    localStorage.setItem('ls_global_vcf_expiry_time', expiryTimestamp.toString());
+                    document.getElementById('paywallArea').style.display = 'none';
+                    updateCreditsDisplay();
+                    alert(`Access Granted!`);
+                });
+            } else {
+                alert("Invalid Access Key.");
+            }
+        }
+
+        function updateCreditsDisplay() {
+            if (isVIP) {
+                document.getElementById('vipBadge').style.display = 'flex';
+                document.getElementById('subTypeDisplay').innerText = localStorage.getItem('ls_global_vcf_sub_type') || 'VIP Access';
+                let expiryTime = localStorage.getItem('ls_global_vcf_expiry_time');
+                if (expiryTime && expiryTime !== 'lifetime') {
+                    let timeLeft = parseInt(expiryTime) - Date.now();
+                    if (timeLeft > 0) {
+                        let days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+                        let hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        document.getElementById('expiryTimerDisplay').innerText = `Exp: ${days}d ${hours}h`;
+                    }
+                } else {
+                    document.getElementById('expiryTimerDisplay').innerText = `(Lifetime)`;
+                }
+            }
+        }
+
+        // ==========================================
+        // VCF GENERATOR LOGIC
+        // ==========================================
         let currentMode = 'targeted';
         let generatedContacts = [];
 
         const countryString = "Afghanistan:93,Albania:355,Algeria:213,Andorra:376,Angola:244,Argentina:54,Armenia:374,Austria:43,Azerbaijan:994,Bahamas:1,Bahrain:973,Bangladesh:880,Belarus:375,Belgium:32,Belize:501,Benin:229,Bhutan:975,Bolivia:591,Bosnia:387,Botswana:267,Brazil:55,Brunei:673,Bulgaria:359,Burkina Faso:226,Burundi:257,Cambodia:855,Cameroon:237,Canada:1,Cape Verde:238,Central African Rep:236,Chad:235,Chile:56,China:86,Colombia:57,Comoros:269,Congo:242,Costa Rica:506,Croatia:385,Cuba:53,Cyprus:357,Czech Republic:420,Denmark:45,Djibouti:253,Dominican Rep:1,Ecuador:593,Egypt:20,El Salvador:503,Equatorial Guinea:240,Eritrea:291,Estonia:372,Ethiopia:251,Fiji:679,Finland:358,France:33,Gabon:241,Gambia:220,Georgia:995,Germany:49,Greece:30,Guatemala:502,Guinea:224,Guyana:592,Haiti:509,Honduras:504,Hong Kong:852,Hungary:36,Iceland:354,Indonesia:62,Iran:98,Iraq:964,Ireland:353,Israel:972,Italy:39,Ivory Coast:225,Jamaica:1,Japan:81,Jordan:962,Kazakhstan:7,Kuwait:965,Kyrgyzstan:996,Laos:856,Latvia:371,Lebanon:961,Lesotho:266,Liberia:231,Libya:218,Lithuania:370,Luxembourg:352,Macau:853,Macedonia:389,Madagascar:261,Malawi:265,Malaysia:60,Maldives:960,Mali:223,Malta:356,Mauritania:222,Mauritius:230,Mexico:52,Moldova:373,Monaco:377,Mongolia:976,Montenegro:382,Morocco:212,Mozambique:258,Myanmar:95,Namibia:264,Nepal:977,Netherlands:31,New Zealand:64,Nicaragua:505,Niger:227,North Korea:850,Norway:47,Oman:968,Pakistan:92,Palestine:970,Panama:507,Papua New Guinea:675,Paraguay:595,Peru:51,Philippines:63,Poland:48,Portugal:351,Qatar:974,Romania:40,Russia:7,Rwanda:250,Saudi Arabia:966,Senegal:221,Serbia:381,Seychelles:248,Sierra Leone:232,Singapore:65,Slovakia:421,Slovenia:386,Somalia:252,South Korea:82,Spain:34,Sri Lanka:94,Sudan:249,Suriname:597,Swaziland:268,Sweden:46,Switzerland:41,Syria:963,Taiwan:886,Tajikistan:992,Tanzania:255,Thailand:66,Togo:228,Trinidad and Tobago:1,Tunisia:216,Turkey:90,Turkmenistan:993,Uganda:256,Ukraine:380,UAE:971,Uruguay:598,Uzbekistan:998,Venezuela:58,Vietnam:84,Yemen:967,Zambia:260,Zimbabwe:263";
 
-        // Bulletproof fast-load trigger
         document.addEventListener('DOMContentLoaded', () => {
             const select = document.getElementById('countrySelect');
             const topCountries = ["Nigeria:234", "USA/Canada:1", "UK:44", "South Africa:27", "Ghana:233", "Kenya:254", "India:91", "Australia:61"];
@@ -261,6 +422,7 @@
             
             select.value = "234";
             updateCountryDefaults();
+            initApp(); // Run Paywall check on load
         });
 
         const defaultBases = { "234": "8030000000", "44": "7700000000", "1": "2125550000", "61": "400000000", "27": "710000000", "254": "700000000", "233": "240000000", "91": "9800000000" };
@@ -273,12 +435,10 @@
             if (mode === 'targeted') {
                 document.getElementById('btnTargeted').classList.add('active-targeted');
                 document.getElementById('btnMixed').classList.remove('active-mixed');
-                // Show the input box again for targeted mode
                 baseContainer.style.display = "block";
             } else {
                 document.getElementById('btnMixed').classList.add('active-mixed');
                 document.getElementById('btnTargeted').classList.remove('active-targeted');
-                // Completely hide the input box for mixed mode
                 baseContainer.style.display = "none";
             }
             updateCountryDefaults();
@@ -301,7 +461,6 @@
             const baseInput = document.getElementById('baseNumber').value.trim().toUpperCase();
             
             if (!quantity || quantity <= 0) return alert("Please enter a valid Quantity.");
-            // Only require the baseInput box if they are using Targeted Mode
             if (currentMode === 'targeted' && !baseInput) return alert("Please enter a Base Number.");
 
             generatedContacts = [];
@@ -316,19 +475,15 @@
                     if (i < 5) previewText += `👤 ${nicheTag} ${i + 1}: +${countryCode}${currentNum}\n`;
                 }
             } else {
-                // MIXED MODE LOGIC: Automates length and fully randomizes
-                let numLength = 10; // Default safety net
-                // Grabs the exact number length based on the country selected
+                let numLength = 10; 
                 if (defaultWildcards[countryCode]) {
                     numLength = defaultWildcards[countryCode].length;
                 }
 
                 for (let i = 0; i < quantity; i++) {
                     let randomLocal = "";
-                    // Pick a random starting digit between 1 and 9 (to avoid numbers starting with 0)
                     randomLocal += Math.floor(Math.random() * 9) + 1;
                     
-                    // Generate the rest of the digits completely randomly
                     for (let j = 1; j < numLength; j++) {
                         randomLocal += Math.floor(Math.random() * 10).toString();
                     }
