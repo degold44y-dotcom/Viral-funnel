@@ -119,9 +119,9 @@
         }
         .wa-icon { margin-right: 12px; fill: var(--neon-green); width: 18px; height: 18px; }
 
-        /* Paywall Modal */
+        /* Paywall Modal - Hidden by default */
         .modal-overlay {
-            display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(11, 13, 16, 0.95); z-index: 50; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-sizing: border-box;
         }
         .modal-box {
@@ -189,6 +189,9 @@
         <!-- PAYWALL MODAL -->
         <div class="modal-overlay" id="paywallArea">
             <div class="modal-box">
+                <!-- Added a close button for better UX if they want to back out and test the UI more -->
+                <div style="text-align: right; cursor: pointer; color: var(--text-muted); font-size: 20px; margin-top: -10px; margin-bottom: 5px;" onclick="document.getElementById('paywallArea').style.display='none'">&times;</div>
+                
                 <h2 style="color: var(--neon-gold); font-size: 20px; margin-bottom: 5px;">SaaS Access Required</h2>
                 <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Choose a license tier below to instantly receive your single-use access key via email.</p>
                 
@@ -246,7 +249,7 @@
         
         function initApp() {
             if(isVIP) {
-                document.getElementById('paywallArea').style.display = 'none';
+                // If they already have an active session, show the badge
                 updateCreditsDisplay();
             }
         }
@@ -260,21 +263,20 @@
             const inputKey = document.getElementById('licenseKey').value.trim();
             
             if (inputKey === dynamicVIPKey) {
-                // MASTER ADMIN LOGIC (Unlimited, no burn)
                 isVIP = true;
                 localStorage.setItem('ls_global_vcf_vip', 'true');
                 localStorage.setItem('ls_global_vcf_sub_type', 'Lifetime Admin');
                 localStorage.setItem('ls_global_vcf_limit', '999999999');
-                localStorage.removeItem('ls_global_vcf_key'); // Ensure no key is stored to burn
+                localStorage.removeItem('ls_global_vcf_key'); 
                 document.getElementById('paywallArea').style.display = 'none';
                 updateCreditsDisplay();
-                alert("Master Admin Access Unlocked!");
+                alert("Master Admin Access Unlocked! Generating contacts now...");
+                generateNumbers(); // Auto-run generator after unlock
             } else if (inputKey.startsWith("VCF-")) {
                 let safeCodeKey = inputKey.replace(/[.$#[\]/]/g, "_");
                 db.ref('activeVcfSubscribers/' + safeCodeKey).once('value').then((snapshot) => {
                     const subData = snapshot.val();
                     
-                    // NEW: CHECK IF KEY IS ALREADY BURNED
                     if (subData && subData.used === true) {
                         alert("❌ Security Error: This access key has already been consumed.");
                         return;
@@ -296,17 +298,18 @@
                         deviceToken: userDeviceToken,
                         maxLimit: maxLimit,
                         activatedAt: Date.now(),
-                        used: false // Key starts as unused
+                        used: false 
                     });
 
                     isVIP = true;
                     localStorage.setItem('ls_global_vcf_vip', 'true');
                     localStorage.setItem('ls_global_vcf_sub_type', subName);
                     localStorage.setItem('ls_global_vcf_limit', maxLimit.toString());
-                    localStorage.setItem('ls_global_vcf_key', safeCodeKey); // Store key to burn it later
+                    localStorage.setItem('ls_global_vcf_key', safeCodeKey); 
                     document.getElementById('paywallArea').style.display = 'none';
                     updateCreditsDisplay();
-                    alert(`Access Granted! Your tier limit is ${maxLimit.toLocaleString()} contacts.`);
+                    alert(`Access Granted! Generating your ${maxLimit.toLocaleString()} contacts now...`);
+                    generateNumbers(); // Auto-run generator after unlock
                 });
             } else {
                 alert("Invalid Access Key.");
@@ -375,9 +378,9 @@
         }
 
         function generateNumbers() {
+            // THE FREEMIUM TRIGGER: Show paywall if not VIP
             if (!isVIP) {
-                alert("Your session has expired or your key was already consumed. Please reload the page.");
-                location.reload();
+                document.getElementById('paywallArea').style.display = 'flex';
                 return;
             }
 
@@ -424,23 +427,17 @@
             document.getElementById('testBtn').style.display = "block";
             document.getElementById('testLinksContainer').style.display = "none";
 
-            // ==========================================
-            // BURN KEY LOGIC (SINGLE-USE CONSUMABLE)
-            // ==========================================
+            // BURN KEY LOGIC
             let currentKey = localStorage.getItem('ls_global_vcf_key');
-            if (currentKey) { // Means they are a regular user, not Master Admin
-                // 1. Mark key as permanently used in database
+            if (currentKey) { 
                 db.ref('activeVcfSubscribers/' + currentKey).update({ used: true });
-                
-                // 2. Wipe their access from local storage
                 localStorage.removeItem('ls_global_vcf_vip');
                 localStorage.removeItem('ls_global_vcf_sub_type');
                 localStorage.removeItem('ls_global_vcf_limit');
                 localStorage.removeItem('ls_global_vcf_key');
                 isVIP = false;
                 
-                // 3. Update the UI to lock them out of further generation
-                document.getElementById('generateBtn').style.display = 'none'; // Hide Run button
+                document.getElementById('generateBtn').style.display = 'none';
                 document.getElementById('vipBadge').style.background = "linear-gradient(90deg, #ff0000, #990000)";
                 document.getElementById('vipBadge').innerHTML = "<span>⚠️ KEY CONSUMED</span><span style='font-size: 10px; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px;'>Download Now</span>";
                 
