@@ -261,12 +261,26 @@
         <div class="modal-overlay" id="paywallArea">
             <div class="modal-box">
                 <h2 style="color: var(--neon-gold); font-size: 20px; margin-bottom: 5px;">SaaS Access Required</h2>
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Enter your secure license key to unlock the Global VCF Engine.</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 20px;">Choose a license tier below to instantly receive your access key via email.</p>
                 
+                <!-- NEW 3-TIER PAYMENT BUTTONS -->
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                    <!-- PASTE YOUR SELAR LINKS HERE -->
+                    <a href="https://selar.co/YOUR_7_DAY_LINK" target="_blank" style="background: rgba(0, 229, 255, 0.1); border: 1px solid var(--neon-blue); color: var(--neon-blue); text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">
+                        🛒 7-Day Pass ($5.00)
+                    </a>
+                    <a href="https://selar.co/YOUR_15_DAY_LINK" target="_blank" style="background: rgba(181, 42, 255, 0.1); border: 1px solid var(--neon-purple); color: #fff; text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">
+                        🛒 15-Day Pass ($10.00)
+                    </a>
+                    <a href="https://selar.co/YOUR_30_DAY_LINK" target="_blank" style="background: rgba(0, 255, 102, 0.1); border: 1px solid var(--neon-green); color: var(--neon-green); text-decoration: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 13px; transition: 0.2s;">
+                        🛒 30-Day Pass ($15.00)
+                    </a>
+                </div>
+
                 <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 15px;">
-                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 5px; text-transform: uppercase;">Input Key (Device-Locked):</label>
-                    <input type="text" class="key-input" id="licenseKey" placeholder="ENTER ACCESS CODE">
-                    <button class="btn-gold" onclick="verifyKey()">Activate Engine</button>
+                    <label style="font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 5px; text-transform: uppercase;">Already have a key? Enter it here:</label>
+                    <input type="text" class="key-input" id="licenseKey" placeholder="VCF-XXXX-XXXX">
+                    <button class="btn-gold" onclick="verifyKey()">Unlock Engine</button>
                 </div>
             </div>
         </div>
@@ -352,10 +366,14 @@
                         alert("❌ Security Error: This access key is locked to another user's device.");
                         return;
                     }
+                    
                     let durationMs = 24 * 60 * 60 * 1000; 
                     let subName = "24-Hour Pass";
-                    if(inputKey.includes("7D")) { durationMs = 7 * 24 * 3600 * 1000; subName = "7 Day Pass"; }
-                    if(inputKey.includes("30D")) { durationMs = 30 * 24 * 3600 * 1000; subName = "30 Day Pass"; }
+                    
+                    // Added Logic for 7, 15, and 30 Days
+                    if(inputKey.includes("7D")) { durationMs = 7 * 24 * 3600 * 1000; subName = "7-Day Pass"; }
+                    if(inputKey.includes("15D")) { durationMs = 15 * 24 * 3600 * 1000; subName = "15-Day Pass"; }
+                    if(inputKey.includes("30D")) { durationMs = 30 * 24 * 3600 * 1000; subName = "30-Day Pass"; }
 
                     let expiryTimestamp = now + durationMs;
                     db.ref('activeVcfSubscribers/' + safeCodeKey).set({
