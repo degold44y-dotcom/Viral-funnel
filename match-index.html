@@ -48,6 +48,11 @@
         .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; background: linear-gradient(135deg, #ff1493, #e14eca); color: white; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(225, 78, 202, 0.3); }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(225, 78, 202, 0.5); }
         
+        /* Liability Warning Box */
+        .liability-warning { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 15px; margin: 20px 0; text-align: center; }
+        .liability-warning h4 { color: #ef4444; margin: 0 0 8px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .liability-warning p { color: #cbd5e1; font-size: 12px; margin: 0; line-height: 1.5; }
+
         /* Scanner Styles */
         #scanner-container { display: none; flex-direction: column; align-items: center; margin-top: 20px; position: relative; }
         #video-feed { width: 230px; height: 230px; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255, 20, 147, 0.5); transform: scaleX(-1); box-shadow: 0 0 30px rgba(255, 20, 147, 0.2); }
@@ -89,6 +94,11 @@
         <div class="form-group">
             <label>Location (Country):</label>
             <select id="search-country" class="country-dropdown"></select>
+        </div>
+        
+        <div class="liability-warning">
+            <h4>⚠️ Safety & Liability Notice</h4>
+            <p>Global Match Engine is strictly an introductory network. We are <strong>not responsible</strong> for any financial transactions, business deals, or personal interactions that occur after contacts are unlocked. Once you connect on WhatsApp, you assume full responsibility. <strong>Never send money to someone you just met.</strong></p>
         </div>
         
         <button class="btn" onclick="attemptSearch()">Scan Live Network</button>
@@ -192,7 +202,7 @@
                 option.value = country.value; 
                 option.innerText = country.name;
                 option.dataset.code = country.code;
-                if (country.value === "United States") option.selected = true; // DEFAULT TO US
+                if (country.value === "United States") option.selected = true;
                 dropdown.appendChild(option);
             });
             
@@ -331,7 +341,7 @@
                     return; 
                 }
             } catch (err) {
-                console.warn("IP Check bypassed or failed due to ad-blocker/network limit.");
+                console.warn("IP Check bypassed or failed due to network settings.");
             }
 
             btn.innerText = "Encrypting & Uploading...";
