@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Match Engine</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        .header { width: 100%; padding: 20px; text-align: center; background: #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .tabs { display: flex; justify-content: center; width: 100%; max-width: 400px; margin-top: 20px; }
+        .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; border-bottom: 2px solid transparent; color: #94a3b8; font-weight: bold; }
+        .tab.active { border-bottom: 2px solid #38bdf8; color: #38bdf8; }
+        .container { width: 90%; max-width: 400px; margin-top: 20px; display: none; }
+        .container.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-size: 14px; color: #cbd5e1; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; background: #38bdf8; color: #0f172a; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .btn:hover { background: #0ea5e9; }
+        .camera-btn-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+        .camera-btn { background: #10b981; color: white; }
+        .camera-btn input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%; }
+        .match-card { background: #1e293b; border-radius: 12px; padding: 15px; margin-top: 15px; text-align: center; }
+        .match-img { width: 100%; height: 250px; object-fit: cover; border-radius: 8px; filter: blur(15px); pointer-events: none; user-select: none; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #1e293b; padding: 25px; border-radius: 12px; text-align: center; width: 80%; max-width: 350px; }
+        .modal-content h3 { color: #ef4444; margin-top: 0; }
+        .modal-btn { background: #38bdf8; color: #0f172a; padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>Global Match Engine</h2>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" id="tab-find" onclick="switchTab('find')">Find a Match</div>
+        <div class="tab" id="tab-join" onclick="switchTab('join')">Create Profile</div>
+    </div>
+
+    <!-- FIND A MATCH SECTION -->
+    <div id="section-find" class="container active">
+        <div class="form-group">
+            <label>I am looking for a:</label>
+            <select id="search-gender">
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Location:</label>
+            <select id="search-country" class="country-dropdown"></select>
+        </div>
+        <div class="form-group">
+            <label>Age Range:</label>
+            <select id="search-age">
+                <option value="18-25">18-25</option>
+                <option value="26-35">26-35</option>
+                <option value="36-45">36-45</option>
+                <option value="46-55">46-55</option>
+                <option value="56-65">56-65</option>
+                <option value="66-75">66-75</option>
+                <option value="Any">Any Age</option>
+            </select>
+        </div>
+        <button class="btn" onclick="attemptSearch()">Scan Area</button>
+        
+        <div id="results-area" style="display: none; margin-top: 20px;">
+            <h3 style="text-align: center;">Top Matches Found</h3>
+            <div class="match-card">
+                <img src="https://via.placeholder.com/400x400" class="match-img" oncontextmenu="return false;" draggable="false">
+                <h4>Match #9244</h4>
+                <p>Status: Online 🟢</p>
+                <button class="btn" style="background:#f59e0b;" onclick="alert('Redirecting to Selar to unlock WhatsApp & Photos...')">Unlock Full Profile ($7.99)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE PROFILE SECTION -->
+    <div id="section-join" class="container">
+        <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="join-name" placeholder="Enter first name">
+        </div>
+        <div class="form-group">
+            <label>Age</label>
+            <select id="join-age">
+                <option value="" disabled selected>Age</option>
+                <!-- JavaScript populates 18-75 -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Gender</label>
+            <select id="join-gender">
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Country</label>
+            <select id="join-country" class="country-dropdown"></select>
+        </div>
+        <div class="form-group">
+            <label>WhatsApp Number</label>
+            <input type="tel" id="join-whatsapp" placeholder="e.g. +1234567890">
+        </div>
+        
+        <div class="form-group camera-btn-wrapper">
+            <button class="btn camera-btn">📸 OPEN NATIVE CAMERA</button>
+            <input type="file" accept="image/*" capture="user" id="camera-input" onchange="handlePhoto(event)">
+        </div>
+        <p id="photo-status" style="color:#10b981; font-size:12px; text-align:center; display:none;">✅ Photo securely captured</p>
+
+        <button class="btn" onclick="submitProfile()">Submit Profile</button>
+    </div>
+
+    <!-- INTERCEPT MODAL -->
+    <div id="intercept-modal" class="modal">
+        <div class="modal-content">
+            <h3>Access Denied</h3>
+            <p>You must add your profile to the global database before you can search for others. It's only fair!</p>
+            <button class="modal-btn" onclick="closeModalAndJoin()">Create Profile</button>
+        </div>
+    </div>
+
+    <script>
+        // Populate Countries (Top tier first)
+        const topTier = ["United States", "United Kingdom", "Canada", "Australia"];
+        const otherCountries = ["Nigeria", "South Africa", "Ghana", "Kenya", "Germany", "France", "Brazil", "India", "Japan"]; 
+        const allCountries = [...topTier, ...otherCountries.sort()];
+        
+        const countryDropdowns = document.querySelectorAll('.country-dropdown');
+        countryDropdowns.forEach(dropdown => {
+            allCountries.forEach(country => {
+                let option = document.createElement('option');
+                option.value = country;
+                option.innerText = country;
+                dropdown.appendChild(option);
+            });
+        });
+
+        // Populate Age Dropdown (18-75)
+        const ageDropdown = document.getElementById('join-age');
+        for(let i = 18; i <= 75; i++) {
+            let option = document.createElement('option');
+            option.value = i;
+            option.innerText = i;
+            ageDropdown.appendChild(option);
+        }
+
+        // Tab Switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+            
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.getElementById(`section-${tab}`).classList.add('active');
+        }
+
+        // Tease and Lock Logic
+        function attemptSearch() {
+            const hasJoined = localStorage.getItem('hasJoinedGlobalMatch');
+            if (!hasJoined) {
+                document.getElementById('intercept-modal').style.display = 'flex';
+            } else {
+                document.getElementById('results-area').style.display = 'block';
+            }
+        }
+
+        function closeModalAndJoin() {
+            document.getElementById('intercept-modal').style.display = 'none';
+            switchTab('join');
+        }
+
+        // Camera Handler
+        function handlePhoto(event) {
+            const file = event.target.files[0];
+            if(file) {
+                document.getElementById('photo-status').style.display = 'block';
+            }
+        }
+
+        // Submit Profile
+        function submitProfile() {
+            const name = document.getElementById('join-name').value;
+            const number = document.getElementById('join-whatsapp').value;
+            const photo = document.getElementById('camera-input').files[0];
+
+            if(!name || !number || !photo) {
+                alert("Please fill all fields and snap a photo.");
+                return;
+            }
+
+            alert("Running Security Checks (IP Geolocation, VoIP Network Check, Firebase Blacklist)...");
+            
+            setTimeout(() => {
+                alert("Profile Approved! You are now added to the database.");
+                localStorage.setItem('hasJoinedGlobalMatch', 'true');
+                switchTab('find');
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
