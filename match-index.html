@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     
     <style>
-        /* Immersive Lovable Theme using the local image */
+        /* Immersive Lovable Theme with Local GitHub Image */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #0c0b1a; 
@@ -161,6 +161,18 @@
         </div>
     </div>
 
+    <!-- ONE-TIME KEY UNLOCK MODAL -->
+    <div id="unlock-modal" class="modal">
+        <div class="modal-content">
+            <h3>Unlock Match Contact</h3>
+            <p style="margin-bottom: 15px; font-size: 13px; color: #cbd5e1;">Enter your 1-Time Access Key below. If you don't have a key, purchase one securely via Selar.</p>
+            <input type="text" id="access-key-input" placeholder="ENTER ACCESS KEY" style="margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">
+            <button class="btn" id="verify-key-btn" onclick="verifyAndUnlock()" style="background: linear-gradient(135deg, #10b981, #059669); margin-top: 0;">🔓 Verify & Unlock</button>
+            <button class="modal-btn" onclick="window.open('https://selar.co/your-product-link', '_blank')" style="background: transparent; border: 1px solid #ff1493; color: #ff1493; margin-top: 10px;">Buy Access Key ($7.99)</button>
+            <p style="margin-top: 20px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="closeUnlockModal()">CANCEL</p>
+        </div>
+    </div>
+
     <script>
         // 1. INITIALIZE FIREBASE
         const firebaseConfig = {
@@ -226,7 +238,6 @@
             ageDropdown.appendChild(option);
         }
 
-        // SMART WHATSAPP AUTO-FORMATTER
         const joinCountrySelect = document.getElementById('join-country');
         const whatsappInput = document.getElementById('join-whatsapp');
         
@@ -315,7 +326,6 @@
             const country = document.getElementById('join-country').value;
             const whatsapp = document.getElementById('join-whatsapp').value.replace(/\s+/g, '');
 
-            // 1. BOT TRAP (Time Check Only)
             const timeTaken = (Date.now() - formStartTime) / 1000;
             if (timeTaken < 5) {
                 alert("Profile Approved! You are now secured in the global network.");
@@ -339,7 +349,6 @@
             btn.disabled = true;
 
             try {
-                // 2. IP GEOLOCATION CHECK 
                 const ipResponse = await fetch('https://ipapi.co/json/');
                 const ipData = await ipResponse.json();
                 const actualCountry = ipData.country_name;
@@ -361,23 +370,88 @@
             database.ref('profiles').push(newProfileData).then(() => {
                 alert("Profile Approved! You are now secured in the global network.");
                 
-                // Unlocks the search feature for this user
                 localStorage.setItem('hasJoinedGlobalMatch', 'true');
                 switchTab('find');
                 
-                // Resets the form so the next family member/user can use it
                 document.getElementById('join-name').value = '';
                 document.getElementById('join-whatsapp').value = '';
                 document.getElementById('final-photo').style.display = 'none';
                 document.getElementById('scanner-container').style.display = 'none';
                 document.getElementById('start-scan-btn').style.display = 'block';
                 document.getElementById('photo-status').style.display = 'none';
-                formStartTime = Date.now(); // Reset the bot timer for the next person
+                formStartTime = Date.now(); 
                 
                 btn.innerText = "Submit Profile & Join Network";
                 btn.disabled = false;
             }).catch(error => {
                 alert("Network error: " + error.message);
+                btn.disabled = false;
+            });
+        }
+
+        // ONE-TIME KEY UNLOCK SYSTEM WITH ADMIN LIFETIME BYPASS
+        let pendingContactToUnlock = "";
+
+        function promptUnlockKey(targetWhatsapp) {
+            pendingContactToUnlock = targetWhatsapp.replace('+', ''); 
+            document.getElementById('access-key-input').value = ""; 
+            document.getElementById('unlock-modal').style.display = 'flex';
+        }
+
+        function closeUnlockModal() {
+            document.getElementById('unlock-modal').style.display = 'none';
+            pendingContactToUnlock = "";
+        }
+
+        function verifyAndUnlock() {
+            const keyInput = document.getElementById('access-key-input').value.trim().toUpperCase();
+            const btn = document.getElementById('verify-key-btn');
+
+            if (!keyInput) {
+                alert("Please enter a valid Access Key.");
+                return;
+            }
+
+            // 👑 ADMIN LIFETIME MASTER KEY BYPASS
+            if (keyInput === "GOLD-BOSS-LIFETIME") {
+                alert("👑 Welcome back, Boss! Master Key accepted.");
+                document.getElementById('unlock-modal').style.display = 'none';
+                window.open(`https://wa.me/${pendingContactToUnlock}`, '_blank');
+                return;
+            }
+
+            btn.innerText = "Verifying...";
+            btn.disabled = true;
+
+            // Check Firebase for standard keys
+            database.ref('access_keys/' + keyInput).once('value').then((snapshot) => {
+                const keyData = snapshot.val();
+
+                if (keyData) {
+                    if (keyData.used === false) {
+                        database.ref('access_keys/' + keyInput).update({
+                            used: true,
+                            usedAt: Date.now()
+                        }).then(() => {
+                            alert("✅ Key Verified! Connecting you to WhatsApp...");
+                            document.getElementById('unlock-modal').style.display = 'none';
+                            window.open(`https://wa.me/${pendingContactToUnlock}`, '_blank');
+                            btn.innerText = "🔓 Verify & Unlock";
+                            btn.disabled = false;
+                        });
+                    } else {
+                        alert("❌ Error: This key has already been used! Please buy another key to unlock this contact.");
+                        btn.innerText = "🔓 Verify & Unlock";
+                        btn.disabled = false;
+                    }
+                } else {
+                    alert("❌ Error: Invalid Access Key. Please check your spelling or purchase a new one.");
+                    btn.innerText = "🔓 Verify & Unlock";
+                    btn.disabled = false;
+                }
+            }).catch((error) => {
+                alert("Network Error: " + error.message);
+                btn.innerText = "🔓 Verify & Unlock";
                 btn.disabled = false;
             });
         }
@@ -410,7 +484,7 @@
                             <img src="${data.photoBase64}" class="match-img" oncontextmenu="return false;" draggable="false">
                             <h4 style="margin:15px 0 5px 0; font-size:18px;">${data.name}, ${data.age}</h4>
                             <p style="color:#f472b6; font-size:13px; margin: 0 0 15px 0; font-weight:500;">📍 Live Match in ${data.country}</p>
-                            <button class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);" onclick="window.location.href='https://selar.co/your-product-link?add_to_cart=1'">Unlock Contact ($7.99)</button>
+                            <button class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);" onclick="promptUnlockKey('${data.whatsapp}')">Unlock Contact ($7.99)</button>
                         `;
                         matchList.appendChild(card);
                     }
