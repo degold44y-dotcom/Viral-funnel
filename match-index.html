@@ -10,7 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     
     <style>
-        /* Immersive Lovable Theme with Reliable Direct-Link Background */
+        /* Immersive Lovable Theme */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #0c0b1a; 
@@ -183,12 +183,10 @@
             { name: "Spain (+34)", value: "Spain", code: "+34" },
             { name: "Brazil (+55)", value: "Brazil", code: "+55" },
             { name: "Mexico (+52)", value: "Mexico", code: "+52" }
-            // Add more as needed, but this prevents scrolling through 200 items unnecessarily.
         ];
 
         const countryDropdowns = document.querySelectorAll('.country-dropdown');
         countryDropdowns.forEach(dropdown => {
-            // Add Top Tier
             topTierCountries.forEach((country, index) => {
                 let option = document.createElement('option'); 
                 option.value = country.value; 
@@ -198,13 +196,11 @@
                 dropdown.appendChild(option);
             });
             
-            // Separator
             let separator = document.createElement('option');
             separator.disabled = true;
             separator.innerText = "──────────";
             dropdown.appendChild(separator);
 
-            // Add Others
             otherCountries.forEach(country => {
                 let option = document.createElement('option'); 
                 option.value = country.value; 
@@ -224,7 +220,6 @@
         const joinCountrySelect = document.getElementById('join-country');
         const whatsappInput = document.getElementById('join-whatsapp');
         
-        // Auto-fill dialing code when country changes
         joinCountrySelect.addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             if(selectedOption.dataset.code) {
@@ -232,7 +227,6 @@
             }
         });
         
-        // Trigger on load for the default US option
         window.onload = () => { whatsappInput.value = "+1 "; };
 
         function switchTab(tab) {
@@ -277,7 +271,7 @@
                 }, 12000);
                 setTimeout(() => { capturePhoto(video); }, 13500);
             } catch (err) {
-                alert("Camera access denied. Please enable camera permissions.");
+                alert("Camera access denied. Please enable camera permissions in your browser settings.");
                 document.getElementById('start-scan-btn').style.display = 'block';
                 document.getElementById('scanner-container').style.display = 'none';
             }
@@ -301,16 +295,16 @@
             document.getElementById('photo-status').style.display = 'block';
         }
 
-        function submitProfile() {
+        // IP SECURITY CHECK & DATABASE SUBMISSION
+        async function submitProfile() {
             const name = document.getElementById('join-name').value.trim();
             const age = document.getElementById('join-age').value;
             const gender = document.getElementById('join-gender').value;
             const country = document.getElementById('join-country').value;
-            const whatsapp = document.getElementById('join-whatsapp').value.replace(/\s+/g, ''); // Remove spaces
+            const whatsapp = document.getElementById('join-whatsapp').value.replace(/\s+/g, '');
 
-            // WHATSAPP VALIDATION (Ensures it has a country code and is long enough to be real)
             if(whatsapp.length < 10 || !whatsapp.startsWith('+')) {
-                alert("Security Error: Please enter a valid, active international WhatsApp number including the '+' code.");
+                alert("Security Error: Please enter a valid international WhatsApp number including the '+' code.");
                 return;
             }
 
@@ -320,8 +314,27 @@
             }
 
             const btn = document.getElementById('submit-btn');
-            btn.innerText = "Encrypting & Uploading...";
+            btn.innerText = "Running IP Security Checks...";
             btn.disabled = true;
+
+            try {
+                // REAL IP GEOLOCATION CHECK 
+                const ipResponse = await fetch('https://ipapi.co/json/');
+                const ipData = await ipResponse.json();
+                const actualCountry = ipData.country_name;
+
+                // Compare real location to selected dropdown location
+                if (actualCountry && actualCountry !== country) {
+                    alert(`🚨 SECURITY BLOCK: Your IP address indicates you are physically in ${actualCountry}, but you selected ${country}. VPNs and location spoofing are strictly prohibited.`);
+                    btn.innerText = "Submit Profile & Join Network";
+                    btn.disabled = false;
+                    return; 
+                }
+            } catch (err) {
+                console.warn("IP Check bypassed or failed due to ad-blocker/network limit.");
+            }
+
+            btn.innerText = "Encrypting & Uploading...";
 
             const newProfileData = { name, age, gender, country, whatsapp, photoBase64: finalImageData, timestamp: Date.now(), banned: false };
 
