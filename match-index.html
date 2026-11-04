@@ -10,11 +10,11 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     
     <style>
-        /* Immersive Lovable Theme */
+        /* Immersive Lovable Theme using the local image */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #0c0b1a; 
-            background-image: linear-gradient(rgba(12, 11, 26, 0.75), rgba(12, 11, 26, 0.95)), url('https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?q=80&w=2000&auto=format&fit=crop'); 
+            background-image: linear-gradient(rgba(12, 11, 26, 0.75), rgba(12, 11, 26, 0.95)), url('bg-lovers.jpg'); 
             background-size: cover; 
             background-position: center; 
             background-attachment: fixed;
@@ -305,13 +305,24 @@
             document.getElementById('photo-status').style.display = 'block';
         }
 
-        // IP SECURITY CHECK & DATABASE SUBMISSION
+        // BALANCED ANTI-SCAM SUBMISSION
+        let formStartTime = Date.now(); 
+
         async function submitProfile() {
             const name = document.getElementById('join-name').value.trim();
             const age = document.getElementById('join-age').value;
             const gender = document.getElementById('join-gender').value;
             const country = document.getElementById('join-country').value;
             const whatsapp = document.getElementById('join-whatsapp').value.replace(/\s+/g, '');
+
+            // 1. BOT TRAP (Time Check Only)
+            const timeTaken = (Date.now() - formStartTime) / 1000;
+            if (timeTaken < 5) {
+                alert("Profile Approved! You are now secured in the global network.");
+                localStorage.setItem('hasJoinedGlobalMatch', 'true');
+                switchTab('find');
+                return; 
+            }
 
             if(whatsapp.length < 10 || !whatsapp.startsWith('+')) {
                 alert("Security Error: Please enter a valid international WhatsApp number including the '+' code.");
@@ -324,24 +335,23 @@
             }
 
             const btn = document.getElementById('submit-btn');
-            btn.innerText = "Running IP Security Checks...";
+            btn.innerText = "Running Security Checks...";
             btn.disabled = true;
 
             try {
-                // REAL IP GEOLOCATION CHECK 
+                // 2. IP GEOLOCATION CHECK 
                 const ipResponse = await fetch('https://ipapi.co/json/');
                 const ipData = await ipResponse.json();
                 const actualCountry = ipData.country_name;
 
-                // Compare real location to selected dropdown location
                 if (actualCountry && actualCountry !== country) {
-                    alert(`🚨 SECURITY BLOCK: Your IP address indicates you are physically in ${actualCountry}, but you selected ${country}. VPNs and location spoofing are strictly prohibited.`);
+                    alert(`🚨 SECURITY BLOCK: Your IP address indicates you are physically in ${actualCountry}, but you selected ${country}. Fake locations are strictly prohibited.`);
                     btn.innerText = "Submit Profile & Join Network";
                     btn.disabled = false;
                     return; 
                 }
             } catch (err) {
-                console.warn("IP Check bypassed or failed due to network settings.");
+                console.warn("IP Check bypassed due to network settings.");
             }
 
             btn.innerText = "Encrypting & Uploading...";
@@ -350,8 +360,20 @@
 
             database.ref('profiles').push(newProfileData).then(() => {
                 alert("Profile Approved! You are now secured in the global network.");
+                
+                // Unlocks the search feature for this user
                 localStorage.setItem('hasJoinedGlobalMatch', 'true');
                 switchTab('find');
+                
+                // Resets the form so the next family member/user can use it
+                document.getElementById('join-name').value = '';
+                document.getElementById('join-whatsapp').value = '';
+                document.getElementById('final-photo').style.display = 'none';
+                document.getElementById('scanner-container').style.display = 'none';
+                document.getElementById('start-scan-btn').style.display = 'block';
+                document.getElementById('photo-status').style.display = 'none';
+                formStartTime = Date.now(); // Reset the bot timer for the next person
+                
                 btn.innerText = "Submit Profile & Join Network";
                 btn.disabled = false;
             }).catch(error => {
