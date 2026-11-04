@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Match Engine</title>
+    
+    <!-- FIREBASE CLOUD DATABASE SCRIPTS -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         .header { width: 100%; padding: 20px; text-align: center; background: #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -26,7 +31,7 @@
         .scan-overlay { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 250px; height: 250px; border-radius: 50%; border: 4px dashed #38bdf8; animation: spin 4s linear infinite; pointer-events: none; }
         @keyframes spin { 100% { transform: translateX(-50%) rotate(360deg); } }
         
-        .match-card { background: #1e293b; border-radius: 12px; padding: 15px; margin-top: 15px; text-align: center; }
+        .match-card { background: #1e293b; border-radius: 12px; padding: 15px; margin-top: 15px; text-align: center; border: 1px solid #334155; }
         .match-img { width: 100%; height: 250px; object-fit: cover; border-radius: 8px; filter: blur(15px); pointer-events: none; user-select: none; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #1e293b; padding: 25px; border-radius: 12px; text-align: center; width: 80%; max-width: 350px; }
@@ -58,25 +63,12 @@
             <label>Location:</label>
             <select id="search-country" class="country-dropdown"></select>
         </div>
-        <div class="form-group">
-            <label>Age Range:</label>
-            <select id="search-age">
-                <option value="18-25">18-25</option>
-                <option value="26-35">26-35</option>
-                <option value="36-45">36-45</option>
-                <option value="Any">Any Age</option>
-            </select>
-        </div>
-        <button class="btn" onclick="attemptSearch()">Scan Area</button>
+        
+        <button class="btn" onclick="attemptSearch()">Scan Live Network</button>
         
         <div id="results-area" style="display: none; margin-top: 20px;">
-            <h3 style="text-align: center;">Top Matches Found</h3>
-            <div class="match-card">
-                <img src="https://via.placeholder.com/400x400" class="match-img" oncontextmenu="return false;" draggable="false">
-                <h4>Match #9244</h4>
-                <p>Status: Online 🟢</p>
-                <button class="btn" style="background:#f59e0b;" onclick="window.location.href='https://selar.co/your-matchmaking-key?add_to_cart=1'">Unlock Full Profile ($7.99)</button>
-            </div>
+            <h3 style="text-align: center; color: #10b981;">🟢 Live Matches Found</h3>
+            <div id="match-list"></div>
         </div>
     </div>
 
@@ -88,9 +80,7 @@
         </div>
         <div class="form-group">
             <label>Age</label>
-            <select id="join-age">
-                <option value="" disabled selected>Age</option>
-            </select>
+            <select id="join-age"><option value="" disabled selected>Age</option></select>
         </div>
         <div class="form-group">
             <label>Gender</label>
@@ -108,7 +98,7 @@
             <input type="tel" id="join-whatsapp" placeholder="e.g. +1234567890">
         </div>
         
-        <!-- LIVENESS SCANNER INTERFACE -->
+        <!-- LIVENESS SCANNER -->
         <button class="btn" id="start-scan-btn" style="background: #10b981;" onclick="startLivenessScan()">📸 Start Facial Verification</button>
         
         <div id="scanner-container">
@@ -122,38 +112,49 @@
 
         <p id="photo-status" style="color:#10b981; font-size:14px; text-align:center; display:none; margin-top:10px;">✅ Identity Verified</p>
 
-        <button class="btn" onclick="submitProfile()" style="margin-top:20px;">Submit Profile</button>
+        <button class="btn" id="submit-btn" onclick="submitProfile()" style="margin-top:20px;">Submit Profile & Join Network</button>
     </div>
 
     <!-- INTERCEPT MODAL -->
     <div id="intercept-modal" class="modal">
         <div class="modal-content">
             <h3>Access Denied</h3>
-            <p>You must add your profile to the global database before you can search for others. It's only fair!</p>
+            <p>You must add your live profile to the global network before you can view and unlock other members. It's only fair!</p>
             <button class="modal-btn" onclick="closeModalAndJoin()">Create Profile</button>
         </div>
     </div>
 
     <script>
+        // 1. INITIALIZE FIREBASE (LIVE CLOUD CONNECTION)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
+            authDomain: "global-match-99b4e.firebaseapp.com",
+            databaseURL: "https://global-match-99b4e-default-rtdb.firebaseio.com",
+            projectId: "global-match-99b4e",
+            storageBucket: "global-match-99b4e.firebasestorage.app",
+            messagingSenderId: "816808980244",
+            appId: "1:816808980244:web:832c3852ead2b707bb9c01"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 2. POPULATE DROPDOWNS
         const allCountries = ["United States", "United Kingdom", "Canada", "Australia", "Nigeria", "South Africa", "Ghana", "Kenya", "Germany"]; 
         const countryDropdowns = document.querySelectorAll('.country-dropdown');
         countryDropdowns.forEach(dropdown => {
             allCountries.forEach(country => {
-                let option = document.createElement('option');
-                option.value = country;
-                option.innerText = country;
+                let option = document.createElement('option'); option.value = country; option.innerText = country;
                 dropdown.appendChild(option);
             });
         });
 
         const ageDropdown = document.getElementById('join-age');
         for(let i = 18; i <= 75; i++) {
-            let option = document.createElement('option');
-            option.value = i;
-            option.innerText = i;
+            let option = document.createElement('option'); option.value = i; option.innerText = i;
             ageDropdown.appendChild(option);
         }
 
+        // 3. UI LOGIC
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
@@ -161,21 +162,12 @@
             document.getElementById(`section-${tab}`).classList.add('active');
         }
 
-        function attemptSearch() {
-            const hasJoined = localStorage.getItem('hasJoinedGlobalMatch');
-            if (!hasJoined) {
-                document.getElementById('intercept-modal').style.display = 'flex';
-            } else {
-                document.getElementById('results-area').style.display = 'block';
-            }
-        }
-
         function closeModalAndJoin() {
             document.getElementById('intercept-modal').style.display = 'none';
             switchTab('join');
         }
 
-        // LIVENESS SCANNER LOGIC
+        // 4. LIVENESS CAMERA SCRIPT
         let videoStream = null;
         let finalImageData = null;
 
@@ -184,9 +176,9 @@
             document.getElementById('scanner-container').style.display = 'flex';
             document.getElementById('final-photo').style.display = 'none';
             document.getElementById('retake-btn').style.display = 'none';
-            document.getElementById('photo-status').style.display = 'none';
             document.getElementById('video-feed').style.display = 'block';
             document.getElementById('scan-ring').style.display = 'block';
+            
             const instructions = document.getElementById('scanner-instructions');
             const video = document.getElementById('video-feed');
 
@@ -194,10 +186,7 @@
                 videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 video.srcObject = videoStream;
 
-                // Liveness Instruction Sequence
-                instructions.innerText = "Look straight ahead...";
-                instructions.style.color = "#38bdf8";
-
+                instructions.innerText = "Look straight ahead..."; instructions.style.color = "#38bdf8";
                 setTimeout(() => { instructions.innerText = "Nod your head up and down..."; }, 3000);
                 setTimeout(() => { instructions.innerText = "Turn slightly left..."; }, 6000);
                 setTimeout(() => { instructions.innerText = "Turn slightly right..."; }, 9000);
@@ -206,12 +195,10 @@
                     instructions.style.color = "#10b981";
                     document.getElementById('scan-ring').style.borderColor = "#10b981";
                 }, 12000);
-
-                // Auto-Snap after smile
                 setTimeout(() => { capturePhoto(video); }, 13500);
 
             } catch (err) {
-                alert("Camera access denied or unavailable. Please enable camera permissions.");
+                alert("Camera access denied. Please enable camera permissions.");
                 document.getElementById('start-scan-btn').style.display = 'block';
                 document.getElementById('scanner-container').style.display = 'none';
             }
@@ -219,44 +206,105 @@
 
         function capturePhoto(video) {
             const canvas = document.getElementById('canvas-capture');
-            const context = canvas.getContext('2d');
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            finalImageData = canvas.toDataURL('image/jpeg', 0.5); // Compressed for database
             
-            // Draw video frame to canvas
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            finalImageData = canvas.toDataURL('image/jpeg');
-
-            // Stop camera stream
             videoStream.getTracks().forEach(track => track.stop());
 
-            // Update UI
             document.getElementById('video-feed').style.display = 'none';
             document.getElementById('scan-ring').style.display = 'none';
-            document.getElementById('scanner-instructions').innerText = "Identity Verified successfully.";
+            document.getElementById('scanner-instructions').innerText = "Identity Verified.";
             
             const finalImage = document.getElementById('final-photo');
             finalImage.src = finalImageData;
             finalImage.style.display = 'block';
-            
             document.getElementById('retake-btn').style.display = 'block';
             document.getElementById('photo-status').style.display = 'block';
         }
 
+        // 5. PUSH PROFILE TO FIREBASE
         function submitProfile() {
             const name = document.getElementById('join-name').value;
-            const number = document.getElementById('join-whatsapp').value;
+            const age = document.getElementById('join-age').value;
+            const gender = document.getElementById('join-gender').value;
+            const country = document.getElementById('join-country').value;
+            const whatsapp = document.getElementById('join-whatsapp').value;
 
-            if(!name || !number || !finalImageData) {
-                alert("Please fill all fields and complete the facial verification.");
+            if(!name || !age || !whatsapp || !finalImageData) {
+                alert("Please complete all fields and pass the facial verification.");
                 return;
             }
 
-            alert("Running Security Checks (IP Geolocation, VoIP Network Check)...");
-            
-            setTimeout(() => {
-                alert("Profile Approved! You are now added to the database.");
-                localStorage.setItem('hasJoinedGlobalMatch', 'true');
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = "Uploading to Cloud Database...";
+            btn.disabled = true;
+
+            const newProfileData = {
+                name: name,
+                age: age,
+                gender: gender,
+                country: country,
+                whatsapp: whatsapp,
+                photoBase64: finalImageData,
+                timestamp: Date.now(),
+                banned: false
+            };
+
+            // Push to Firebase Realtime Database
+            database.ref('profiles').push(newProfileData).then(() => {
+                alert("Profile Approved! You are now secured in the global network.");
+                localStorage.setItem('hasJoinedGlobalMatch', 'true'); // Unlock search
                 switchTab('find');
-            }, 1500);
+                btn.innerText = "Submit Profile & Join Network";
+                btn.disabled = false;
+            }).catch(error => {
+                alert("Network error: " + error.message);
+                btn.disabled = false;
+            });
+        }
+
+        // 6. FETCH MATCHES FROM FIREBASE
+        function attemptSearch() {
+            if (!localStorage.getItem('hasJoinedGlobalMatch')) {
+                document.getElementById('intercept-modal').style.display = 'flex';
+                return;
+            }
+            
+            document.getElementById('results-area').style.display = 'block';
+            const matchList = document.getElementById('match-list');
+            matchList.innerHTML = "<p style='text-align:center;'>Searching global cloud network...</p>";
+            
+            const searchGender = document.getElementById('search-gender').value;
+            const searchCountry = document.getElementById('search-country').value;
+
+            database.ref('profiles').once('value').then((snapshot) => {
+                matchList.innerHTML = "";
+                let foundMatch = false;
+
+                snapshot.forEach((childSnapshot) => {
+                    const data = childSnapshot.val();
+                    
+                    // Filter logic & Ignore banned users
+                    if(data.gender === searchGender && data.country === searchCountry && data.banned !== true) {
+                        foundMatch = true;
+                        
+                        const card = document.createElement('div');
+                        card.className = 'match-card';
+                        card.innerHTML = `
+                            <img src="${data.photoBase64}" class="match-img" oncontextmenu="return false;" draggable="false">
+                            <h4>${data.name}, ${data.age}</h4>
+                            <p style="color:#94a3b8; font-size:12px;">📍 ${data.country}</p>
+                            <p>Status: Online 🟢</p>
+                            <button class="btn" style="background:#f59e0b;" onclick="window.location.href='https://selar.co/your-product-link?add_to_cart=1'">Unlock WhatsApp ($7.99)</button>
+                        `;
+                        matchList.appendChild(card);
+                    }
+                });
+
+                if(!foundMatch) {
+                    matchList.innerHTML = `<p style='text-align:center; color:#94a3b8;'>No exact matches online in ${searchCountry} right now. Try expanding your search!</p>`;
+                }
+            });
         }
     </script>
 </body>
