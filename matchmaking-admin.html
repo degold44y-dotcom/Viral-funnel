@@ -15,31 +15,35 @@
         h1 { margin: 0; color: #ff1493; text-transform: uppercase; font-size: 24px; letter-spacing: 2px; }
         
         .admin-nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
-        .nav-btn { background: #1a162e; border: 1px solid #ff69b4; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .nav-btn { background: #1a162e; border: 1px solid #ff69b4; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .nav-btn.active { background: linear-gradient(135deg, #ff1493, #8a2be2); }
 
         .section { display: none; }
-        .section.active { display: block; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .panel-box { background: #1a162e; padding: 25px; border-radius: 12px; max-width: 500px; margin: 0 auto; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .panel-box { background: #1a162e; padding: 25px; border-radius: 12px; max-width: 600px; margin: 0 auto; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
         .input-group { margin-bottom: 15px; text-align: left; }
         .input-group label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 5px; text-transform: uppercase; }
-        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #0c0b1a; color: white; box-sizing: border-box; font-size: 16px; }
+        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #0c0b1a; color: white; box-sizing: border-box; font-size: 15px; }
         
-        .action-btn { background: #10b981; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        .key-display { background: #0c0b1a; padding: 15px; font-family: monospace; font-size: 14px; color: #f9d423; border: 1px dashed #f9d423; margin-top: 15px; max-height: 150px; overflow-y: auto; text-align: left; white-space: pre-wrap; word-break: break-all; }
-        
-        .key-list-container { margin-top: 30px; max-width: 600px; margin: 30px auto; }
-        .key-item { display: flex; justify-content: space-between; background: #1a162e; padding: 12px 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #10b981; align-items: center;}
-        .key-item.used { border-left-color: #ef4444; opacity: 0.6; }
-        .copy-btn { background: #3b82f6; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
+        .action-btn { background: #10b981; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .action-btn:hover { background: #059669; }
+        
+        .key-display { background: #0c0b1a; padding: 15px; font-family: monospace; font-size: 16px; color: #f9d423; border: 1px dashed #f9d423; margin-top: 15px; max-height: 200px; overflow-y: auto; text-align: center; white-space: pre-wrap; letter-spacing: 2px; }
+        .copy-btn { background: #3b82f6; border: none; color: white; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
         .card { background: #1a162e; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; text-align: center; }
-        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
+        .card img { width: 100%; height: 250px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
         .card h3 { margin: 0 0 5px 0; color: #ff1493; }
-        .card p { margin: 5px 0; font-size: 13px; color: #cbd5e1; }
-        .delete-btn { background: #ef4444; color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; cursor: pointer; margin-top: 15px; font-weight: bold; }
+        .card p { margin: 5px 0; font-size: 14px; color: #cbd5e1; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .delete-btn { background: transparent; border: 1px solid #94a3b8; color: #94a3b8; padding: 10px; flex: 1; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .ban-btn { background: #ef4444; color: white; border: none; padding: 10px; flex: 1; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -51,7 +55,7 @@
 
     <div class="admin-nav">
         <button class="nav-btn active" id="btn-keys" onclick="switchTab('keys')">🔑 Bulk Keys</button>
-        <button class="nav-btn" id="btn-settings" onclick="switchTab('settings')">⚙️ Pricing & Payment</button>
+        <button class="nav-btn" id="btn-settings" onclick="switchTab('settings')">⚙️ Settings & Price</button>
         <button class="nav-btn" id="btn-profiles" onclick="switchTab('profiles')">👥 Profiles</button>
     </div>
 
@@ -59,39 +63,63 @@
     <div id="section-keys" class="section active">
         <div class="panel-box">
             <h2 style="margin-top: 0;">Bulk Key Generator</h2>
+            <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Generate multiple access keys at once and copy them seamlessly.</p>
+            
             <div class="input-group">
                 <label>Quantity to Generate</label>
-                <input type="number" id="key-quantity" value="10" min="1" max="100">
+                <input type="number" id="key-quantity" value="20" min="1" max="200" style="text-align: center; font-size: 20px; font-weight: bold;">
             </div>
+            
             <button class="action-btn" onclick="generateBulkKeys()">⚡ GENERATE BATCH KEYS</button>
-            <div id="new-key-box" style="display: none;">
+            
+            <div id="new-key-box" style="display: none; margin-top: 20px;">
                 <div class="key-display" id="latest-keys-text"></div>
-                <button class="copy-btn" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 10px;" onclick="copyAllGeneratedKeys()">📋 Copy All Generated Keys</button>
+                <button class="copy-btn" onclick="copyAllGeneratedKeys()">📋 COPY ALL KEYS</button>
             </div>
-        </div>
-        <div class="key-list-container">
-            <h3 style="border-bottom: 1px solid #333; padding-bottom: 10px;">Recent Keys Database</h3>
-            <div id="keys-list">Loading keys...</div>
         </div>
     </div>
 
-    <!-- SETTINGS SECTION (Price & Payment Link) -->
+    <!-- SETTINGS SECTION -->
     <div id="section-settings" class="section">
         <div class="panel-box">
-            <h2 style="margin-top: 0;">App Pricing & Payment Link</h2>
-            <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Control your global base price and where users go to buy keys.</p>
+            <h2 style="margin-top: 0;">App Config & Pricing</h2>
             
-            <div class="input-group">
-                <label>Base Price ($ USD)</label>
-                <input type="number" id="setting-price" step="0.50" placeholder="5.00">
+            <div class="input-group" style="margin-bottom: 25px;">
+                <label style="color: #f9d423;">🔗 Payment Gateway Link (Any Platform)</label>
+                <input type="text" id="setting-link" placeholder="https://paystack.com/... or https://selar.co/...">
             </div>
 
+            <h4 style="color: #10b981; text-align: left; border-bottom: 1px solid #333; padding-bottom: 5px;">Global & Local Pricing</h4>
             <div class="input-group">
-                <label>Payment Platform Link (Selar, Paystack, etc.)</label>
-                <input type="text" id="setting-link" placeholder="https://selar.co/your-product">
+                <label>Global Base Price (Rest of World in USD)</label>
+                <input type="number" id="setting-price-base" step="0.50" placeholder="5.00">
             </div>
 
-            <button class="action-btn" onclick="saveAdminSettings()">💾 Save Settings</button>
+            <h4 style="color: #3b82f6; text-align: left; border-bottom: 1px solid #333; padding-bottom: 5px; margin-top: 25px;">Top-Tier International Prices</h4>
+            <div class="grid-inputs">
+                <div class="input-group">
+                    <label>USA (USD $)</label>
+                    <input type="number" id="setting-price-us" step="0.50" placeholder="9.99">
+                </div>
+                <div class="input-group">
+                    <label>UK (GBP £)</label>
+                    <input type="number" id="setting-price-uk" step="0.50" placeholder="7.99">
+                </div>
+                <div class="input-group">
+                    <label>Canada (CAD $)</label>
+                    <input type="number" id="setting-price-ca" step="0.50" placeholder="12.99">
+                </div>
+                <div class="input-group">
+                    <label>Australia (AUD $)</label>
+                    <input type="number" id="setting-price-au" step="0.50" placeholder="14.99">
+                </div>
+                <div class="input-group">
+                    <label>Germany (EUR €)</label>
+                    <input type="number" id="setting-price-de" step="0.50" placeholder="8.99">
+                </div>
+            </div>
+
+            <button class="action-btn" onclick="saveAdminSettings()" style="margin-top: 25px;">💾 Save All Settings</button>
         </div>
     </div>
 
@@ -102,6 +130,7 @@
     </div>
 
     <script>
+        // FIREBASE INITIALIZATION
         const firebaseConfig = {
             apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
             authDomain: "global-match-99b4e.firebaseapp.com",
@@ -114,6 +143,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // UI TABS LOGIC
         function switchTab(tab) {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -121,47 +151,55 @@
             document.getElementById(`section-${tab}`).classList.add('active');
             
             if (tab === 'profiles') loadProfiles();
-            if (tab === 'keys') loadKeys();
             if (tab === 'settings') loadAdminSettings();
         }
 
-        // SETTINGS LOGIC
+        // ==========================================
+        // 1. SETTINGS & PRICING CONTROLS
+        // ==========================================
         function loadAdminSettings() {
             database.ref('admin_settings').once('value').then((snapshot) => {
                 const data = snapshot.val();
                 if (data) {
-                    document.getElementById('setting-price').value = data.basePriceUSD || 5.00;
                     document.getElementById('setting-link').value = data.paymentLink || "";
+                    document.getElementById('setting-price-base').value = data.basePriceUSD || 5.00;
+                    document.getElementById('setting-price-us').value = data.tierUS || 9.99;
+                    document.getElementById('setting-price-uk').value = data.tierUK || 7.99;
+                    document.getElementById('setting-price-ca').value = data.tierCA || 12.99;
+                    document.getElementById('setting-price-au').value = data.tierAU || 14.99;
+                    document.getElementById('setting-price-de').value = data.tierDE || 8.99;
                 }
-            });
+            }).catch(err => console.log("Error loading settings:", err));
         }
 
         function saveAdminSettings() {
-            const basePriceUSD = parseFloat(document.getElementById('setting-price').value) || 5.00;
-            const paymentLink = document.getElementById('setting-link').value.trim();
+            const adminSettings = {
+                paymentLink: document.getElementById('setting-link').value.trim(),
+                basePriceUSD: parseFloat(document.getElementById('setting-price-base').value) || 5.00,
+                tierUS: parseFloat(document.getElementById('setting-price-us').value) || 9.99,
+                tierUK: parseFloat(document.getElementById('setting-price-uk').value) || 7.99,
+                tierCA: parseFloat(document.getElementById('setting-price-ca').value) || 12.99,
+                tierAU: parseFloat(document.getElementById('setting-price-au').value) || 14.99,
+                tierDE: parseFloat(document.getElementById('setting-price-de').value) || 8.99
+            };
 
-            database.ref('admin_settings').set({
-                basePriceUSD,
-                paymentLink
-            }).then(() => {
-                alert("✅ Pricing and payment link updated successfully across the app!");
-            }).catch(error => {
-                alert("Error saving settings: " + error.message);
-            });
+            database.ref('admin_settings').set(adminSettings)
+                .then(() => alert("✅ Pricing and payment link updated live!"))
+                .catch(error => alert("Error saving settings: " + error.message));
         }
 
-        // KEY GENERATOR LOGIC
+        // ==========================================
+        // 2. BULK KEY GENERATOR
+        // ==========================================
         function generateRandomString(length) {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let result = '';
-            for (let i = 0; i < length; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
+            for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
             return result;
         }
 
-        async function generateBulkKeys() {
-            const qty = parseInt(document.getElementById('key-quantity').value) || 1;
+        function generateBulkKeys() {
+            const qty = parseInt(document.getElementById('key-quantity').value) || 10;
             const updates = {};
             let generatedList = [];
 
@@ -174,19 +212,73 @@
             database.ref().update(updates).then(() => {
                 document.getElementById('new-key-box').style.display = 'block';
                 document.getElementById('latest-keys-text').innerText = generatedList.join('\n');
-                loadKeys();
-            });
+            }).catch(error => alert("Error generating keys: " + error.message));
         }
 
         function copyAllGeneratedKeys() {
             const text = document.getElementById('latest-keys-text').innerText;
-            navigator.clipboard.writeText(text).then(() => alert("All keys copied!"));
+            navigator.clipboard.writeText(text).then(() => {
+                alert("📋 All keys copied successfully! You can paste them into your payment gateway now.");
+            });
         }
 
-        function loadKeys() {
-            const list = document.getElementById('keys-list');
-            database.ref('access_keys').orderByChild('createdAt').limitToLast(30).on('value', (snapshot) => {
-                list.innerHTML = "";
-                let hasKeys = false;
-                const keysArr = [];
-                snapshot.forEach
+        // ==========================================
+        // 3. PROFILES MANAGER (Delete vs Ban)
+        // ==========================================
+        function loadProfiles() {
+            const grid = document.getElementById('profiles-grid');
+            grid.innerHTML = "<p style='width: 100%; text-align: center;'>Loading network database...</p>";
+            
+            database.ref('profiles').once('value').then((snapshot) => {
+                grid.innerHTML = "";
+                let hasProfiles = false;
+                
+                snapshot.forEach((childSnapshot) => {
+                    const id = childSnapshot.key;
+                    const data = childSnapshot.val();
+                    hasProfiles = true;
+                    
+                    grid.innerHTML += `
+                        <div class="card" id="card-${id}">
+                            <img src="${data.photoBase64}" alt="Photo">
+                            <h3>${data.name}, ${data.age}</h3>
+                            <p><strong>📍 ${data.country}</strong></p>
+                            <p style="font-family: monospace; background: #0c0b1a; padding: 5px; border-radius: 4px;">${data.whatsapp}</p>
+                            <div class="btn-group">
+                                <button class="delete-btn" onclick="deleteProfile('${id}')">Delete Only</button>
+                                <button class="ban-btn" onclick="banAndDeleteProfile('${id}', '${data.whatsapp}')">🚫 Ban & Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                if (!hasProfiles) grid.innerHTML = "<p style='width:100%; text-align:center;'>No active profiles.</p>";
+            }).catch(err => {
+                grid.innerHTML = `<p style='color:#ef4444;'>Database Error: ${err.message}</p>`;
+            });
+        }
+
+        // Action: Just remove the profile (User can create another one)
+        function deleteProfile(id) {
+            if (confirm("Are you sure you want to just delete this profile?")) {
+                database.ref('profiles/' + id).remove().then(() => { 
+                    document.getElementById(`card-${id}`).style.display = 'none'; 
+                });
+            }
+        }
+
+        // Action: Scammer Protocol - Ban WhatsApp Number, then remove profile
+        function banAndDeleteProfile(id, whatsapp) {
+            if (confirm(`SCAMMER ALERT: Are you sure you want to permanently BAN the number ${whatsapp} and delete this profile?`)) {
+                // Add to ban list first
+                database.ref('banned_numbers/' + whatsapp).set(true).then(() => {
+                    // Then delete profile
+                    database.ref('profiles/' + id).remove().then(() => {
+                        document.getElementById(`card-${id}`).style.display = 'none';
+                        alert(`Number ${whatsapp} has been permanently banned.`);
+                    });
+                });
+            }
+        }
+    </script>
+</body>
+</html>
