@@ -21,10 +21,14 @@
         .section { display: none; }
         .section.active { display: block; }
 
-        /* Key Generator Section */
-        .key-generator { background: #1a162e; padding: 20px; border-radius: 12px; max-width: 500px; margin: 0 auto; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .generate-btn { background: #10b981; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; margin: 20px 0; }
-        .key-display { background: #0c0b1a; padding: 15px; font-family: monospace; font-size: 22px; color: #f9d423; letter-spacing: 2px; border: 1px dashed #f9d423; margin-bottom: 20px; word-break: break-all; }
+        /* Bulk Key Generator Section */
+        .key-generator { background: #1a162e; padding: 25px; border-radius: 12px; max-width: 500px; margin: 0 auto; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 5px; text-transform: uppercase; }
+        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #0c0b1a; color: white; box-sizing: border-box; font-size: 16px; }
+        
+        .generate-btn { background: #10b981; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .key-display { background: #0c0b1a; padding: 15px; font-family: monospace; font-size: 14px; color: #f9d423; border: 1px dashed #f9d423; margin-top: 15px; max-height: 150px; overflow-y: auto; text-align: left; white-space: pre-wrap; word-break: break-all; }
         
         .key-list-container { margin-top: 30px; max-width: 600px; margin: 30px auto; }
         .key-item { display: flex; justify-content: space-between; background: #1a162e; padding: 12px 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #10b981; align-items: center;}
@@ -32,7 +36,7 @@
         .copy-btn { background: #3b82f6; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
 
         /* Profiles Manager Section */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
         .card { background: #1a162e; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; text-align: center; }
         .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
         .card h3 { margin: 0 0 5px 0; color: #ff1493; }
@@ -48,19 +52,26 @@
     </div>
 
     <div class="admin-nav">
-        <button class="nav-btn active" id="btn-keys" onclick="switchTab('keys')">🔑 Generate Keys</button>
+        <button class="nav-btn active" id="btn-keys" onclick="switchTab('keys')">🔑 Bulk Generate Keys</button>
         <button class="nav-btn" id="btn-profiles" onclick="switchTab('profiles')">👥 Manage Profiles</button>
     </div>
 
     <!-- KEY GENERATOR SECTION -->
     <div id="section-keys" class="section active">
         <div class="key-generator">
-            <h2 style="margin-top: 0;">Create 1-Time Access Key</h2>
-            <p style="font-size: 13px; color: #94a3b8;">Generate a secure, single-use key to sell on Selar.</p>
-            <button class="generate-btn" onclick="generateKey()">⚡ GENERATE NEW KEY</button>
+            <h2 style="margin-top: 0;">Bulk Key Generator</h2>
+            <p style="font-size: 13px; color: #94a3b8;">Generate multiple single-use keys at once for your custom payment platform.</p>
+            
+            <div class="input-group">
+                <label>Quantity to Generate</label>
+                <input type="number" id="key-quantity" value="10" min="1" max="100">
+            </div>
+
+            <button class="generate-btn" onclick="generateBulkKeys()">⚡ GENERATE BATCH KEYS</button>
+            
             <div id="new-key-box" style="display: none;">
-                <div class="key-display" id="latest-key"></div>
-                <button class="copy-btn" style="width: 100%; padding: 12px; font-size: 16px;" onclick="copyLatestKey()">📋 Copy to Clipboard</button>
+                <div class="key-display" id="latest-keys-text"></div>
+                <button class="copy-btn" style="width: 100%; padding: 12px; font-size: 16px; margin-top: 10px;" onclick="copyAllGeneratedKeys()">📋 Copy All Generated Keys</button>
             </div>
         </div>
 
@@ -77,7 +88,6 @@
     </div>
 
     <script>
-        // 1. INITIALIZE FIREBASE (Using your exact database)
         const firebaseConfig = {
             apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
             authDomain: "global-match-99b4e.firebaseapp.com",
@@ -100,10 +110,6 @@
             if (tab === 'keys') loadKeys();
         }
 
-        // ==========================================
-        // KEY GENERATOR LOGIC
-        // ==========================================
-        
         function generateRandomString(length) {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let result = '';
@@ -113,37 +119,50 @@
             return result;
         }
 
-        function generateKey() {
-            // Creates a key like: MATCH-9A4B-X7Y2
-            const newKey = `MATCH-${generateRandomString(4)}-${generateRandomString(4)}`;
-            
-            // Push to Firebase database under 'access_keys'
-            database.ref('access_keys/' + newKey).set({
-                used: false,
-                createdAt: Date.now()
-            }).then(() => {
+        async function generateBulkKeys() {
+            const qty = parseInt(document.getElementById('key-quantity').value) || 1;
+            const updates = {};
+            let generatedList = [];
+
+            for (let i = 0; i < qty; i++) {
+                const newKey = `MATCH-${generateRandomString(4)}-${generateRandomString(4)}`;
+                updates['access_keys/' + newKey] = {
+                    used: false,
+                    createdAt: Date.now() + i // Offset timestamp to keep unique order
+                };
+                generatedList.push(newKey);
+            }
+
+            const btn = document.querySelector('.generate-btn');
+            btn.innerText = "Saving to Cloud...";
+            btn.disabled = true;
+
+            database.ref().update(updates).then(() => {
                 document.getElementById('new-key-box').style.display = 'block';
-                document.getElementById('latest-key').innerText = newKey;
-                loadKeys(); // Refresh the list
+                document.getElementById('latest-keys-text').innerText = generatedList.join('\n');
+                btn.innerText = "⚡ GENERATE BATCH KEYS";
+                btn.disabled = false;
+                loadKeys();
             }).catch(error => {
-                alert("Error generating key: " + error.message);
+                alert("Error generating keys: " + error.message);
+                btn.innerText = "⚡ GENERATE BATCH KEYS";
+                btn.disabled = false;
             });
         }
 
-        function copyLatestKey() {
-            const keyText = document.getElementById('latest-key').innerText;
-            navigator.clipboard.writeText(keyText).then(() => {
-                alert("Key copied! You can now paste this into your Selar file or email delivery.");
+        function copyAllGeneratedKeys() {
+            const text = document.getElementById('latest-keys-text').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("All keys copied to clipboard successfully!");
             });
         }
 
         function loadKeys() {
             const list = document.getElementById('keys-list');
-            database.ref('access_keys').orderByChild('createdAt').limitToLast(20).on('value', (snapshot) => {
+            database.ref('access_keys').orderByChild('createdAt').limitToLast(30).on('value', (snapshot) => {
                 list.innerHTML = "";
                 let hasKeys = false;
                 
-                // Reverse so newest is at the top
                 const keysArr = [];
                 snapshot.forEach(child => {
                     keysArr.unshift({ key: child.key, data: child.val() });
@@ -156,7 +175,7 @@
                     
                     list.innerHTML += `
                         <div class="${cssClass}">
-                            <div style="font-family: monospace; font-size:16px;">${item.key}</div>
+                            <div style="font-family: monospace; font-size:15px;">${item.key}</div>
                             <div>
                                 ${statusText}
                                 ${!item.data.used ? `<button class="copy-btn" style="margin-left: 10px;" onclick="navigator.clipboard.writeText('${item.key}')">Copy</button>` : ''}
@@ -169,10 +188,6 @@
             });
         }
 
-        // ==========================================
-        // PROFILES MANAGEMENT LOGIC
-        // ==========================================
-        
         function loadProfiles() {
             const grid = document.getElementById('profiles-grid');
             grid.innerHTML = "Loading...";
@@ -211,7 +226,6 @@
             }
         }
 
-        // Initialize lists on load
         window.onload = () => {
             loadKeys();
         };
