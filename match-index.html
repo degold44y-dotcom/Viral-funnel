@@ -157,6 +157,17 @@
         </div>
     </div>
 
+    <!-- WHATSAPP NUMBER RE-ENTRY MODAL (Scam Blocker) -->
+    <div id="number-verify-modal" class="modal">
+        <div class="modal-content">
+            <h3>🛡️ Security Verification</h3>
+            <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 15px;">To prove you are a human and prevent spam bots, please re-type your WhatsApp number exactly:</p>
+            <input type="tel" id="verify-whatsapp-input" placeholder="Re-type your WhatsApp number" style="margin-bottom: 15px; text-align: center;">
+            <button class="btn" onclick="confirmWhatsappAndSubmit()" style="background: linear-gradient(135deg, #10b981, #059669); margin-top: 0;">Confirm & Submit Profile</button>
+            <p style="margin-top: 15px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="document.getElementById('number-verify-modal').style.display='none'; document.getElementById('submit-btn').disabled=false; document.getElementById('submit-btn').innerText='Submit Profile & Join Network';">CANCEL</p>
+        </div>
+    </div>
+
     <!-- ONE-TIME KEY UNLOCK MODAL -->
     <div id="unlock-modal" class="modal">
         <div class="modal-content">
@@ -170,21 +181,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // 🎛️ YOUR PRICING CONTROL PANEL
-        // ==========================================
-        const BASE_PRICE_USD = 5.00; // Your default global price in USD (will auto-convert elsewhere)
-        
-        // Custom flat pricing override for Top-Tier Countries
-        const TIERED_PRICES = {
-            "United States": { price: 9.99, currency: "USD", symbol: "$" },
-            "United Kingdom": { price: 7.99, currency: "GBP", symbol: "£" },
-            "Canada": { price: 12.99, currency: "CAD", symbol: "CA$" },
-            "Australia": { price: 14.99, currency: "AUD", symbol: "AU$" },
-            "Germany": { price: 8.99, currency: "EUR", symbol: "€" }
-        };
-        // ==========================================
-
         const firebaseConfig = {
             apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
             authDomain: "global-match-99b4e.firebaseapp.com",
@@ -198,40 +194,46 @@
         const database = firebase.database();
 
         let liveExchangeRates = {};
-        let userCountryLocation = "United States"; // Default fallback
+        let adminSettings = { basePriceUSD: 5.0, paymentLink: "https://your-custom-payment-link.com" };
 
-        // Fetch live global exchange rates automatically
+        async function fetchAppSettings() {
+            try {
+                const snap = await database.ref('admin_settings').once('value');
+                if (snap.val()) {
+                    adminSettings = snap.val();
+                }
+            } catch (err) {
+                console.warn("Using default settings");
+            }
+        }
+
         async function fetchExchangeRates() {
             try {
                 const response = await fetch('https://open.er-api.com/v6/latest/USD');
                 const data = await response.json();
                 liveExchangeRates = data.rates;
             } catch (err) {
-                console.warn("Could not fetch live exchange rates, using defaults.");
-            }
-        }
-
-        // Detect user country via IP to show them accurate local currency pricing
-        async function detectUserPricingLocation() {
-            try {
-                const res = await fetch('https://ipapi.co/json/');
-                const data = await res.json();
-                if (data.country_name) {
-                    userCountryLocation = data.country_name;
-                }
-            } catch (err) {
-                console.warn("IP location detection skipped.");
+                console.warn("Could not fetch live exchange rates");
             }
         }
 
         function calculateLocalizedPrice(targetCountry) {
-            if (TIERED_PRICES[targetCountry]) {
-                const t = TIERED_PRICES[targetCountry];
+            const baseUSD = adminSettings.basePriceUSD || 5.00;
+
+            const tieredPrices = {
+                "United States": { price: baseUSD * 2, currency: "USD", symbol: "$" },
+                "United Kingdom": { price: baseUSD * 1.6, currency: "GBP", symbol: "£" },
+                "Canada": { price: baseUSD * 2.2, currency: "CAD", symbol: "CA$" },
+                "Australia": { price: baseUSD * 2.5, currency: "AUD", symbol: "AU$" },
+                "Germany": { price: baseUSD * 1.8, currency: "EUR", symbol: "€" }
+            };
+
+            if (tieredPrices[targetCountry]) {
+                const t = tieredPrices[targetCountry];
                 return `${t.symbol}${t.price.toFixed(2)} ${t.currency}`;
             }
 
-            // For all other countries, calculate dynamic exchange rate based on your $5 base price
-            let convertedRate = liveExchangeRates['NGN'] || 1500; // fallback conversion rate
+            let convertedRate = liveExchangeRates['NGN'] || 1500;
             let currencySymbol = "₦";
             let currencyCode = "NGN";
 
@@ -252,7 +254,7 @@
                 currencySymbol = "$"; currencyCode = "MXN";
             }
 
-            const finalPrice = BASE_PRICE_USD * convertedRate;
+            const finalPrice = baseUSD * convertedRate;
             return `${currencySymbol}${Math.ceil(finalPrice).toLocaleString()} ${currencyCode}`;
         }
 
@@ -318,8 +320,8 @@
         
         window.onload = async () => { 
             whatsappInput.value = "+1 "; 
+            await fetchAppSettings();
             await fetchExchangeRates();
-            await detectUserPricingLocation();
         };
 
         function switchTab(tab) {
@@ -363,7 +365,7 @@
                 }, 12000);
                 setTimeout(() => { capturePhoto(video); }, 13500);
             } catch (err) {
-                alert("Camera access denied. Please enable camera permissions in your browser settings.");
+                alert("Camera access denied. Please enable camera permissions.");
                 document.getElementById('start-scan-btn').style.display = 'block';
                 document.getElementById('scanner-container').style.display = 'none';
             }
@@ -373,7 +375,6 @@
             const canvas = document.getElementById('canvas-capture');
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
             finalImageData = canvas.toDataURL('image/jpeg', 0.5);
-            
             videoStream.getTracks().forEach(track => track.stop());
 
             document.getElementById('video-feed').style.display = 'none';
@@ -389,7 +390,7 @@
 
         let formStartTime = Date.now(); 
 
-        async function submitProfile() {
+        function submitProfile() {
             const name = document.getElementById('join-name').value.trim();
             const age = document.getElementById('join-age').value;
             const gender = document.getElementById('join-gender').value;
@@ -398,7 +399,7 @@
 
             const timeTaken = (Date.now() - formStartTime) / 1000;
             if (timeTaken < 5) {
-                alert("Profile Approved! You are now secured in the global network.");
+                alert("Profile Approved!");
                 localStorage.setItem('hasJoinedGlobalMatch', 'true');
                 switchTab('find');
                 return; 
@@ -414,9 +415,29 @@
                 return;
             }
 
+            // Trigger the WhatsApp re-entry verification modal
+            document.getElementById('number-verify-modal').style.display = 'flex';
+        }
+
+        async function confirmWhatsappAndSubmit() {
+            const enteredConfirm = document.getElementById('verify-whatsapp-input').value.replace(/\s+/g, '');
+            const originalWhatsapp = document.getElementById('join-whatsapp').value.replace(/\s+/g, '');
+
+            if (enteredConfirm !== originalWhatsapp) {
+                alert("🚨 SECURITY BLOCK: The WhatsApp number does not match what you originally typed! Profile creation aborted.");
+                document.getElementById('number-verify-modal').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('number-verify-modal').style.display = 'none';
             const btn = document.getElementById('submit-btn');
             btn.innerText = "Running Security Checks...";
             btn.disabled = true;
+
+            const name = document.getElementById('join-name').value.trim();
+            const age = document.getElementById('join-age').value;
+            const gender = document.getElementById('join-gender').value;
+            const country = document.getElementById('join-country').value;
 
             try {
                 const ipResponse = await fetch('https://ipapi.co/json/');
@@ -424,22 +445,20 @@
                 const actualCountry = ipData.country_name;
 
                 if (actualCountry && actualCountry !== country) {
-                    alert(`🚨 SECURITY BLOCK: Your IP address indicates you are physically in ${actualCountry}, but you selected ${country}. Fake locations are strictly prohibited.`);
+                    alert(`🚨 SECURITY BLOCK: Your IP address indicates you are in ${actualCountry}, but you selected ${country}. Fake locations are blocked.`);
                     btn.innerText = "Submit Profile & Join Network";
                     btn.disabled = false;
                     return; 
                 }
             } catch (err) {
-                console.warn("IP Check bypassed due to network settings.");
+                console.warn("IP Check bypassed");
             }
 
             btn.innerText = "Encrypting & Uploading...";
-
-            const newProfileData = { name, age, gender, country, whatsapp, photoBase64: finalImageData, timestamp: Date.now(), banned: false };
+            const newProfileData = { name, age, gender, country, whatsapp: originalWhatsapp, photoBase64: finalImageData, timestamp: Date.now(), banned: false };
 
             database.ref('profiles').push(newProfileData).then(() => {
                 alert("Profile Approved! You are now secured in the global network.");
-                
                 localStorage.setItem('hasJoinedGlobalMatch', 'true');
                 switchTab('find');
                 
@@ -450,7 +469,6 @@
                 document.getElementById('start-scan-btn').style.display = 'block';
                 document.getElementById('photo-status').style.display = 'none';
                 formStartTime = Date.now(); 
-                
                 btn.innerText = "Submit Profile & Join Network";
                 btn.disabled = false;
             }).catch(error => {
@@ -460,16 +478,12 @@
         }
 
         let pendingContactToUnlock = "";
-        let currentMatchCountry = "";
 
         function promptUnlockKey(targetWhatsapp, profileCountry) {
             pendingContactToUnlock = targetWhatsapp.replace('+', ''); 
-            currentMatchCountry = profileCountry;
-            
             const displayPrice = calculateLocalizedPrice(profileCountry);
-            document.getElementById('modal-pricing-text').innerText = `Unlock access key for this ${profileCountry} profile. Cost: ${displayPrice}`;
+            document.getElementById('modal-pricing-text').innerText = `Unlock access key. Cost: ${displayPrice}`;
             document.getElementById('buy-key-modal-btn').innerText = `Buy Access Key (${displayPrice})`;
-            
             document.getElementById('access-key-input').value = ""; 
             document.getElementById('unlock-modal').style.display = 'flex';
         }
@@ -479,9 +493,8 @@
             pendingContactToUnlock = "";
         }
 
-        // 💳 EDIT YOUR CUSTOM PAYMENT LINK HERE
         function openPaymentPortal() {
-            window.open('https://your-custom-payment-link.com', '_blank');
+            window.open(adminSettings.paymentLink || 'https://your-custom-payment-link.com', '_blank');
         }
 
         function verifyAndUnlock() {
@@ -505,26 +518,22 @@
 
             database.ref('access_keys/' + keyInput).once('value').then((snapshot) => {
                 const keyData = snapshot.val();
-
                 if (keyData) {
                     if (keyData.used === false) {
-                        database.ref('access_keys/' + keyInput).update({
-                            used: true,
-                            usedAt: Date.now()
-                        }).then(() => {
-                            alert("✅ Key Verified! Connecting you to WhatsApp...");
+                        database.ref('access_keys/' + keyInput).update({ used: true, usedAt: Date.now() }).then(() => {
+                            alert("✅ Key Verified! Connecting to WhatsApp...");
                             document.getElementById('unlock-modal').style.display = 'none';
                             window.open(`https://wa.me/${pendingContactToUnlock}`, '_blank');
                             btn.innerText = "🔓 Verify & Unlock";
                             btn.disabled = false;
                         });
                     } else {
-                        alert("❌ Error: This key has already been used! Please buy another key to unlock this contact.");
+                        alert("❌ Error: This key has already been used!");
                         btn.innerText = "🔓 Verify & Unlock";
                         btn.disabled = false;
                     }
                 } else {
-                    alert("❌ Error: Invalid Access Key. Please check your spelling or purchase a new one.");
+                    alert("❌ Error: Invalid Access Key.");
                     btn.innerText = "🔓 Verify & Unlock";
                     btn.disabled = false;
                 }
@@ -535,12 +544,13 @@
             });
         }
 
-        function attemptSearch() {
+        async function attemptSearch() {
             if (!localStorage.getItem('hasJoinedGlobalMatch')) {
                 document.getElementById('intercept-modal').style.display = 'flex';
                 return;
             }
             
+            await fetchAppSettings(); // Ensure latest pricing is fetched
             document.getElementById('results-area').style.display = 'block';
             const matchList = document.getElementById('match-list');
             matchList.innerHTML = "<p style='text-align:center;'>Searching global cloud network...</p>";
@@ -554,11 +564,8 @@
 
                 snapshot.forEach((childSnapshot) => {
                     const data = childSnapshot.val();
-                    
                     if(data.gender === searchGender && data.country === searchCountry && data.banned !== true) {
                         foundMatch = true;
-                        
-                        // Calculate price for this specific match's country
                         const localizedPriceStr = calculateLocalizedPrice(data.country);
 
                         const card = document.createElement('div');
