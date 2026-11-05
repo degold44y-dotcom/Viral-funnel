@@ -23,7 +23,7 @@
         .header p { margin: 5px 0 0 0; font-size: 13px; color: #ec4899; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
 
         .tabs { display: flex; justify-content: center; width: 90%; max-width: 400px; margin-top: 25px; background: rgba(15, 12, 30, 0.7); border-radius: 30px; padding: 4px; border: 1px solid rgba(255,255,255,0.05); }
-        .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; border-radius: 25px; color: #94a3b8; font-weight: bold; transition: all 0.3s ease; font-size: 14px; }
+        .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; border-radius: 25px; color: #94a3b8; font-weight: bold; transition: all 0.3s ease; font-size: 13px; }
         .tab.active { background: linear-gradient(135deg, #ff1493, #8a2be2); color: white; box-shadow: 0 4px 15px rgba(255, 20, 147, 0.35); }
         
         .container { width: 90%; max-width: 400px; margin-top: 25px; display: none; background: rgba(20, 17, 39, 0.65); backdrop-filter: blur(14px); padding: 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.5); box-sizing: border-box; margin-bottom: 40px; }
@@ -59,9 +59,11 @@
         <p>❤️ VIP Verification Network</p>
     </div>
 
+    <!-- 3-TAB NAVIGATION -->
     <div class="tabs">
-        <div class="tab active" id="tab-find" onclick="switchTab('find')">Find a Match</div>
-        <div class="tab" id="tab-join" onclick="switchTab('join')">Create Profile</div>
+        <div class="tab active" id="tab-find" onclick="switchTab('find')">Find Match</div>
+        <div class="tab" id="tab-join" onclick="switchTab('join')">Create VIP</div>
+        <div class="tab" id="tab-report" onclick="switchTab('report')" style="color: #ef4444;">🚨 Report</div>
     </div>
 
     <!-- FIND A MATCH SECTION -->
@@ -78,18 +80,17 @@
             <select id="search-country" class="country-dropdown"></select>
         </div>
         
-        <!-- NEW AGE RANGE FILTER -->
         <div class="form-group">
             <label>Age Range (Min - Max):</label>
             <div style="display: flex; gap: 10px;">
-                <input type="number" id="search-min-age" placeholder="Min (e.g. 18)" min="18" max="99" value="18">
-                <input type="number" id="search-max-age" placeholder="Max (e.g. 65)" min="18" max="99" value="65">
+                <input type="number" id="search-min-age" placeholder="Min (18)" min="18" max="99" value="18">
+                <input type="number" id="search-max-age" placeholder="Max (65)" min="18" max="99" value="65">
             </div>
         </div>
         
         <div class="liability-warning">
             <h4>⚠️ Safety & Liability Notice</h4>
-            <p>Global Match Engine is strictly an introductory network. We are <strong>not responsible</strong> for any financial transactions or personal interactions. Never send money to someone you just met.</p>
+            <p>Global Match Engine is an introductory network. We are <strong>not responsible</strong> for personal interactions. Never send money to someone you just met.</p>
         </div>
         
         <button class="btn" onclick="attemptSearch()">Scan VIP Network</button>
@@ -126,7 +127,6 @@
             <input type="tel" id="join-whatsapp" placeholder="Must be a valid active number" maxlength="16">
         </div>
         
-        <!-- NATIVE PHOTO UPLOAD -->
         <div class="form-group" style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
             <label style="color: #10b981; font-weight: bold; text-align: center; margin-bottom:10px;">📸 Upload a Beautiful, REAL Photo</label>
             <p style="font-size: 11px; text-align: center; color: #ef4444; margin-bottom: 10px;">Strictly NO AI or Fake Images. Fakes will be permanently banned.</p>
@@ -137,9 +137,31 @@
         <button class="btn" id="submit-btn" onclick="submitProfile()" style="margin-top:25px; background: linear-gradient(135deg, #8a2be2, #e14eca);">Create VIP Profile</button>
     </div>
 
+    <!-- DEDICATED REPORT SCAMMER SECTION -->
+    <div id="section-report" class="container">
+        <h3 style="color: #ef4444; text-align: center; margin-top: 0;">🚨 Report Scammer</h3>
+        <p style="font-size: 12px; color: #cbd5e1; text-align: center; margin-bottom: 20px;">Protect the network. Submit chat screenshots and details. False reports result in a permanent ban.</p>
+        
+        <div class="form-group">
+            <label>Scammer's WhatsApp Number</label>
+            <input type="tel" id="report-target-whatsapp" placeholder="e.g. +1234567890">
+        </div>
+        
+        <div class="form-group">
+            <label>What happened?</label>
+            <textarea id="report-reason" rows="3" placeholder="Requested money, fake profile, etc." style="resize: none;"></textarea>
+        </div>
+        
+        <div class="form-group" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+            <label style="color: #10b981; text-align: center;">📸 Upload Chat Evidence</label>
+            <input type="file" id="report-evidence" accept="image/*" style="padding: 10px; background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444;">
+        </div>
+
+        <button class="btn" id="submit-report-btn" onclick="submitGlobalComplaint()" style="background: linear-gradient(135deg, #ef4444, #991b1b);">Submit Evidence</button>
+    </div>
+
     <!-- MODALS -->
     
-    <!-- INTERCEPT MODAL -->
     <div id="intercept-modal" class="modal">
         <div class="modal-content">
             <h3>Verification Required</h3>
@@ -148,7 +170,6 @@
         </div>
     </div>
 
-    <!-- WHATSAPP NUMBER RE-ENTRY MODAL -->
     <div id="number-verify-modal" class="modal">
         <div class="modal-content">
             <h3>🛡️ Security Check</h3>
@@ -159,7 +180,6 @@
         </div>
     </div>
 
-    <!-- PAY TO PUBLISH MODAL -->
     <div id="publish-modal" class="modal">
         <div class="modal-content">
             <h3>Publish Profile</h3>
@@ -171,7 +191,6 @@
         </div>
     </div>
 
-    <!-- UNLOCK CONTACT MODAL -->
     <div id="unlock-modal" class="modal">
         <div class="modal-content">
             <h3>Unlock Match Contact</h3>
@@ -180,24 +199,6 @@
             <button class="btn" id="verify-key-btn" onclick="verifyAndUnlock()" style="background: linear-gradient(135deg, #10b981, #059669); margin-top: 0;">🔓 Verify & Unlock</button>
             <button class="modal-btn" onclick="openPaymentPortal()" id="buy-key-modal-btn">Buy Access Key</button>
             <p style="margin-top: 20px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="closeUnlockModal()">CANCEL</p>
-        </div>
-    </div>
-
-    <!-- SUBMIT SCAMMER REPORT MODAL -->
-    <div id="report-modal" class="modal">
-        <div class="modal-content" style="max-width: 400px;">
-            <h3 style="color: #ef4444; margin-bottom: 5px;">🚨 Report Scammer</h3>
-            <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 20px;">Submit chat screenshots and details. False reports will result in your own permanent ban.</p>
-            
-            <textarea id="report-reason" rows="3" placeholder="What happened? (Requested money, fake profile, etc.)" style="margin-bottom: 15px; resize: none;"></textarea>
-            
-            <div style="text-align: left; margin-bottom: 15px;">
-                <label style="color: #10b981;">📸 Upload Chat Evidence</label>
-                <input type="file" id="report-evidence" accept="image/*" style="padding: 10px; background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444; width: 100%;">
-            </div>
-
-            <button class="btn" id="submit-report-btn" onclick="submitComplaint()" style="background: #ef4444; margin-top: 0;">Submit Evidence to Admin</button>
-            <p style="margin-top: 20px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="closeReportModal()">CANCEL</p>
         </div>
     </div>
 
@@ -217,18 +218,12 @@
 
         // GLOBALS & ADMIN SETTINGS SYNC
         let liveExchangeRates = {};
-        let adminSettings = { 
-            basePriceUSD: 5.00, 
-            paymentLink: "", 
-            tierUS: 9.99, tierUK: 7.99, tierCA: 12.99, tierAU: 14.99, tierDE: 8.99 
-        };
+        let adminSettings = { basePriceUSD: 5.00, paymentLink: "", tierUS: 9.99, tierUK: 7.99, tierCA: 12.99, tierAU: 14.99, tierDE: 8.99 };
 
         async function fetchAppSettings() {
             try {
                 const snap = await database.ref('admin_settings').once('value');
-                if (snap.val()) {
-                    adminSettings = { ...adminSettings, ...snap.val() };
-                }
+                if (snap.val()) adminSettings = { ...adminSettings, ...snap.val() };
             } catch (err) { console.warn("Using default settings"); }
         }
 
@@ -250,10 +245,7 @@
                 "Germany": { price: adminSettings.tierDE || 8.99, currency: "EUR", symbol: "€" }
             };
 
-            if (tieredPrices[targetCountry]) {
-                const t = tieredPrices[targetCountry];
-                return `${t.symbol}${t.price.toFixed(2)} ${t.currency}`;
-            }
+            if (tieredPrices[targetCountry]) return `${tieredPrices[targetCountry].symbol}${tieredPrices[targetCountry].price.toFixed(2)} ${tieredPrices[targetCountry].currency}`;
 
             let convertedRate = liveExchangeRates['NGN'] || 1500;
             let currencySymbol = "₦"; let currencyCode = "NGN";
@@ -345,12 +337,10 @@
             const btn = document.getElementById('submit-btn');
 
             if(whatsapp.length < 10 || !whatsapp.startsWith('+')) {
-                alert("Security Error: Please enter a valid international WhatsApp number including the '+' code.");
-                return;
+                alert("Security Error: Please enter a valid international WhatsApp number including the '+' code."); return;
             }
             if(!name || !age || !finalImageData) {
-                alert("Please complete all fields and attach a photo.");
-                return;
+                alert("Please complete all fields and attach a photo."); return;
             }
 
             btn.innerText = "Checking Security..."; btn.disabled = true;
@@ -359,10 +349,9 @@
                 const banSnapshot = await database.ref('banned_numbers/' + whatsapp).once('value');
                 if (banSnapshot.val() === true) {
                     alert("🚨 CRITICAL ALERT: This WhatsApp number has been permanently banned from the global network for violating safety policies.");
-                    btn.innerText = "Create VIP Profile"; btn.disabled = false;
-                    return; 
+                    btn.innerText = "Create VIP Profile"; btn.disabled = false; return; 
                 }
-            } catch (err) { console.warn("Ban check error"); }
+            } catch (err) {}
 
             try {
                 const ipResponse = await fetch('https://ipapi.co/json/');
@@ -371,10 +360,9 @@
 
                 if (actualCountry && actualCountry !== country) {
                     alert(`🚨 SECURITY BLOCK: Your IP address indicates you are in ${actualCountry}, but you selected ${country}. Fake locations are blocked.`);
-                    btn.innerText = "Create VIP Profile"; btn.disabled = false;
-                    return; 
+                    btn.innerText = "Create VIP Profile"; btn.disabled = false; return; 
                 }
-            } catch (err) { console.warn("IP Check bypassed"); }
+            } catch (err) {}
 
             btn.innerText = "Create VIP Profile"; btn.disabled = false;
             document.getElementById('verify-whatsapp-input').value = "";
@@ -388,8 +376,7 @@
 
             if (enteredConfirm !== originalWhatsapp) {
                 alert("🚨 SECURITY BLOCK: The WhatsApp number does not match! Profile aborted.");
-                document.getElementById('number-verify-modal').style.display = 'none';
-                return;
+                document.getElementById('number-verify-modal').style.display = 'none'; return;
             }
 
             document.getElementById('number-verify-modal').style.display = 'none';
@@ -399,35 +386,23 @@
             document.getElementById('publish-modal').style.display = 'flex';
         }
 
-        // ==========================================
-        // KEY VERIFICATION: PUBLISH PROFILE
-        // ==========================================
         function verifyPublishKey() {
             const keyInput = document.getElementById('publish-key-input').value.trim().toUpperCase();
             const btn = document.getElementById('verify-publish-btn');
             
             if (!keyInput) { alert("Please enter a valid Access Key."); return; }
-
-            if (keyInput === "GOLD-BOSS-LIFETIME") {
-                alert("👑 Admin Override! Profile publishing...");
-                finalizeProfileUpload();
-                return;
-            }
+            if (keyInput === "GOLD-BOSS-LIFETIME") { finalizeProfileUpload(); return; }
 
             btn.innerText = "Verifying..."; btn.disabled = true;
 
             database.ref('access_keys/' + keyInput).once('value').then((snapshot) => {
                 const keyData = snapshot.val();
                 if (keyData && keyData.used === false) {
-                    database.ref('access_keys/' + keyInput).update({ used: true, usedAt: Date.now() }).then(() => {
-                        finalizeProfileUpload();
-                    });
+                    database.ref('access_keys/' + keyInput).update({ used: true, usedAt: Date.now() }).then(() => finalizeProfileUpload());
                 } else {
                     alert("❌ Error: Invalid or Used Key.");
                     btn.innerText = "🔓 Submit & Publish"; btn.disabled = false;
                 }
-            }).catch((error) => {
-                alert("Network Error."); btn.innerText = "🔓 Submit & Publish"; btn.disabled = false;
             });
         }
 
@@ -448,23 +423,17 @@
                 alert("✅ Profile Published Successfully! You are now live in the global network.");
                 localStorage.setItem('hasJoinedGlobalMatch', 'true');
                 switchTab('find');
-                
                 document.getElementById('join-name').value = '';
                 document.getElementById('join-whatsapp').value = '';
                 document.getElementById('photo-preview').style.display = 'none';
                 finalImageData = null;
                 btn.innerText = "Create VIP Profile"; btn.disabled = false;
-            }).catch(error => {
-                alert("Network error: " + error.message);
-                btn.disabled = false;
             });
         }
 
         // ==========================================
-        // SCAMMER REPORTING SYSTEM
+        // DEDICATED TAB SCAMMER REPORTING SYSTEM
         // ==========================================
-        let reportTargetId = "";
-        let reportTargetWhatsapp = "";
         let reportEvidenceBase64 = null;
 
         document.getElementById('report-evidence').addEventListener('change', function(e) {
@@ -475,34 +444,26 @@
             reader.readAsDataURL(file);
         });
 
-        function openReportModal(targetId, targetWhatsapp) {
-            reportTargetId = targetId;
-            reportTargetWhatsapp = targetWhatsapp;
-            document.getElementById('report-reason').value = "";
-            document.getElementById('report-evidence').value = "";
-            reportEvidenceBase64 = null;
-            document.getElementById('report-modal').style.display = 'flex';
+        function autoFillReport(whatsapp) {
+            document.getElementById('report-target-whatsapp').value = whatsapp;
+            switchTab('report');
         }
 
-        function closeReportModal() {
-            document.getElementById('report-modal').style.display = 'none';
-            reportTargetId = ""; reportTargetWhatsapp = ""; reportEvidenceBase64 = null;
-        }
-
-        function submitComplaint() {
+        function submitGlobalComplaint() {
+            const targetWhatsapp = document.getElementById('report-target-whatsapp').value.trim();
             const reason = document.getElementById('report-reason').value.trim();
             const btn = document.getElementById('submit-report-btn');
 
-            if (!reason || !reportEvidenceBase64) {
-                alert("You must provide both a written reason and a screenshot of the evidence.");
+            if (!targetWhatsapp || !reason || !reportEvidenceBase64) {
+                alert("You must provide the WhatsApp number, a written reason, and a screenshot of the evidence.");
                 return;
             }
 
             btn.innerText = "Sending Evidence..."; btn.disabled = true;
 
             const reportData = {
-                reportedProfileId: reportTargetId,
-                reportedWhatsapp: reportTargetWhatsapp,
+                reportedProfileId: "N/A", // Handled via whatsapp number match in admin
+                reportedWhatsapp: targetWhatsapp,
                 reason: reason,
                 evidenceBase64: reportEvidenceBase64,
                 timestamp: Date.now()
@@ -510,11 +471,16 @@
 
             database.ref('complaints').push(reportData).then(() => {
                 alert("✅ Complaint submitted successfully to the Admin. The evidence is being reviewed for a permanent ban.");
-                closeReportModal();
-                btn.innerText = "Submit Evidence to Admin"; btn.disabled = false;
+                
+                // Clear form and go back to Find Tab
+                document.getElementById('report-target-whatsapp').value = "";
+                document.getElementById('report-reason').value = "";
+                reportEvidenceBase64 = null;
+                btn.innerText = "Submit Evidence"; btn.disabled = false;
+                switchTab('find');
             }).catch(error => {
                 alert("Network error: " + error.message);
-                btn.innerText = "Submit Evidence to Admin"; btn.disabled = false;
+                btn.innerText = "Submit Evidence"; btn.disabled = false;
             });
         }
 
@@ -544,7 +510,6 @@
             const btn = document.getElementById('verify-key-btn');
 
             if (!keyInput) { alert("Please enter a valid Access Key."); return; }
-
             if (keyInput === "GOLD-BOSS-LIFETIME") {
                 document.getElementById('unlock-modal').style.display = 'none';
                 window.open(`https://wa.me/${pendingContactToUnlock}`, '_blank');
@@ -582,7 +547,6 @@
             const searchGender = document.getElementById('search-gender').value;
             const searchCountry = document.getElementById('search-country').value;
             
-            // Read the Age Range inputs
             const minAge = parseInt(document.getElementById('search-min-age').value) || 18;
             const maxAge = parseInt(document.getElementById('search-max-age').value) || 99;
 
@@ -603,7 +567,7 @@
                             const card = document.createElement('div');
                             card.className = 'match-card';
                             
-                            // 🔥 NEW MASSIVE RED REPORT BUTTON INJECTED HERE
+                            // SUBTLE CONTEXT LINK THAT JUMPS TO THE REPORT TAB
                             card.innerHTML = `
                                 <img src="${data.photoBase64}" class="match-img" oncontextmenu="return false;" draggable="false">
                                 <h4 style="margin:15px 0 5px 0; font-size:18px;">${data.name}, ${data.age}</h4>
@@ -611,7 +575,7 @@
                                 
                                 <button class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);" onclick="promptUnlockKey('${data.whatsapp}', '${data.country}')">🔓 Unlock Contact (${localizedPriceStr})</button>
                                 
-                                <button class="btn" style="background: linear-gradient(135deg, #ef4444, #991b1b); margin-top: 12px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);" onclick="openReportModal('${id}', '${data.whatsapp}')">🚩 Report Scammer</button>
+                                <span style="color:#ef4444; font-size:12px; font-weight:bold; cursor:pointer; display:inline-block; margin-top:20px; text-transform:uppercase; letter-spacing:1px;" onclick="autoFillReport('${data.whatsapp}')">🚩 Report Profile</span>
                             `;
                             matchList.appendChild(card);
                         }
