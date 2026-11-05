@@ -582,7 +582,7 @@
             const searchGender = document.getElementById('search-gender').value;
             const searchCountry = document.getElementById('search-country').value;
             
-            // Read the new Age Range inputs
+            // Read the Age Range inputs
             const minAge = parseInt(document.getElementById('search-min-age').value) || 18;
             const maxAge = parseInt(document.getElementById('search-max-age').value) || 99;
 
@@ -595,7 +595,6 @@
                     const data = childSnapshot.val();
                     const profileAge = parseInt(data.age) || 0;
                     
-                    // Filter by Gender, Country, Ban Status AND Age Range
                     if(data.gender === searchGender && data.country === searchCountry && data.banned !== true) {
                         if(profileAge >= minAge && profileAge <= maxAge) {
                             foundMatch = true;
@@ -604,13 +603,15 @@
                             const card = document.createElement('div');
                             card.className = 'match-card';
                             
-                            // Highly visible inline-styled report button just in case CSS fails to load
+                            // 🔥 NEW MASSIVE RED REPORT BUTTON INJECTED HERE
                             card.innerHTML = `
                                 <img src="${data.photoBase64}" class="match-img" oncontextmenu="return false;" draggable="false">
                                 <h4 style="margin:15px 0 5px 0; font-size:18px;">${data.name}, ${data.age}</h4>
                                 <p style="color:#f472b6; font-size:13px; margin: 0 0 15px 0; font-weight:500;">📍 Live Match in ${data.country}</p>
-                                <button class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);" onclick="promptUnlockKey('${data.whatsapp}', '${data.country}')">Unlock Contact (${localizedPriceStr})</button>
-                                <button onclick="openReportModal('${id}', '${data.whatsapp}')" style="background: transparent; border: 1px solid transparent; color: #ef4444; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; margin-top: 15px; padding: 10px; width: 100%; transition: 0.3s;" onmouseover="this.style.border='1px solid #ef4444'; this.style.background='rgba(239, 68, 68, 0.1)';" onmouseout="this.style.border='1px solid transparent'; this.style.background='transparent';">🚩 Report Scammer</button>
+                                
+                                <button class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);" onclick="promptUnlockKey('${data.whatsapp}', '${data.country}')">🔓 Unlock Contact (${localizedPriceStr})</button>
+                                
+                                <button class="btn" style="background: linear-gradient(135deg, #ef4444, #991b1b); margin-top: 12px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);" onclick="openReportModal('${id}', '${data.whatsapp}')">🚩 Report Scammer</button>
                             `;
                             matchList.appendChild(card);
                         }
