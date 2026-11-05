@@ -44,8 +44,10 @@
 
         .match-card { background: rgba(30, 27, 56, 0.6); border-radius: 16px; padding: 20px; margin-top: 20px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
         .match-img { width: 100%; height: 260px; object-fit: cover; border-radius: 12px; filter: blur(16px); pointer-events: none; user-select: none; border: 1px solid rgba(255,255,255,0.05); }
-        .report-link { display: inline-block; margin-top: 15px; color: #ef4444; font-size: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
-        .report-link:hover { text-decoration: underline; }
+        
+        /* 🔥 UPGRADED REPORT BUTTON */
+        .report-btn { background: transparent; border: 1px solid transparent; color: #ef4444; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; margin-top: 15px; padding: 10px; width: 100%; transition: 0.3s; }
+        .report-btn:hover { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px; }
         
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(12, 10, 20, 0.9); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
         .modal-content { background: #1a162e; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 350px; border: 1px solid rgba(255, 20, 147, 0.2); box-shadow: 0 0 30px rgba(0,0,0,0.6); }
@@ -186,7 +188,7 @@
             
             <div style="text-align: left; margin-bottom: 15px;">
                 <label style="color: #10b981;">📸 Upload Chat Evidence</label>
-                <input type="file" id="report-evidence" accept="image/*" style="padding: 10px; background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444;">
+                <input type="file" id="report-evidence" accept="image/*" style="padding: 10px; background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444; width: 100%;">
             </div>
 
             <button class="btn" id="submit-report-btn" onclick="submitComplaint()" style="background: #ef4444; margin-top: 0;">Submit Evidence to Admin</button>
@@ -299,6 +301,7 @@
             await fetchExchangeRates();
         };
 
+        // UI NAVIGATION
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
@@ -327,7 +330,7 @@
         });
 
         // ==========================================
-        // PROFILE SUBMISSION LOGIC
+        // PROFILE SUBMISSION LOGIC (With Ban Check & IP Check)
         // ==========================================
         async function submitProfile() {
             const name = document.getElementById('join-name').value.trim();
@@ -350,7 +353,7 @@
             try {
                 const banSnapshot = await database.ref('banned_numbers/' + whatsapp).once('value');
                 if (banSnapshot.val() === true) {
-                    alert("🚨 CRITICAL ALERT: This WhatsApp number has been permanently banned from the global network.");
+                    alert("🚨 CRITICAL ALERT: This WhatsApp number has been permanently banned from the global network for violating safety policies.");
                     btn.innerText = "Create VIP Profile"; btn.disabled = false;
                     return; 
                 }
@@ -391,6 +394,9 @@
             document.getElementById('publish-modal').style.display = 'flex';
         }
 
+        // ==========================================
+        // KEY VERIFICATION: PUBLISH PROFILE
+        // ==========================================
         function verifyPublishKey() {
             const keyInput = document.getElementById('publish-key-input').value.trim().toUpperCase();
             const btn = document.getElementById('verify-publish-btn');
@@ -398,6 +404,7 @@
             if (!keyInput) { alert("Please enter a valid Access Key."); return; }
 
             if (keyInput === "GOLD-BOSS-LIFETIME") {
+                alert("👑 Admin Override! Profile publishing...");
                 finalizeProfileUpload();
                 return;
             }
@@ -414,6 +421,8 @@
                     alert("❌ Error: Invalid or Used Key.");
                     btn.innerText = "🔓 Submit & Publish"; btn.disabled = false;
                 }
+            }).catch((error) => {
+                alert("Network Error."); btn.innerText = "🔓 Submit & Publish"; btn.disabled = false;
             });
         }
 
@@ -440,6 +449,9 @@
                 document.getElementById('photo-preview').style.display = 'none';
                 finalImageData = null;
                 btn.innerText = "Create VIP Profile"; btn.disabled = false;
+            }).catch(error => {
+                alert("Network error: " + error.message);
+                btn.disabled = false;
             });
         }
 
@@ -516,7 +528,11 @@
         }
 
         function closeUnlockModal() { document.getElementById('unlock-modal').style.display = 'none'; pendingContactToUnlock = ""; }
-        function openPaymentPortal() { const link = adminSettings.paymentLink || 'https://selar.co/'; window.open(link, '_blank'); }
+        
+        function openPaymentPortal() { 
+            const checkoutLink = adminSettings.paymentLink || 'https://selar.co/';
+            window.open(checkoutLink, '_blank'); 
+        }
 
         function verifyAndUnlock() {
             const keyInput = document.getElementById('access-key-input').value.trim().toUpperCase();
@@ -574,12 +590,14 @@
 
                         const card = document.createElement('div');
                         card.className = 'match-card';
+                        
+                        // 🚩 THE NEW, HIGH-VISIBILITY REPORT BUTTON IS INJECTED HERE
                         card.innerHTML = `
                             <img src="${data.photoBase64}" class="match-img" oncontextmenu="return false;" draggable="false">
                             <h4 style="margin:15px 0 5px 0; font-size:18px;">${data.name}, ${data.age}</h4>
                             <p style="color:#f472b6; font-size:13px; margin: 0 0 15px 0; font-weight:500;">📍 Live Match in ${data.country}</p>
                             <button class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);" onclick="promptUnlockKey('${data.whatsapp}', '${data.country}')">Unlock Contact (${localizedPriceStr})</button>
-                            <span class="report-link" onclick="openReportModal('${id}', '${data.whatsapp}')">🚩 Report Scammer</span>
+                            <button class="report-btn" onclick="openReportModal('${id}', '${data.whatsapp}')">🚩 Report Scammer</button>
                         `;
                         matchList.appendChild(card);
                     }
