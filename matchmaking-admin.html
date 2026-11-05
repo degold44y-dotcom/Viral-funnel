@@ -55,8 +55,9 @@
 
     <div class="admin-nav">
         <button class="nav-btn active" id="btn-keys" onclick="switchTab('keys')">🔑 Bulk Keys</button>
-        <button class="nav-btn" id="btn-settings" onclick="switchTab('settings')">⚙️ Settings & Price</button>
+        <button class="nav-btn" id="btn-settings" onclick="switchTab('settings')">⚙️ Config</button>
         <button class="nav-btn" id="btn-profiles" onclick="switchTab('profiles')">👥 Profiles</button>
+        <button class="nav-btn" id="btn-reports" onclick="switchTab('reports')" style="border-color: #ef4444;">🚩 Reports</button>
     </div>
 
     <!-- KEY GENERATOR SECTION -->
@@ -129,6 +130,13 @@
         <div class="grid" id="profiles-grid">Loading profiles...</div>
     </div>
 
+    <!-- SCAMMER REPORTS SECTION -->
+    <div id="section-reports" class="section">
+        <h3 style="text-align: center; margin-bottom: 20px; color: #ef4444;">🚨 Scammer Reports & Evidence</h3>
+        <p style="text-align: center; font-size: 13px; color: #94a3b8; margin-bottom: 30px;">Review user-submitted evidence. Banning a scammer here deletes their profile and blocks their number forever.</p>
+        <div class="grid" id="reports-grid">Loading reports...</div>
+    </div>
+
     <script>
         // FIREBASE INITIALIZATION
         const firebaseConfig = {
@@ -152,6 +160,7 @@
             
             if (tab === 'profiles') loadProfiles();
             if (tab === 'settings') loadAdminSettings();
+            if (tab === 'reports') loadReports();
         }
 
         // ==========================================
@@ -257,7 +266,6 @@
             });
         }
 
-        // Action: Just remove the profile (User can create another one)
         function deleteProfile(id) {
             if (confirm("Are you sure you want to just delete this profile?")) {
                 database.ref('profiles/' + id).remove().then(() => { 
@@ -266,16 +274,85 @@
             }
         }
 
-        // Action: Scammer Protocol - Ban WhatsApp Number, then remove profile
         function banAndDeleteProfile(id, whatsapp) {
             if (confirm(`SCAMMER ALERT: Are you sure you want to permanently BAN the number ${whatsapp} and delete this profile?`)) {
-                // Add to ban list first
                 database.ref('banned_numbers/' + whatsapp).set(true).then(() => {
-                    // Then delete profile
                     database.ref('profiles/' + id).remove().then(() => {
                         document.getElementById(`card-${id}`).style.display = 'none';
                         alert(`Number ${whatsapp} has been permanently banned.`);
                     });
+                });
+            }
+        }
+
+        // ==========================================
+        // 4. SCAMMER REPORTS VIEWER
+        // ==========================================
+        function loadReports() {
+            const grid = document.getElementById('reports-grid');
+            grid.innerHTML = "<p style='width: 100%; text-align: center;'>Loading reports...</p>";
+            
+            database.ref('complaints').once('value').then((snapshot) => {
+                grid.innerHTML = "";
+                let hasReports = false;
+                
+                snapshot.forEach((childSnapshot) => {
+                    const id = childSnapshot.key;
+                    const data = childSnapshot.val();
+                    hasReports = true;
+                    
+                    grid.innerHTML += `
+                        <div class="card" id="report-${id}" style="border-color: #ef4444; position: relative;">
+                            <h4 style="color: #ef4444; margin-top: 0; font-size: 15px;">🚨 Target Number:</h4>
+                            <p style="font-family: monospace; font-size: 16px; font-weight: bold; margin: 5px 0 15px 0;">${data.reportedWhatsapp}</p>
+                            
+                            <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; text-align: left; margin-bottom: 15px;">
+                                <span style="font-size: 12px; color: #94a3b8;">User Complaint:</span>
+                                <p style="font-size: 14px; margin: 5px 0 0 0; color: white;">"${data.reason}"</p>
+                            </div>
+                            
+                            <p style="color: #10b981; font-size: 12px; font-weight: bold; margin-bottom: 5px;">📸 Chat Evidence:</p>
+                            <img src="${data.evidenceBase64}" alt="Evidence" style="width: 100%; height: auto; max-height: 300px; object-fit: contain; background: #0c0b1a; border: 1px dashed #ef4444; border-radius: 4px;">
+                            
+                            <div class="btn-group" style="flex-direction: column; gap: 10px; margin-top: 20px;">
+                                <button class="ban-btn" onclick="approveReportBan('${id}', '${data.reportedProfileId}', '${data.reportedWhatsapp}')">🚫 Approve Ban & Delete Profile</button>
+                                <button class="delete-btn" onclick="dismissReport('${id}')">Dismiss Report (False Alarm)</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                if (!hasReports) grid.innerHTML = "<p style='width:100%; text-align:center; color:#10b981; font-weight:bold; font-size:18px;'>No active reports. Your network is clean! 🎉</p>";
+            }).catch(err => {
+                grid.innerHTML = `<p style='color:#ef4444;'>Database Error: ${err.message}</p>`;
+            });
+        }
+
+        // Handles Ban from the Reports Tab
+        function approveReportBan(reportId, profileId, whatsapp) {
+            if (confirm(`Are you sure you want to PERMANENTLY BAN ${whatsapp} based on this evidence?`)) {
+                
+                // 1. Add to permanent ban list
+                database.ref('banned_numbers/' + whatsapp).set(true).then(() => {
+                    
+                    // 2. Delete the profile if it exists
+                    if (profileId) {
+                        database.ref('profiles/' + profileId).remove();
+                    }
+                    
+                    // 3. Delete the complaint ticket
+                    database.ref('complaints/' + reportId).remove().then(() => {
+                        document.getElementById(`report-${reportId}`).style.display = 'none';
+                        alert(`Scammer ${whatsapp} banned successfully.`);
+                    });
+                });
+            }
+        }
+
+        // Handles dismissal of false reports
+        function dismissReport(reportId) {
+            if (confirm("Are you sure you want to dismiss this report? The complaint will be deleted and the user will remain active.")) {
+                database.ref('complaints/' + reportId).remove().then(() => {
+                    document.getElementById(`report-${reportId}`).style.display = 'none';
                 });
             }
         }
