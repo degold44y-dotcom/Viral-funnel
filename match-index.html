@@ -10,7 +10,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     
     <style>
-        /* Immersive Lovable Theme with Local GitHub Image */
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #0c0b1a; 
@@ -48,12 +47,10 @@
         .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; background: linear-gradient(135deg, #ff1493, #e14eca); color: white; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(225, 78, 202, 0.3); }
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(225, 78, 202, 0.5); }
         
-        /* Liability Warning Box */
         .liability-warning { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 15px; margin: 20px 0; text-align: center; }
         .liability-warning h4 { color: #ef4444; margin: 0 0 8px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
         .liability-warning p { color: #cbd5e1; font-size: 12px; margin: 0; line-height: 1.5; }
 
-        /* Scanner Styles */
         #scanner-container { display: none; flex-direction: column; align-items: center; margin-top: 20px; position: relative; }
         #video-feed { width: 230px; height: 230px; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255, 20, 147, 0.5); transform: scaleX(-1); box-shadow: 0 0 30px rgba(255, 20, 147, 0.2); }
         #canvas-capture { display: none; }
@@ -135,7 +132,6 @@
             <input type="tel" id="join-whatsapp" placeholder="Must be a valid active number" maxlength="16">
         </div>
         
-        <!-- LIVENESS SCANNER -->
         <button class="btn" id="start-scan-btn" style="background: linear-gradient(135deg, #10b981, #059669); margin-bottom: 5px;" onclick="startLivenessScan()">📸 Start Facial Verification</button>
         
         <div id="scanner-container">
@@ -165,16 +161,30 @@
     <div id="unlock-modal" class="modal">
         <div class="modal-content">
             <h3>Unlock Match Contact</h3>
-            <p style="margin-bottom: 15px; font-size: 13px; color: #cbd5e1;">Enter your 1-Time Access Key below. If you don't have a key, purchase one securely via Selar.</p>
+            <p style="margin-bottom: 15px; font-size: 13px; color: #cbd5e1;" id="modal-pricing-text">Enter your 1-Time Access Key below.</p>
             <input type="text" id="access-key-input" placeholder="ENTER ACCESS KEY" style="margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">
             <button class="btn" id="verify-key-btn" onclick="verifyAndUnlock()" style="background: linear-gradient(135deg, #10b981, #059669); margin-top: 0;">🔓 Verify & Unlock</button>
-            <button class="modal-btn" onclick="window.open('https://selar.co/your-product-link', '_blank')" style="background: transparent; border: 1px solid #ff1493; color: #ff1493; margin-top: 10px;">Buy Access Key ($7.99)</button>
+            <button class="modal-btn" onclick="openPaymentPortal()" style="background: transparent; border: 1px solid #ff1493; color: #ff1493; margin-top: 10px;" id="buy-key-modal-btn">Buy Access Key</button>
             <p style="margin-top: 20px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="closeUnlockModal()">CANCEL</p>
         </div>
     </div>
 
     <script>
-        // 1. INITIALIZE FIREBASE
+        // ==========================================
+        // 🎛️ YOUR PRICING CONTROL PANEL
+        // ==========================================
+        const BASE_PRICE_USD = 5.00; // Your default global price in USD (will auto-convert elsewhere)
+        
+        // Custom flat pricing override for Top-Tier Countries
+        const TIERED_PRICES = {
+            "United States": { price: 9.99, currency: "USD", symbol: "$" },
+            "United Kingdom": { price: 7.99, currency: "GBP", symbol: "£" },
+            "Canada": { price: 12.99, currency: "CAD", symbol: "CA$" },
+            "Australia": { price: 14.99, currency: "AUD", symbol: "AU$" },
+            "Germany": { price: 8.99, currency: "EUR", symbol: "€" }
+        };
+        // ==========================================
+
         const firebaseConfig = {
             apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
             authDomain: "global-match-99b4e.firebaseapp.com",
@@ -187,7 +197,65 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // 2. TIERED COUNTRIES & GLOBAL LIST
+        let liveExchangeRates = {};
+        let userCountryLocation = "United States"; // Default fallback
+
+        // Fetch live global exchange rates automatically
+        async function fetchExchangeRates() {
+            try {
+                const response = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await response.json();
+                liveExchangeRates = data.rates;
+            } catch (err) {
+                console.warn("Could not fetch live exchange rates, using defaults.");
+            }
+        }
+
+        // Detect user country via IP to show them accurate local currency pricing
+        async function detectUserPricingLocation() {
+            try {
+                const res = await fetch('https://ipapi.co/json/');
+                const data = await res.json();
+                if (data.country_name) {
+                    userCountryLocation = data.country_name;
+                }
+            } catch (err) {
+                console.warn("IP location detection skipped.");
+            }
+        }
+
+        function calculateLocalizedPrice(targetCountry) {
+            if (TIERED_PRICES[targetCountry]) {
+                const t = TIERED_PRICES[targetCountry];
+                return `${t.symbol}${t.price.toFixed(2)} ${t.currency}`;
+            }
+
+            // For all other countries, calculate dynamic exchange rate based on your $5 base price
+            let convertedRate = liveExchangeRates['NGN'] || 1500; // fallback conversion rate
+            let currencySymbol = "₦";
+            let currencyCode = "NGN";
+
+            if (targetCountry === "South Africa") {
+                convertedRate = liveExchangeRates['ZAR'] || 18;
+                currencySymbol = "R"; currencyCode = "ZAR";
+            } else if (targetCountry === "India") {
+                convertedRate = liveExchangeRates['INR'] || 83;
+                currencySymbol = "₹"; currencyCode = "INR";
+            } else if (targetCountry === "France" || targetCountry === "Italy" || targetCountry === "Spain") {
+                convertedRate = liveExchangeRates['EUR'] || 0.92;
+                currencySymbol = "€"; currencyCode = "EUR";
+            } else if (targetCountry === "Brazil") {
+                convertedRate = liveExchangeRates['BRL'] || 5.5;
+                currencySymbol = "R$"; currencyCode = "BRL";
+            } else if (targetCountry === "Mexico") {
+                convertedRate = liveExchangeRates['MXN'] || 18;
+                currencySymbol = "$"; currencyCode = "MXN";
+            }
+
+            const finalPrice = BASE_PRICE_USD * convertedRate;
+            return `${currencySymbol}${Math.ceil(finalPrice).toLocaleString()} ${currencyCode}`;
+        }
+
         const topTierCountries = [
             { name: "United States (+1)", value: "United States", code: "+1" },
             { name: "United Kingdom (+44)", value: "United Kingdom", code: "+44" },
@@ -209,7 +277,7 @@
 
         const countryDropdowns = document.querySelectorAll('.country-dropdown');
         countryDropdowns.forEach(dropdown => {
-            topTierCountries.forEach((country, index) => {
+            topTierCountries.forEach((country) => {
                 let option = document.createElement('option'); 
                 option.value = country.value; 
                 option.innerText = country.name;
@@ -248,7 +316,11 @@
             }
         });
         
-        window.onload = () => { whatsappInput.value = "+1 "; };
+        window.onload = async () => { 
+            whatsappInput.value = "+1 "; 
+            await fetchExchangeRates();
+            await detectUserPricingLocation();
+        };
 
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -262,7 +334,6 @@
             switchTab('join');
         }
 
-        // LIVENESS SCANNER
         let videoStream = null;
         let finalImageData = null;
 
@@ -316,7 +387,6 @@
             document.getElementById('photo-status').style.display = 'block';
         }
 
-        // BALANCED ANTI-SCAM SUBMISSION
         let formStartTime = Date.now(); 
 
         async function submitProfile() {
@@ -389,11 +459,17 @@
             });
         }
 
-        // ONE-TIME KEY UNLOCK SYSTEM WITH ADMIN LIFETIME BYPASS
         let pendingContactToUnlock = "";
+        let currentMatchCountry = "";
 
-        function promptUnlockKey(targetWhatsapp) {
+        function promptUnlockKey(targetWhatsapp, profileCountry) {
             pendingContactToUnlock = targetWhatsapp.replace('+', ''); 
+            currentMatchCountry = profileCountry;
+            
+            const displayPrice = calculateLocalizedPrice(profileCountry);
+            document.getElementById('modal-pricing-text').innerText = `Unlock access key for this ${profileCountry} profile. Cost: ${displayPrice}`;
+            document.getElementById('buy-key-modal-btn').innerText = `Buy Access Key (${displayPrice})`;
+            
             document.getElementById('access-key-input').value = ""; 
             document.getElementById('unlock-modal').style.display = 'flex';
         }
@@ -401,6 +477,11 @@
         function closeUnlockModal() {
             document.getElementById('unlock-modal').style.display = 'none';
             pendingContactToUnlock = "";
+        }
+
+        // 💳 EDIT YOUR CUSTOM PAYMENT LINK HERE
+        function openPaymentPortal() {
+            window.open('https://your-custom-payment-link.com', '_blank');
         }
 
         function verifyAndUnlock() {
@@ -412,7 +493,6 @@
                 return;
             }
 
-            // 👑 ADMIN LIFETIME MASTER KEY BYPASS
             if (keyInput === "GOLD-BOSS-LIFETIME") {
                 alert("👑 Welcome back, Boss! Master Key accepted.");
                 document.getElementById('unlock-modal').style.display = 'none';
@@ -423,7 +503,6 @@
             btn.innerText = "Verifying...";
             btn.disabled = true;
 
-            // Check Firebase for standard keys
             database.ref('access_keys/' + keyInput).once('value').then((snapshot) => {
                 const keyData = snapshot.val();
 
@@ -478,13 +557,17 @@
                     
                     if(data.gender === searchGender && data.country === searchCountry && data.banned !== true) {
                         foundMatch = true;
+                        
+                        // Calculate price for this specific match's country
+                        const localizedPriceStr = calculateLocalizedPrice(data.country);
+
                         const card = document.createElement('div');
                         card.className = 'match-card';
                         card.innerHTML = `
                             <img src="${data.photoBase64}" class="match-img" oncontextmenu="return false;" draggable="false">
                             <h4 style="margin:15px 0 5px 0; font-size:18px;">${data.name}, ${data.age}</h4>
                             <p style="color:#f472b6; font-size:13px; margin: 0 0 15px 0; font-weight:500;">📍 Live Match in ${data.country}</p>
-                            <button class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);" onclick="promptUnlockKey('${data.whatsapp}')">Unlock Contact ($7.99)</button>
+                            <button class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);" onclick="promptUnlockKey('${data.whatsapp}', '${data.country}')">Unlock Contact (${localizedPriceStr})</button>
                         `;
                         matchList.appendChild(card);
                     }
