@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Global Match Engine</title>
     
-    <!-- FIREBASE CLOUD DATABASE SCRIPTS -->
+    <!-- FIREBASE CLOUD DATABASE -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     
@@ -14,19 +14,11 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             background-color: #0c0b1a; 
             background-image: linear-gradient(rgba(12, 11, 26, 0.75), rgba(12, 11, 26, 0.95)), url('bg-lovers.jpg'); 
-            background-size: cover; 
-            background-position: center; 
-            background-attachment: fixed;
-            color: #f8fafc; 
-            margin: 0; 
-            padding: 0; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 100vh;
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: #f8fafc; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
         
-        .header { width: 100%; padding: 24px; text-align: center; background: rgba(30, 27, 56, 0.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255, 105, 180, 0.15); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4); }
+        .header { width: 100%; padding: 24px; text-align: center; background: rgba(30, 27, 56, 0.45); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255, 105, 180, 0.15); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4); }
         .header h2 { margin: 0; font-size: 26px; font-weight: 800; background: linear-gradient(45deg, #ff4e50, #f9d423, #e14eca); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(225, 78, 202, 0.4); }
         .header p { margin: 5px 0 0 0; font-size: 13px; color: #ec4899; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
 
@@ -34,9 +26,8 @@
         .tab { flex: 1; padding: 12px; text-align: center; cursor: pointer; border-radius: 25px; color: #94a3b8; font-weight: bold; transition: all 0.3s ease; font-size: 14px; }
         .tab.active { background: linear-gradient(135deg, #ff1493, #8a2be2); color: white; box-shadow: 0 4px 15px rgba(255, 20, 147, 0.35); }
         
-        .container { width: 90%; max-width: 400px; margin-top: 25px; display: none; background: rgba(20, 17, 39, 0.65); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); padding: 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.5); box-sizing: border-box; margin-bottom: 40px; }
+        .container { width: 90%; max-width: 400px; margin-top: 25px; display: none; background: rgba(20, 17, 39, 0.65); backdrop-filter: blur(14px); padding: 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.5); box-sizing: border-box; margin-bottom: 40px; }
         .container.active { display: block; animation: fadeIn 0.4s ease-in-out; }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .form-group { margin-bottom: 20px; }
@@ -51,27 +42,21 @@
         .liability-warning h4 { color: #ef4444; margin: 0 0 8px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
         .liability-warning p { color: #cbd5e1; font-size: 12px; margin: 0; line-height: 1.5; }
 
-        #scanner-container { display: none; flex-direction: column; align-items: center; margin-top: 20px; position: relative; }
-        #video-feed { width: 230px; height: 230px; object-fit: cover; border-radius: 50%; border: 4px solid rgba(255, 20, 147, 0.5); transform: scaleX(-1); box-shadow: 0 0 30px rgba(255, 20, 147, 0.2); }
-        #canvas-capture { display: none; }
-        #scanner-instructions { margin-top: 18px; font-weight: 600; color: #ff69b4; font-size: 16px; text-align: center; height: 25px; transition: 0.3s; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        .scan-overlay { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 230px; height: 230px; border-radius: 50%; border: 4px dashed #ff1493; animation: spin 5s linear infinite; pointer-events: none; }
-        @keyframes spin { 100% { transform: translateX(-50%) rotate(360deg); } }
-        
         .match-card { background: rgba(30, 27, 56, 0.6); border-radius: 16px; padding: 20px; margin-top: 20px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
         .match-img { width: 100%; height: 260px; object-fit: cover; border-radius: 12px; filter: blur(16px); pointer-events: none; user-select: none; border: 1px solid rgba(255,255,255,0.05); }
         
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(12, 10, 20, 0.9); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(12, 10, 20, 0.9); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
         .modal-content { background: #1a162e; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 350px; border: 1px solid rgba(255, 20, 147, 0.2); box-shadow: 0 0 30px rgba(0,0,0,0.6); }
         .modal-content h3 { color: #ff1493; margin-top: 0; font-size: 20px; }
-        .modal-btn { background: linear-gradient(135deg, #ff1493, #e14eca); color: white; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; box-shadow: 0 4px 10px rgba(255,20,147,0.3); }
+        .modal-btn { background: transparent; border: 1px solid #ff1493; color: #ff1493; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.3s; }
+        .modal-btn:hover { background: rgba(255,20,147,0.1); }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h2>Global Match Engine</h2>
-        <p>❤️ Live Verification Network</p>
+        <p>❤️ VIP Verification Network</p>
     </div>
 
     <div class="tabs">
@@ -95,10 +80,10 @@
         
         <div class="liability-warning">
             <h4>⚠️ Safety & Liability Notice</h4>
-            <p>Global Match Engine is strictly an introductory network. We are <strong>not responsible</strong> for any financial transactions, business deals, or personal interactions that occur after contacts are unlocked. Once you connect on WhatsApp, you assume full responsibility. <strong>Never send money to someone you just met.</strong></p>
+            <p>Global Match Engine is strictly an introductory network. We are <strong>not responsible</strong> for any financial transactions or personal interactions. Never send money to someone you just met.</p>
         </div>
         
-        <button class="btn" onclick="attemptSearch()">Scan Live Network</button>
+        <button class="btn" onclick="attemptSearch()">Scan VIP Network</button>
         
         <div id="results-area" style="display: none; margin-top: 20px;">
             <h3 style="text-align: center; color: #10b981; font-size:18px; margin-bottom:15px;">🟢 Matches Connected</h3>
@@ -132,55 +117,69 @@
             <input type="tel" id="join-whatsapp" placeholder="Must be a valid active number" maxlength="16">
         </div>
         
-        <button class="btn" id="start-scan-btn" style="background: linear-gradient(135deg, #10b981, #059669); margin-bottom: 5px;" onclick="startLivenessScan()">📸 Start Facial Verification</button>
-        
-        <div id="scanner-container">
-            <video id="video-feed" autoplay playsinline></video>
-            <div class="scan-overlay" id="scan-ring"></div>
-            <p id="scanner-instructions">Position face in the circle...</p>
-            <canvas id="canvas-capture" width="400" height="400"></canvas>
-            <img id="final-photo" style="display:none; width:230px; height:230px; border-radius:50%; border:4px solid #10b981; object-fit:cover; transform:scaleX(-1);">
-            <button class="btn" id="retake-btn" style="display:none; background: #ef4444; margin-top:10px;" onclick="startLivenessScan()">🔄 Retake</button>
+        <!-- NATIVE PHOTO UPLOAD (REPLACES FAKE SCANNER) -->
+        <div class="form-group" style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+            <label style="color: #10b981; font-weight: bold; text-align: center; margin-bottom:10px;">📸 Upload a Beautiful, REAL Photo</label>
+            <p style="font-size: 11px; text-align: center; color: #ef4444; margin-bottom: 10px;">Strictly NO AI or Fake Images. Fakes will be permanently banned.</p>
+            <input type="file" id="join-photo" accept="image/*" style="padding: 10px; background: rgba(16, 185, 129, 0.1); border: 1px dashed #10b981;">
+            <img id="photo-preview" style="display:none; width:100%; height:280px; object-fit:cover; border-radius:12px; margin-top:15px; border:2px solid #10b981;">
         </div>
 
-        <p id="photo-status" style="color:#10b981; font-weight:600; font-size:14px; text-align:center; display:none; margin-top:10px;">✅ Identity Verified</p>
-
-        <button class="btn" id="submit-btn" onclick="submitProfile()" style="margin-top:25px; background: linear-gradient(135deg, #8a2be2, #e14eca);">Submit Profile & Join Network</button>
+        <button class="btn" id="submit-btn" onclick="submitProfile()" style="margin-top:25px; background: linear-gradient(135deg, #8a2be2, #e14eca);">Create VIP Profile</button>
     </div>
 
     <!-- INTERCEPT MODAL -->
     <div id="intercept-modal" class="modal">
         <div class="modal-content">
             <h3>Verification Required</h3>
-            <p>You must add your live profile to the global network before you can view and unlock other members. It's only fair!</p>
-            <button class="modal-btn" onclick="closeModalAndJoin()">Create Profile</button>
+            <p>You must add your live profile to the network before you can view other members. It's only fair!</p>
+            <button class="btn" onclick="closeModalAndJoin()" style="margin-top: 15px;">Create Profile</button>
         </div>
     </div>
 
-    <!-- WHATSAPP NUMBER RE-ENTRY MODAL (Scam Blocker) -->
+    <!-- WHATSAPP NUMBER RE-ENTRY MODAL -->
     <div id="number-verify-modal" class="modal">
         <div class="modal-content">
-            <h3>🛡️ Security Verification</h3>
-            <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 15px;">To prove you are a human and prevent spam bots, please re-type your WhatsApp number exactly:</p>
+            <h3>🛡️ Security Check</h3>
+            <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 15px;">To prove you are human, please re-type your exact WhatsApp number:</p>
             <input type="tel" id="verify-whatsapp-input" placeholder="Re-type your WhatsApp number" style="margin-bottom: 15px; text-align: center;">
-            <button class="btn" onclick="confirmWhatsappAndSubmit()" style="background: linear-gradient(135deg, #10b981, #059669); margin-top: 0;">Confirm & Submit Profile</button>
-            <p style="margin-top: 15px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="document.getElementById('number-verify-modal').style.display='none'; document.getElementById('submit-btn').disabled=false; document.getElementById('submit-btn').innerText='Submit Profile & Join Network';">CANCEL</p>
+            <button class="btn" onclick="confirmWhatsappAndPay()" style="background: linear-gradient(135deg, #10b981, #059669); margin-top: 0;">Confirm</button>
+            <p style="margin-top: 15px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="document.getElementById('number-verify-modal').style.display='none';">CANCEL</p>
         </div>
     </div>
 
-    <!-- ONE-TIME KEY UNLOCK MODAL -->
+    <!-- PAY TO PUBLISH MODAL (For Form Fillers) -->
+    <div id="publish-modal" class="modal">
+        <div class="modal-content">
+            <h3>Publish Profile</h3>
+            <p style="margin-bottom: 15px; font-size: 13px; color: #cbd5e1;">Enter your Profile Listing Key to join the VIP database securely.</p>
+            <input type="text" id="publish-key-input" placeholder="ENTER LISTING KEY" style="margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">
+            <button class="btn" id="verify-publish-btn" onclick="verifyPublishKey()" style="background: linear-gradient(135deg, #10b981, #059669); margin-top: 0;">🔓 Submit & Publish</button>
+            <button class="modal-btn" onclick="openPaymentPortal()">Buy Listing Key</button>
+            <p style="margin-top: 20px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="document.getElementById('publish-modal').style.display='none';">CANCEL</p>
+        </div>
+    </div>
+
+    <!-- UNLOCK CONTACT MODAL (For Finders) -->
     <div id="unlock-modal" class="modal">
         <div class="modal-content">
             <h3>Unlock Match Contact</h3>
             <p style="margin-bottom: 15px; font-size: 13px; color: #cbd5e1;" id="modal-pricing-text">Enter your 1-Time Access Key below.</p>
             <input type="text" id="access-key-input" placeholder="ENTER ACCESS KEY" style="margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">
             <button class="btn" id="verify-key-btn" onclick="verifyAndUnlock()" style="background: linear-gradient(135deg, #10b981, #059669); margin-top: 0;">🔓 Verify & Unlock</button>
-            <button class="modal-btn" onclick="openPaymentPortal()" style="background: transparent; border: 1px solid #ff1493; color: #ff1493; margin-top: 10px;" id="buy-key-modal-btn">Buy Access Key</button>
+            <button class="modal-btn" onclick="openPaymentPortal()" id="buy-key-modal-btn">Buy Access Key</button>
             <p style="margin-top: 20px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="closeUnlockModal()">CANCEL</p>
         </div>
     </div>
 
     <script>
+        // ==========================================
+        // 🎛️ PRICING PANEL
+        // ==========================================
+        let adminSettings = { basePriceUSD: 5.0, paymentLink: "https://your-custom-payment-link.com" };
+        
+        // ==========================================
+
         const firebaseConfig = {
             apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
             authDomain: "global-match-99b4e.firebaseapp.com",
@@ -194,17 +193,12 @@
         const database = firebase.database();
 
         let liveExchangeRates = {};
-        let adminSettings = { basePriceUSD: 5.0, paymentLink: "https://your-custom-payment-link.com" };
 
         async function fetchAppSettings() {
             try {
                 const snap = await database.ref('admin_settings').once('value');
-                if (snap.val()) {
-                    adminSettings = snap.val();
-                }
-            } catch (err) {
-                console.warn("Using default settings");
-            }
+                if (snap.val()) adminSettings = snap.val();
+            } catch (err) { console.warn("Using default settings"); }
         }
 
         async function fetchExchangeRates() {
@@ -212,14 +206,11 @@
                 const response = await fetch('https://open.er-api.com/v6/latest/USD');
                 const data = await response.json();
                 liveExchangeRates = data.rates;
-            } catch (err) {
-                console.warn("Could not fetch live exchange rates");
-            }
+            } catch (err) { console.warn("Could not fetch rates"); }
         }
 
         function calculateLocalizedPrice(targetCountry) {
             const baseUSD = adminSettings.basePriceUSD || 5.00;
-
             const tieredPrices = {
                 "United States": { price: baseUSD * 2, currency: "USD", symbol: "$" },
                 "United Kingdom": { price: baseUSD * 1.6, currency: "GBP", symbol: "£" },
@@ -234,70 +225,31 @@
             }
 
             let convertedRate = liveExchangeRates['NGN'] || 1500;
-            let currencySymbol = "₦";
-            let currencyCode = "NGN";
+            let currencySymbol = "₦"; let currencyCode = "NGN";
 
-            if (targetCountry === "South Africa") {
-                convertedRate = liveExchangeRates['ZAR'] || 18;
-                currencySymbol = "R"; currencyCode = "ZAR";
-            } else if (targetCountry === "India") {
-                convertedRate = liveExchangeRates['INR'] || 83;
-                currencySymbol = "₹"; currencyCode = "INR";
-            } else if (targetCountry === "France" || targetCountry === "Italy" || targetCountry === "Spain") {
-                convertedRate = liveExchangeRates['EUR'] || 0.92;
-                currencySymbol = "€"; currencyCode = "EUR";
-            } else if (targetCountry === "Brazil") {
-                convertedRate = liveExchangeRates['BRL'] || 5.5;
-                currencySymbol = "R$"; currencyCode = "BRL";
-            } else if (targetCountry === "Mexico") {
-                convertedRate = liveExchangeRates['MXN'] || 18;
-                currencySymbol = "$"; currencyCode = "MXN";
-            }
+            if (targetCountry === "South Africa") { convertedRate = liveExchangeRates['ZAR'] || 18; currencySymbol = "R"; currencyCode = "ZAR"; } 
+            else if (targetCountry === "India") { convertedRate = liveExchangeRates['INR'] || 83; currencySymbol = "₹"; currencyCode = "INR"; } 
+            else if (targetCountry === "France" || targetCountry === "Italy" || targetCountry === "Spain") { convertedRate = liveExchangeRates['EUR'] || 0.92; currencySymbol = "€"; currencyCode = "EUR"; } 
+            else if (targetCountry === "Brazil") { convertedRate = liveExchangeRates['BRL'] || 5.5; currencySymbol = "R$"; currencyCode = "BRL"; } 
+            else if (targetCountry === "Mexico") { convertedRate = liveExchangeRates['MXN'] || 18; currencySymbol = "$"; currencyCode = "MXN"; }
 
             const finalPrice = baseUSD * convertedRate;
             return `${currencySymbol}${Math.ceil(finalPrice).toLocaleString()} ${currencyCode}`;
         }
 
-        const topTierCountries = [
-            { name: "United States (+1)", value: "United States", code: "+1" },
-            { name: "United Kingdom (+44)", value: "United Kingdom", code: "+44" },
-            { name: "Canada (+1)", value: "Canada", code: "+1" },
-            { name: "Australia (+61)", value: "Australia", code: "+61" },
-            { name: "Germany (+49)", value: "Germany", code: "+49" }
-        ];
-
-        const otherCountries = [
-            { name: "Nigeria (+234)", value: "Nigeria", code: "+234" },
-            { name: "South Africa (+27)", value: "South Africa", code: "+27" },
-            { name: "India (+91)", value: "India", code: "+91" },
-            { name: "France (+33)", value: "France", code: "+33" },
-            { name: "Italy (+39)", value: "Italy", code: "+39" },
-            { name: "Spain (+34)", value: "Spain", code: "+34" },
-            { name: "Brazil (+55)", value: "Brazil", code: "+55" },
-            { name: "Mexico (+52)", value: "Mexico", code: "+52" }
-        ];
+        const topTierCountries = [ { name: "United States (+1)", value: "United States", code: "+1" }, { name: "United Kingdom (+44)", value: "United Kingdom", code: "+44" }, { name: "Canada (+1)", value: "Canada", code: "+1" }, { name: "Australia (+61)", value: "Australia", code: "+61" }, { name: "Germany (+49)", value: "Germany", code: "+49" } ];
+        const otherCountries = [ { name: "Nigeria (+234)", value: "Nigeria", code: "+234" }, { name: "South Africa (+27)", value: "South Africa", code: "+27" }, { name: "India (+91)", value: "India", code: "+91" }, { name: "France (+33)", value: "France", code: "+33" }, { name: "Italy (+39)", value: "Italy", code: "+39" }, { name: "Spain (+34)", value: "Spain", code: "+34" }, { name: "Brazil (+55)", value: "Brazil", code: "+55" }, { name: "Mexico (+52)", value: "Mexico", code: "+52" } ];
 
         const countryDropdowns = document.querySelectorAll('.country-dropdown');
         countryDropdowns.forEach(dropdown => {
             topTierCountries.forEach((country) => {
-                let option = document.createElement('option'); 
-                option.value = country.value; 
-                option.innerText = country.name;
-                option.dataset.code = country.code;
+                let option = document.createElement('option'); option.value = country.value; option.innerText = country.name; option.dataset.code = country.code;
                 if (country.value === "United States") option.selected = true;
                 dropdown.appendChild(option);
             });
-            
-            let separator = document.createElement('option');
-            separator.disabled = true;
-            separator.innerText = "──────────";
-            dropdown.appendChild(separator);
-
+            let separator = document.createElement('option'); separator.disabled = true; separator.innerText = "──────────"; dropdown.appendChild(separator);
             otherCountries.forEach(country => {
-                let option = document.createElement('option'); 
-                option.value = country.value; 
-                option.innerText = country.name;
-                option.dataset.code = country.code;
+                let option = document.createElement('option'); option.value = country.value; option.innerText = country.name; option.dataset.code = country.code;
                 dropdown.appendChild(option);
             });
         });
@@ -313,9 +265,7 @@
         
         joinCountrySelect.addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
-            if(selectedOption.dataset.code) {
-                whatsappInput.value = selectedOption.dataset.code + " ";
-            }
+            if(selectedOption.dataset.code) { whatsappInput.value = selectedOption.dataset.code + " "; }
         });
         
         window.onload = async () => { 
@@ -336,147 +286,130 @@
             switchTab('join');
         }
 
-        let videoStream = null;
+        // ==========================================
+        // PHOTO UPLOAD PROCESSING (Base64)
+        // ==========================================
         let finalImageData = null;
-
-        async function startLivenessScan() {
-            document.getElementById('start-scan-btn').style.display = 'none';
-            document.getElementById('scanner-container').style.display = 'flex';
-            document.getElementById('final-photo').style.display = 'none';
-            document.getElementById('retake-btn').style.display = 'none';
-            document.getElementById('video-feed').style.display = 'block';
-            document.getElementById('scan-ring').style.display = 'block';
+        document.getElementById('join-photo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
             
-            const instructions = document.getElementById('scanner-instructions');
-            const video = document.getElementById('video-feed');
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                finalImageData = event.target.result;
+                const preview = document.getElementById('photo-preview');
+                preview.src = finalImageData;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file); // Converts image to Base64 for database storage
+        });
 
-            try {
-                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-                video.srcObject = videoStream;
-
-                instructions.innerText = "Look straight ahead..."; instructions.style.color = "#ff69b4";
-                setTimeout(() => { instructions.innerText = "Nod your head up and down..."; }, 3000);
-                setTimeout(() => { instructions.innerText = "Turn slightly left..."; }, 6000);
-                setTimeout(() => { instructions.innerText = "Turn slightly right..."; }, 9000);
-                setTimeout(() => { 
-                    instructions.innerText = "Perfect. Now smile! 📸"; 
-                    instructions.style.color = "#10b981";
-                    document.getElementById('scan-ring').style.borderColor = "#10b981";
-                }, 12000);
-                setTimeout(() => { capturePhoto(video); }, 13500);
-            } catch (err) {
-                alert("Camera access denied. Please enable camera permissions.");
-                document.getElementById('start-scan-btn').style.display = 'block';
-                document.getElementById('scanner-container').style.display = 'none';
-            }
-        }
-
-        function capturePhoto(video) {
-            const canvas = document.getElementById('canvas-capture');
-            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-            finalImageData = canvas.toDataURL('image/jpeg', 0.5);
-            videoStream.getTracks().forEach(track => track.stop());
-
-            document.getElementById('video-feed').style.display = 'none';
-            document.getElementById('scan-ring').style.display = 'none';
-            document.getElementById('scanner-instructions').innerText = "Identity Verified.";
-            
-            const finalImage = document.getElementById('final-photo');
-            finalImage.src = finalImageData;
-            finalImage.style.display = 'block';
-            document.getElementById('retake-btn').style.display = 'block';
-            document.getElementById('photo-status').style.display = 'block';
-        }
-
-        let formStartTime = Date.now(); 
-
+        // ==========================================
+        // PROFILE SUBMISSION LOGIC
+        // ==========================================
         function submitProfile() {
             const name = document.getElementById('join-name').value.trim();
             const age = document.getElementById('join-age').value;
-            const gender = document.getElementById('join-gender').value;
-            const country = document.getElementById('join-country').value;
             const whatsapp = document.getElementById('join-whatsapp').value.replace(/\s+/g, '');
-
-            const timeTaken = (Date.now() - formStartTime) / 1000;
-            if (timeTaken < 5) {
-                alert("Profile Approved!");
-                localStorage.setItem('hasJoinedGlobalMatch', 'true');
-                switchTab('find');
-                return; 
-            }
 
             if(whatsapp.length < 10 || !whatsapp.startsWith('+')) {
                 alert("Security Error: Please enter a valid international WhatsApp number including the '+' code.");
                 return;
             }
-
             if(!name || !age || !finalImageData) {
-                alert("Please complete all fields and pass the facial verification.");
+                alert("Please complete all fields and attach a photo.");
                 return;
             }
 
-            // Trigger the WhatsApp re-entry verification modal
+            // Step 1: Trigger the WhatsApp double-check
+            document.getElementById('verify-whatsapp-input').value = "";
             document.getElementById('number-verify-modal').style.display = 'flex';
         }
 
-        async function confirmWhatsappAndSubmit() {
+        async function confirmWhatsappAndPay() {
             const enteredConfirm = document.getElementById('verify-whatsapp-input').value.replace(/\s+/g, '');
             const originalWhatsapp = document.getElementById('join-whatsapp').value.replace(/\s+/g, '');
 
             if (enteredConfirm !== originalWhatsapp) {
-                alert("🚨 SECURITY BLOCK: The WhatsApp number does not match what you originally typed! Profile creation aborted.");
+                alert("🚨 SECURITY BLOCK: The WhatsApp number does not match! Profile aborted.");
                 document.getElementById('number-verify-modal').style.display = 'none';
                 return;
             }
 
             document.getElementById('number-verify-modal').style.display = 'none';
-            const btn = document.getElementById('submit-btn');
-            btn.innerText = "Running Security Checks...";
-            btn.disabled = true;
+            
+            // Step 2: Prompt for Profile Publish Payment Key
+            document.getElementById('publish-key-input').value = "";
+            document.getElementById('publish-modal').style.display = 'flex';
+        }
 
+        // ==========================================
+        // KEY VERIFICATION: PUBLISH PROFILE
+        // ==========================================
+        function verifyPublishKey() {
+            const keyInput = document.getElementById('publish-key-input').value.trim().toUpperCase();
+            const btn = document.getElementById('verify-publish-btn');
+            
+            if (!keyInput) { alert("Please enter a valid Access Key."); return; }
+
+            // Admin Override
+            if (keyInput === "GOLD-BOSS-LIFETIME") {
+                alert("👑 Admin Override! Profile publishing...");
+                finalizeProfileUpload();
+                return;
+            }
+
+            btn.innerText = "Verifying..."; btn.disabled = true;
+
+            database.ref('access_keys/' + keyInput).once('value').then((snapshot) => {
+                const keyData = snapshot.val();
+                if (keyData && keyData.used === false) {
+                    database.ref('access_keys/' + keyInput).update({ used: true, usedAt: Date.now() }).then(() => {
+                        finalizeProfileUpload();
+                    });
+                } else {
+                    alert("❌ Error: Invalid or Used Key.");
+                    btn.innerText = "🔓 Submit & Publish"; btn.disabled = false;
+                }
+            }).catch((error) => {
+                alert("Network Error."); btn.innerText = "🔓 Submit & Publish"; btn.disabled = false;
+            });
+        }
+
+        // Final Push to Database
+        async function finalizeProfileUpload() {
             const name = document.getElementById('join-name').value.trim();
             const age = document.getElementById('join-age').value;
             const gender = document.getElementById('join-gender').value;
             const country = document.getElementById('join-country').value;
+            const originalWhatsapp = document.getElementById('join-whatsapp').value.replace(/\s+/g, '');
 
-            try {
-                const ipResponse = await fetch('https://ipapi.co/json/');
-                const ipData = await ipResponse.json();
-                const actualCountry = ipData.country_name;
+            document.getElementById('publish-modal').style.display = 'none';
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = "Uploading to Network..."; btn.disabled = true;
 
-                if (actualCountry && actualCountry !== country) {
-                    alert(`🚨 SECURITY BLOCK: Your IP address indicates you are in ${actualCountry}, but you selected ${country}. Fake locations are blocked.`);
-                    btn.innerText = "Submit Profile & Join Network";
-                    btn.disabled = false;
-                    return; 
-                }
-            } catch (err) {
-                console.warn("IP Check bypassed");
-            }
-
-            btn.innerText = "Encrypting & Uploading...";
             const newProfileData = { name, age, gender, country, whatsapp: originalWhatsapp, photoBase64: finalImageData, timestamp: Date.now(), banned: false };
 
             database.ref('profiles').push(newProfileData).then(() => {
-                alert("Profile Approved! You are now secured in the global network.");
+                alert("✅ Profile Published Successfully! You are now live in the global network.");
                 localStorage.setItem('hasJoinedGlobalMatch', 'true');
                 switchTab('find');
                 
                 document.getElementById('join-name').value = '';
                 document.getElementById('join-whatsapp').value = '';
-                document.getElementById('final-photo').style.display = 'none';
-                document.getElementById('scanner-container').style.display = 'none';
-                document.getElementById('start-scan-btn').style.display = 'block';
-                document.getElementById('photo-status').style.display = 'none';
-                formStartTime = Date.now(); 
-                btn.innerText = "Submit Profile & Join Network";
-                btn.disabled = false;
+                document.getElementById('photo-preview').style.display = 'none';
+                finalImageData = null;
+                
+                btn.innerText = "Create VIP Profile"; btn.disabled = false;
             }).catch(error => {
                 alert("Network error: " + error.message);
                 btn.disabled = false;
             });
         }
 
+        // ==========================================
+        // FINDER / UNLOCK LOGIC
+        // ==========================================
         let pendingContactToUnlock = "";
 
         function promptUnlockKey(targetWhatsapp, profileCountry) {
@@ -488,59 +421,35 @@
             document.getElementById('unlock-modal').style.display = 'flex';
         }
 
-        function closeUnlockModal() {
-            document.getElementById('unlock-modal').style.display = 'none';
-            pendingContactToUnlock = "";
-        }
-
-        function openPaymentPortal() {
-            window.open(adminSettings.paymentLink || 'https://your-custom-payment-link.com', '_blank');
-        }
+        function closeUnlockModal() { document.getElementById('unlock-modal').style.display = 'none'; pendingContactToUnlock = ""; }
+        function openPaymentPortal() { window.open(adminSettings.paymentLink || 'https://your-custom-payment-link.com', '_blank'); }
 
         function verifyAndUnlock() {
             const keyInput = document.getElementById('access-key-input').value.trim().toUpperCase();
             const btn = document.getElementById('verify-key-btn');
 
-            if (!keyInput) {
-                alert("Please enter a valid Access Key.");
-                return;
-            }
+            if (!keyInput) { alert("Please enter a valid Access Key."); return; }
 
             if (keyInput === "GOLD-BOSS-LIFETIME") {
-                alert("👑 Welcome back, Boss! Master Key accepted.");
                 document.getElementById('unlock-modal').style.display = 'none';
                 window.open(`https://wa.me/${pendingContactToUnlock}`, '_blank');
                 return;
             }
 
-            btn.innerText = "Verifying...";
-            btn.disabled = true;
+            btn.innerText = "Verifying..."; btn.disabled = true;
 
             database.ref('access_keys/' + keyInput).once('value').then((snapshot) => {
                 const keyData = snapshot.val();
-                if (keyData) {
-                    if (keyData.used === false) {
-                        database.ref('access_keys/' + keyInput).update({ used: true, usedAt: Date.now() }).then(() => {
-                            alert("✅ Key Verified! Connecting to WhatsApp...");
-                            document.getElementById('unlock-modal').style.display = 'none';
-                            window.open(`https://wa.me/${pendingContactToUnlock}`, '_blank');
-                            btn.innerText = "🔓 Verify & Unlock";
-                            btn.disabled = false;
-                        });
-                    } else {
-                        alert("❌ Error: This key has already been used!");
-                        btn.innerText = "🔓 Verify & Unlock";
-                        btn.disabled = false;
-                    }
+                if (keyData && keyData.used === false) {
+                    database.ref('access_keys/' + keyInput).update({ used: true, usedAt: Date.now() }).then(() => {
+                        document.getElementById('unlock-modal').style.display = 'none';
+                        window.open(`https://wa.me/${pendingContactToUnlock}`, '_blank');
+                        btn.innerText = "🔓 Verify & Unlock"; btn.disabled = false;
+                    });
                 } else {
-                    alert("❌ Error: Invalid Access Key.");
-                    btn.innerText = "🔓 Verify & Unlock";
-                    btn.disabled = false;
+                    alert("❌ Error: Invalid or Used Key.");
+                    btn.innerText = "🔓 Verify & Unlock"; btn.disabled = false;
                 }
-            }).catch((error) => {
-                alert("Network Error: " + error.message);
-                btn.innerText = "🔓 Verify & Unlock";
-                btn.disabled = false;
             });
         }
 
@@ -550,7 +459,7 @@
                 return;
             }
             
-            await fetchAppSettings(); // Ensure latest pricing is fetched
+            await fetchAppSettings(); 
             document.getElementById('results-area').style.display = 'block';
             const matchList = document.getElementById('match-list');
             matchList.innerHTML = "<p style='text-align:center;'>Searching global cloud network...</p>";
@@ -580,9 +489,7 @@
                     }
                 });
 
-                if(!foundMatch) {
-                    matchList.innerHTML = `<p style='text-align:center; color:#94a3b8;'>No exact matches online in ${searchCountry} right now. Try another region!</p>`;
-                }
+                if(!foundMatch) { matchList.innerHTML = `<p style='text-align:center; color:#94a3b8;'>No exact matches online in ${searchCountry} right now. Try another region!</p>`; }
             });
         }
     </script>
