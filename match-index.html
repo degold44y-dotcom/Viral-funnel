@@ -155,7 +155,8 @@
             <p style="margin-bottom: 15px; font-size: 13px; color: #cbd5e1;">Enter your Profile Listing Key to join the VIP database securely.</p>
             <input type="text" id="publish-key-input" placeholder="ENTER LISTING KEY" style="margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">
             <button class="btn" id="verify-publish-btn" onclick="verifyPublishKey()" style="background: linear-gradient(135deg, #10b981, #059669); margin-top: 0;">🔓 Submit & Publish</button>
-            <button class="modal-btn" onclick="openPaymentPortal()">Buy Listing Key</button>
+            <!-- THIS BUTTON NOW SHOWS THE DYNAMIC PRICE -->
+            <button class="modal-btn" id="buy-publish-key-btn" onclick="openPaymentPortal()">Buy Listing Key</button>
             <p style="margin-top: 20px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="document.getElementById('publish-modal').style.display='none';">CANCEL</p>
         </div>
     </div>
@@ -301,16 +302,18 @@
                 preview.src = finalImageData;
                 preview.style.display = 'block';
             };
-            reader.readAsDataURL(file); // Converts image to Base64 for database storage
+            reader.readAsDataURL(file);
         });
 
         // ==========================================
-        // PROFILE SUBMISSION LOGIC
+        // PROFILE SUBMISSION LOGIC (With IP Check First)
         // ==========================================
-        function submitProfile() {
+        async function submitProfile() {
             const name = document.getElementById('join-name').value.trim();
             const age = document.getElementById('join-age').value;
+            const country = document.getElementById('join-country').value;
             const whatsapp = document.getElementById('join-whatsapp').value.replace(/\s+/g, '');
+            const btn = document.getElementById('submit-btn');
 
             if(whatsapp.length < 10 || !whatsapp.startsWith('+')) {
                 alert("Security Error: Please enter a valid international WhatsApp number including the '+' code.");
@@ -321,14 +324,37 @@
                 return;
             }
 
-            // Step 1: Trigger the WhatsApp double-check
+            btn.innerText = "Checking Location...";
+            btn.disabled = true;
+
+            // Step 1: Enforce IP Location Rule
+            try {
+                const ipResponse = await fetch('https://ipapi.co/json/');
+                const ipData = await ipResponse.json();
+                const actualCountry = ipData.country_name;
+
+                if (actualCountry && actualCountry !== country) {
+                    alert(`🚨 SECURITY BLOCK: Your IP address indicates you are in ${actualCountry}, but you selected ${country}. Fake locations are blocked.`);
+                    btn.innerText = "Create VIP Profile";
+                    btn.disabled = false;
+                    return; 
+                }
+            } catch (err) {
+                console.warn("IP Check bypassed due to network adblockers.");
+            }
+
+            btn.innerText = "Create VIP Profile";
+            btn.disabled = false;
+
+            // Step 2: Trigger the WhatsApp double-check
             document.getElementById('verify-whatsapp-input').value = "";
             document.getElementById('number-verify-modal').style.display = 'flex';
         }
 
-        async function confirmWhatsappAndPay() {
+        function confirmWhatsappAndPay() {
             const enteredConfirm = document.getElementById('verify-whatsapp-input').value.replace(/\s+/g, '');
             const originalWhatsapp = document.getElementById('join-whatsapp').value.replace(/\s+/g, '');
+            const country = document.getElementById('join-country').value;
 
             if (enteredConfirm !== originalWhatsapp) {
                 alert("🚨 SECURITY BLOCK: The WhatsApp number does not match! Profile aborted.");
@@ -338,7 +364,11 @@
 
             document.getElementById('number-verify-modal').style.display = 'none';
             
-            // Step 2: Prompt for Profile Publish Payment Key
+            // Format the dynamic price based on their country
+            const displayPrice = calculateLocalizedPrice(country);
+            document.getElementById('buy-publish-key-btn').innerText = `Buy Listing Key (${displayPrice})`;
+            
+            // Step 3: Prompt for Profile Publish Payment Key
             document.getElementById('publish-key-input').value = "";
             document.getElementById('publish-modal').style.display = 'flex';
         }
@@ -352,7 +382,6 @@
             
             if (!keyInput) { alert("Please enter a valid Access Key."); return; }
 
-            // Admin Override
             if (keyInput === "GOLD-BOSS-LIFETIME") {
                 alert("👑 Admin Override! Profile publishing...");
                 finalizeProfileUpload();
@@ -376,7 +405,6 @@
             });
         }
 
-        // Final Push to Database
         async function finalizeProfileUpload() {
             const name = document.getElementById('join-name').value.trim();
             const age = document.getElementById('join-age').value;
