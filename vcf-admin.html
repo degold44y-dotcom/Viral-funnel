@@ -36,6 +36,11 @@
         .key-list-container { margin-top: 30px; max-width: 600px; margin: 30px auto; }
         .key-item { display: flex; justify-content: space-between; background: #1a162e; padding: 12px 15px; margin-bottom: 10px; border-radius: 8px; align-items: center;}
         .copy-small-btn { background: #3b82f6; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight:bold; }
+        
+        /* New detailed grid for used keys */
+        .forensic-grid { display: grid; grid-template-columns: 1fr; gap: 8px; background: #0c0b1a; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-top: 8px; width: 100%; box-sizing: border-box; }
+        .forensic-item { font-size: 12px; color: #cbd5e1; word-break: break-all; }
+        .forensic-item span { color: #f8fafc; font-weight: bold; margin-right: 5px; }
     </style>
 </head>
 <body>
@@ -47,14 +52,14 @@
 
     <div class="admin-nav">
         <button class="nav-btn active" id="btn-keys" onclick="switchTab('keys')">🔑 VCF Keys</button>
-        <button class="nav-btn" id="btn-settings" onclick="switchTab('settings')">⚙️ Config & Selar</button>
+        <button class="nav-btn" id="btn-settings" onclick="switchTab('settings')">⚙️ App Config & Payment</button>
     </div>
 
     <!-- KEY GENERATOR SECTION -->
     <div id="section-keys" class="section active">
         <div class="panel-box">
             <h2 style="margin-top: 0; color: #f8fafc;">Bulk Key Generator</h2>
-            <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Generate VCF Access Keys to sell on WhatsApp or Selar.</p>
+            <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Generate VCF Access Keys to sell on WhatsApp or your Payment Link.</p>
             
             <div class="input-group">
                 <label>Quantity to Generate</label>
@@ -78,7 +83,7 @@
             <div id="active-keys-list">Loading active keys...</div>
 
             <!-- USED KEYS (PROOF) -->
-            <h3 style="border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 40px; color: #ef4444;">🔴 Used Keys (Scam Proof)</h3>
+            <h3 style="border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 40px; color: #ef4444;">🔴 Used Keys (Scam Proof Database)</h3>
             <div id="used-keys-list">Loading used keys...</div>
         </div>
     </div>
@@ -91,12 +96,12 @@
             <div class="input-group" style="margin-bottom: 25px;">
                 <label style="color: #3b82f6;">🔥 Total Contacts Per VCF File</label>
                 <input type="number" id="setting-vcf-qty" placeholder="10000" style="font-size: 20px; font-weight:bold; color:#3b82f6;">
-                <p style="font-size: 11px; color:#94a3b8; margin-top:5px;">This is the amount of contacts ONE key generates.</p>
+                <p style="font-size: 11px; color:#94a3b8; margin-top:5px;">This is the amount of WhatsApp contacts ONE key generates.</p>
             </div>
 
             <div class="input-group" style="margin-bottom: 25px;">
-                <label style="color: #f9d423;">🔗 Selar / Payment Gateway Link</label>
-                <input type="text" id="setting-link" placeholder="https://selar.co/...">
+                <label style="color: #f9d423;">🔗 Payment Gateway Link (Any Site)</label>
+                <input type="text" id="setting-link" placeholder="https://selar.co/... or https://paystack.com/...">
             </div>
 
             <button class="action-btn" onclick="saveAdminSettings()" style="margin-top: 10px;">💾 Save All Settings</button>
@@ -117,7 +122,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        let windowActiveKeys = []; // Stores all active keys for the bulk copy button
+        let windowActiveKeys = [];
 
         function switchTab(tab) {
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -176,7 +181,7 @@
             database.ref().update(updates).then(() => {
                 document.getElementById('new-key-box').style.display = 'block';
                 document.getElementById('latest-keys-text').innerText = generatedList.join('\n');
-                loadKeys(); // Refresh lists
+                loadKeys();
             }).catch(error => alert("Error generating keys: " + error.message));
         }
 
@@ -194,30 +199,43 @@
         }
 
         function loadKeys() {
-            // Limits to last 150 keys to prevent lag
             database.ref('vcf_access_keys').orderByChild('createdAt').limitToLast(150).on('value', (snapshot) => {
                 let activeHtml = "";
                 let usedHtml = "";
-                windowActiveKeys = []; // Reset global active keys array
+                windowActiveKeys = [];
                 
                 const keysArr = [];
                 snapshot.forEach(child => { keysArr.unshift({ key: child.key, data: child.val() }); });
 
                 keysArr.forEach(item => {
                     if (item.data.used) {
-                        // FORMAT USED TIME FOR PROOF
+                        // DETAILED FORENSIC PROOF FOR USED KEYS
                         const usedDate = item.data.usedAt ? new Date(item.data.usedAt).toLocaleString() : "Unknown Time";
+                        const city = item.data.city || "Unknown City";
+                        const state = item.data.state || "Unknown State";
+                        const country = item.data.country || "Unknown Country";
+                        const ip = item.data.ip || "Hidden/Unknown IP";
+                        
+                        // Clean up long browser strings
+                        let browserShort = item.data.browser || "Unknown Device";
+                        if(browserShort.length > 55) browserShort = browserShort.substring(0, 55) + "...";
+
                         usedHtml += `
-                            <div class="key-item" style="border-left: 4px solid #ef4444; opacity: 0.7;">
-                                <div style="font-family: monospace; font-size:15px; color: #94a3b8; text-decoration: line-through;">${item.key}</div>
-                                <div style="text-align: right;">
-                                    <span style='color:#ef4444; font-size:12px; font-weight:bold; display:block;'>USED</span>
-                                    <span style='color:#94a3b8; font-size:10px;'>${usedDate}</span>
+                            <div class="key-item" style="border-left: 4px solid #ef4444; opacity: 0.9; flex-direction: column; align-items: flex-start;">
+                                <div style="display: flex; justify-content: space-between; width: 100%;">
+                                    <div style="font-family: monospace; font-size:16px; color: #ef4444; text-decoration: line-through; font-weight:bold;">${item.key}</div>
+                                    <span style='color:#ef4444; font-size:12px; font-weight:bold; background: rgba(239, 68, 68, 0.15); padding: 3px 8px; border-radius: 4px;'>USED</span>
+                                </div>
+                                <div class="forensic-grid">
+                                    <div class="forensic-item"><span>📅 TIME:</span> ${usedDate}</div>
+                                    <div class="forensic-item"><span>📍 LOCATION:</span> ${city}, ${state}, ${country}</div>
+                                    <div class="forensic-item"><span>🌐 IP ADDRESS:</span> ${ip}</div>
+                                    <div class="forensic-item"><span>📱 BROWSER/DEVICE:</span> ${browserShort}</div>
                                 </div>
                             </div>
                         `;
                     } else {
-                        // PUSH TO ACTIVE ARRAY FOR COPYING
+                        // ACTIVE KEYS
                         windowActiveKeys.push(item.key);
                         activeHtml += `
                             <div class="key-item" style="border-left: 4px solid #10b981;">
