@@ -37,10 +37,15 @@
         .key-item { display: flex; justify-content: space-between; background: #1a162e; padding: 12px 15px; margin-bottom: 10px; border-radius: 8px; align-items: center;}
         .copy-small-btn { background: #3b82f6; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight:bold; }
         
-        /* New detailed grid for used keys */
+        /* Forensic grid for used keys */
         .forensic-grid { display: grid; grid-template-columns: 1fr; gap: 8px; background: #0c0b1a; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-top: 8px; width: 100%; box-sizing: border-box; }
         .forensic-item { font-size: 12px; color: #cbd5e1; word-break: break-all; }
         .forensic-item span { color: #f8fafc; font-weight: bold; margin-right: 5px; }
+
+        /* Dropdown Styles for Used Keys */
+        .collapsible-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 40px; cursor: pointer; transition: 0.3s; user-select: none; }
+        .collapsible-header:hover { opacity: 0.7; }
+        #used-keys-container { display: none; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -75,16 +80,22 @@
         </div>
 
         <div class="key-list-container">
-            <!-- ACTIVE KEYS -->
+            <!-- ACTIVE KEYS (Always visible) -->
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
                 <h3 style="margin: 0; color: #10b981;">🟢 Active Keys</h3>
                 <button class="copy-small-btn" style="background: #10b981;" onclick="copyAllActiveKeys()">📋 Copy All Active</button>
             </div>
             <div id="active-keys-list">Loading active keys...</div>
 
-            <!-- USED KEYS (PROOF) -->
-            <h3 style="border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 40px; color: #ef4444;">🔴 Used Keys (Scam Proof Database)</h3>
-            <div id="used-keys-list">Loading used keys...</div>
+            <!-- USED KEYS DROPDOWN (Hidden by default) -->
+            <div class="collapsible-header" onclick="toggleUsedKeys()">
+                <h3 style="margin: 0; color: #ef4444;">🔴 Used Keys (Scam Proof Database)</h3>
+                <span id="used-toggle-icon" style="color: #ef4444; font-size: 14px; font-weight: bold; background: rgba(239, 68, 68, 0.1); padding: 5px 10px; border-radius: 6px;">▼ View All</span>
+            </div>
+            
+            <div id="used-keys-container">
+                <div id="used-keys-list">Loading used keys...</div>
+            </div>
         </div>
     </div>
 
@@ -133,8 +144,22 @@
             if (tab === 'settings') loadAdminSettings();
         }
 
+        // DROPDOWN LOGIC FOR USED KEYS
+        function toggleUsedKeys() {
+            const container = document.getElementById('used-keys-container');
+            const icon = document.getElementById('used-toggle-icon');
+            
+            if (container.style.display === 'none' || container.style.display === '') {
+                container.style.display = 'block';
+                icon.innerText = '▲ Hide All';
+            } else {
+                container.style.display = 'none';
+                icon.innerText = '▼ View All';
+            }
+        }
+
         // ==========================================
-        // SETTINGS (No Pricing, Just Quantity & Link)
+        // SETTINGS 
         // ==========================================
         function loadAdminSettings() {
             database.ref('vcf_admin_settings').once('value').then((snapshot) => {
@@ -209,14 +234,12 @@
 
                 keysArr.forEach(item => {
                     if (item.data.used) {
-                        // DETAILED FORENSIC PROOF FOR USED KEYS
                         const usedDate = item.data.usedAt ? new Date(item.data.usedAt).toLocaleString() : "Unknown Time";
                         const city = item.data.city || "Unknown City";
                         const state = item.data.state || "Unknown State";
                         const country = item.data.country || "Unknown Country";
                         const ip = item.data.ip || "Hidden/Unknown IP";
                         
-                        // Clean up long browser strings
                         let browserShort = item.data.browser || "Unknown Device";
                         if(browserShort.length > 55) browserShort = browserShort.substring(0, 55) + "...";
 
