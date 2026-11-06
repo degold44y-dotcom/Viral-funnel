@@ -14,11 +14,21 @@
         .header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #3b82f6; padding-bottom: 15px; }
         h1 { margin: 0; color: #3b82f6; text-transform: uppercase; font-size: 24px; letter-spacing: 2px; }
         
+        .admin-nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .nav-btn { background: #1a162e; border: 1px solid #3b82f6; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .nav-btn.active { background: #3b82f6; }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
         .panel-box { background: #1a162e; padding: 25px; border-radius: 12px; max-width: 600px; margin: 0 auto; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
         .input-group { margin-bottom: 15px; text-align: left; }
         .input-group label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 5px; text-transform: uppercase; }
         .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #0c0b1a; color: white; box-sizing: border-box; font-size: 15px; }
         
+        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
         .action-btn { background: #10b981; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; margin-top: 10px; }
         .action-btn:hover { background: #059669; }
         
@@ -38,32 +48,88 @@
         <p style="color: #94a3b8; font-size: 14px;">WhatsApp Contact Generator Key Panel</p>
     </div>
 
+    <div class="admin-nav">
+        <button class="nav-btn active" id="btn-keys" onclick="switchTab('keys')">🔑 VCF Keys</button>
+        <button class="nav-btn" id="btn-settings" onclick="switchTab('settings')">⚙️ Config & Pricing</button>
+    </div>
+
     <!-- KEY GENERATOR SECTION -->
-    <div class="panel-box">
-        <h2 style="margin-top: 0; color: #f8fafc;">Bulk Key Generator</h2>
-        <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Generate VCF Access Keys to sell on WhatsApp or Selar.</p>
-        
-        <div class="input-group">
-            <label>Quantity to Generate</label>
-            <input type="number" id="key-quantity" value="20" min="1" max="200" style="text-align: center; font-size: 20px; font-weight: bold;">
+    <div id="section-keys" class="section active">
+        <div class="panel-box">
+            <h2 style="margin-top: 0; color: #f8fafc;">Bulk Key Generator</h2>
+            <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Generate VCF Access Keys to sell on WhatsApp or Selar.</p>
+            
+            <div class="input-group">
+                <label>Quantity to Generate</label>
+                <input type="number" id="key-quantity" value="20" min="1" max="200" style="text-align: center; font-size: 20px; font-weight: bold;">
+            </div>
+            
+            <button class="action-btn" onclick="generateBulkKeys()">⚡ GENERATE VCF KEYS</button>
+            
+            <div id="new-key-box" style="display: none; margin-top: 20px;">
+                <div class="key-display" id="latest-keys-text"></div>
+                <button class="copy-btn" onclick="copyAllGeneratedKeys()">📋 COPY ALL KEYS</button>
+            </div>
         </div>
-        
-        <button class="action-btn" onclick="generateBulkKeys()">⚡ GENERATE VCF KEYS</button>
-        
-        <div id="new-key-box" style="display: none; margin-top: 20px;">
-            <div class="key-display" id="latest-keys-text"></div>
-            <button class="copy-btn" onclick="copyAllGeneratedKeys()">📋 COPY ALL KEYS</button>
+
+        <div class="key-list-container">
+            <h3 style="border-bottom: 1px solid #333; padding-bottom: 10px;">Recent VCF Keys Database</h3>
+            <div id="keys-list">Loading keys...</div>
         </div>
     </div>
 
-    <!-- RECENT KEYS LIST -->
-    <div class="key-list-container">
-        <h3 style="border-bottom: 1px solid #333; padding-bottom: 10px;">Recent VCF Keys Database</h3>
-        <div id="keys-list">Loading keys...</div>
+    <!-- SETTINGS SECTION -->
+    <div id="section-settings" class="section">
+        <div class="panel-box">
+            <h2 style="margin-top: 0;">App Config & Pricing</h2>
+            
+            <div class="input-group" style="margin-bottom: 25px;">
+                <label style="color: #3b82f6;">🔥 Total Contacts Per VCF File (The Big Number)</label>
+                <input type="number" id="setting-vcf-qty" placeholder="10000" style="font-size: 20px; font-weight:bold; color:#3b82f6;">
+                <p style="font-size: 11px; color:#94a3b8; margin-top:5px;">This is the amount of contacts ONE key generates. Keep it high to beat competitors.</p>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 25px;">
+                <label style="color: #f9d423;">🔗 Payment Gateway Link (Any Platform)</label>
+                <input type="text" id="setting-link" placeholder="https://paystack.com/... or https://selar.co/...">
+            </div>
+
+            <h4 style="color: #10b981; text-align: left; border-bottom: 1px solid #333; padding-bottom: 5px;">Global & Local Pricing</h4>
+            <div class="input-group">
+                <label>Global Base Price (Rest of World in USD)</label>
+                <input type="number" id="setting-price-base" step="0.50" placeholder="5.00">
+            </div>
+
+            <h4 style="color: #3b82f6; text-align: left; border-bottom: 1px solid #333; padding-bottom: 5px; margin-top: 25px;">Top-Tier International Prices</h4>
+            <div class="grid-inputs">
+                <div class="input-group">
+                    <label>USA (USD $)</label>
+                    <input type="number" id="setting-price-us" step="0.50" placeholder="9.99">
+                </div>
+                <div class="input-group">
+                    <label>UK (GBP £)</label>
+                    <input type="number" id="setting-price-uk" step="0.50" placeholder="7.99">
+                </div>
+                <div class="input-group">
+                    <label>Canada (CAD $)</label>
+                    <input type="number" id="setting-price-ca" step="0.50" placeholder="12.99">
+                </div>
+                <div class="input-group">
+                    <label>Australia (AUD $)</label>
+                    <input type="number" id="setting-price-au" step="0.50" placeholder="14.99">
+                </div>
+                <div class="input-group">
+                    <label>Germany (EUR €)</label>
+                    <input type="number" id="setting-price-de" step="0.50" placeholder="8.99">
+                </div>
+            </div>
+
+            <button class="action-btn" onclick="saveAdminSettings()" style="margin-top: 25px;">💾 Save All Settings</button>
+        </div>
     </div>
 
     <script>
-        // 1. INITIALIZE FIREBASE (Using your exact database)
+        // 1. INITIALIZE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
             authDomain: "global-match-99b4e.firebaseapp.com",
@@ -76,7 +142,55 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // 2. GENERATOR LOGIC
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`btn-${tab}`).classList.add('active');
+            document.getElementById(`section-${tab}`).classList.add('active');
+            
+            if (tab === 'settings') loadAdminSettings();
+        }
+
+        // ==========================================
+        // SETTINGS & PRICING
+        // ==========================================
+        function loadAdminSettings() {
+            // Note: We use 'vcf_admin_settings' so it doesn't clash with your Match Engine settings
+            database.ref('vcf_admin_settings').once('value').then((snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    document.getElementById('setting-vcf-qty').value = data.globalQuantity || 10000;
+                    document.getElementById('setting-link').value = data.paymentLink || "";
+                    document.getElementById('setting-price-base').value = data.basePriceUSD || 5.00;
+                    document.getElementById('setting-price-us').value = data.tierUS || 9.99;
+                    document.getElementById('setting-price-uk').value = data.tierUK || 7.99;
+                    document.getElementById('setting-price-ca').value = data.tierCA || 12.99;
+                    document.getElementById('setting-price-au').value = data.tierAU || 14.99;
+                    document.getElementById('setting-price-de').value = data.tierDE || 8.99;
+                }
+            }).catch(err => console.log("Error loading settings:", err));
+        }
+
+        function saveAdminSettings() {
+            const adminSettings = {
+                globalQuantity: parseInt(document.getElementById('setting-vcf-qty').value) || 10000,
+                paymentLink: document.getElementById('setting-link').value.trim(),
+                basePriceUSD: parseFloat(document.getElementById('setting-price-base').value) || 5.00,
+                tierUS: parseFloat(document.getElementById('setting-price-us').value) || 9.99,
+                tierUK: parseFloat(document.getElementById('setting-price-uk').value) || 7.99,
+                tierCA: parseFloat(document.getElementById('setting-price-ca').value) || 12.99,
+                tierAU: parseFloat(document.getElementById('setting-price-au').value) || 14.99,
+                tierDE: parseFloat(document.getElementById('setting-price-de').value) || 8.99
+            };
+
+            database.ref('vcf_admin_settings').set(adminSettings)
+                .then(() => alert("✅ VCF Config and Pricing updated globally!"))
+                .catch(error => alert("Error saving settings: " + error.message));
+        }
+
+        // ==========================================
+        // KEY GENERATOR LOGIC
+        // ==========================================
         function generateRandomString(length) {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let result = '';
@@ -90,10 +204,7 @@
             let generatedList = [];
 
             for (let i = 0; i < qty; i++) {
-                // Changed prefix to VCF so you instantly know what product this key is for
                 const newKey = `VCF-${generateRandomString(4)}-${generateRandomString(4)}`;
-                
-                // Saving to a separate 'vcf_access_keys' node in Firebase
                 updates['vcf_access_keys/' + newKey] = { used: false, createdAt: Date.now() + i };
                 generatedList.push(newKey);
             }
@@ -107,16 +218,11 @@
 
         function copyAllGeneratedKeys() {
             const text = document.getElementById('latest-keys-text').innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                alert("📋 All VCF keys copied successfully! You can paste them to your buyers now.");
-            });
+            navigator.clipboard.writeText(text).then(() => alert("📋 All VCF keys copied successfully!"));
         }
 
-        // 3. DATABASE DISPLAY LOGIC
         function loadKeys() {
             const list = document.getElementById('keys-list');
-            
-            // Reading specifically from the vcf_access_keys node
             database.ref('vcf_access_keys').orderByChild('createdAt').limitToLast(40).on('value', (snapshot) => {
                 list.innerHTML = "";
                 let hasKeys = false;
@@ -137,7 +243,6 @@
                         </div>
                     `;
                 });
-                
                 if (!hasKeys) list.innerHTML = "<p style='color:#94a3b8; text-align:center;'>No VCF keys generated yet.</p>";
             });
         }
