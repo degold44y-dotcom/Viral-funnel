@@ -3,46 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Cache-busting meta tags -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Global VCF Generator Engine</title>
     
-    <!-- FIREBASE CLOUD DATABASE -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #0c0b1a; 
-            color: #f8fafc; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
-        }
-        
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0c0b1a; color: #f8fafc; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .header { width: 100%; padding: 24px; text-align: center; background: rgba(30, 27, 56, 0.45); border-bottom: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4); }
         .header h2 { margin: 0; font-size: 26px; font-weight: 800; color: #3b82f6; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
         .header p { margin: 5px 0 0 0; font-size: 13px; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
-
         .container { width: 90%; max-width: 450px; margin-top: 40px; background: #1a162e; padding: 30px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.5); box-sizing: border-box; margin-bottom: 40px; }
-        
         .form-group { margin-bottom: 20px; transition: opacity 0.3s ease; }
         label { display: block; margin-bottom: 8px; font-size: 13px; color: #cbd5e1; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         input, select { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.12); background: #0c0b1a; color: white; box-sizing: border-box; font-size: 16px; font-weight: bold; transition: all 0.3s ease; }
         input:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.3); }
         input:disabled, select:disabled { cursor: not-allowed; background: #111; color: #666; border-color: rgba(255,255,255,0.05); }
-        
         .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; background: #3b82f6; color: white; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); text-transform: uppercase; letter-spacing: 1px; }
         .btn:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5); }
-        
         .info-box { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px 15px; margin: 20px 0; text-align: center; }
         .info-box h4 { color: #3b82f6; margin: 0 0 10px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
         .info-box p { color: #f8fafc; font-size: 15px; font-weight: bold; margin: 0; line-height: 1.6; }
-        
         .quantity-display { background: #0c0b1a; border: 1px dashed #10b981; color: #10b981; padding: 15px; border-radius: 10px; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; }
         .coverage-badge { margin-top: 10px; font-size: 12px; font-weight: bold; letter-spacing: 0.5px; transition: all 0.3s; }
-
-        /* MODAL STYLES */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(12, 10, 20, 0.95); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
         .modal-content { background: #1a162e; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 380px; border: 1px solid #3b82f6; box-shadow: 0 0 30px rgba(59,130,246,0.2); }
         .modal-content h3 { color: #3b82f6; margin-top: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px; }
@@ -79,7 +65,6 @@
         <div class="form-group" id="country-group">
             <label>Your Target Country</label>
             <select id="buyer-country" class="country-dropdown" onchange="updateCoverageText()"></select>
-            <!-- DYNAMIC COVERAGE TEXT -->
             <div id="coverage-text" class="coverage-badge"></div>
         </div>
 
@@ -91,7 +76,6 @@
         <button class="btn" onclick="openPaymentModal()">Generate & Download VCF</button>
     </div>
 
-    <!-- VIP ACCESS KEY MODAL -->
     <div id="unlock-modal" class="modal">
         <div class="modal-content">
             <h3>VIP Access Required</h3>
@@ -107,7 +91,6 @@
     </div>
 
     <script>
-        // FIREBASE INITIALIZATION
         const firebaseConfig = {
             apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
             authDomain: "global-match-99b4e.firebaseapp.com",
@@ -122,7 +105,6 @@
 
         let vcfAdminSettings = { globalQuantity: 10000, paymentLink: "" };
 
-        // FETCH SETTINGS
         async function fetchAppSettings() {
             try {
                 const snap = await database.ref('vcf_admin_settings').once('value');
@@ -133,9 +115,6 @@
             } catch (err) { console.warn("Using default settings"); }
         }
 
-        // ==========================================
-        // BACKGROUND NETWORK ARRAYS (Hidden from UI)
-        // ==========================================
         const telecomNetworks = {
             "United States (+1)": ["+1202", "+1212", "+1310", "+1415", "+1512", "+1646", "+1713", "+1832", "+1305", "+1404"],
             "Nigeria (+234)": ["+234803", "+234806", "+234703", "+234706", "+234813", "+234816", "+234810", "+234814", "+234903", "+234906", "+234913", "+234916", "+234802", "+234808", "+234708", "+234812", "+234701", "+234902", "+234907", "+234901", "+234912", "+234911", "+234805", "+234807", "+234705", "+234815", "+234811", "+234905", "+234915", "+234809", "+234817", "+234818", "+234909", "+234908"],
@@ -144,7 +123,6 @@
             "Ghana (+233)": ["+23324", "+23354", "+23355", "+23359", "+23320", "+23350", "+23327", "+23357", "+23326", "+23356"]
         };
 
-        // DYNAMIC COVERAGE TEXT
         function updateCoverageText() {
             const countrySelect = document.getElementById('buyer-country');
             const mode = document.getElementById('number-mix-mode').value;
@@ -160,7 +138,6 @@
             }
         }
 
-        // UI TOGGLE FOR GLOBAL GENERATION MODE
         function toggleMode() {
             const mode = document.getElementById('number-mix-mode').value;
             const countryDropdown = document.getElementById('buyer-country');
@@ -176,43 +153,22 @@
             updateCoverageText(); 
         }
 
-        // POPULATE COUNTRIES
         const topTierCountries = [ 
-            { name: "United States (+1)", code: "+1" }, 
-            { name: "United Kingdom (+44)", code: "+44" }, 
-            { name: "Canada (+1)", code: "+1" }, 
-            { name: "Australia (+61)", code: "+61" }, 
-            { name: "Germany (+49)", code: "+49" } 
+            { name: "United States (+1)", code: "+1" }, { name: "United Kingdom (+44)", code: "+44" }, { name: "Canada (+1)", code: "+1" }, { name: "Australia (+61)", code: "+61" }, { name: "Germany (+49)", code: "+49" } 
         ];
         const otherCountries = [ 
-            { name: "Nigeria (+234)", code: "+234" }, 
-            { name: "Ghana (+233)", code: "+233" }, 
-            { name: "South Africa (+27)", code: "+27" }, 
-            { name: "India (+91)", code: "+91" }, 
-            { name: "France (+33)", code: "+33" }, 
-            { name: "Italy (+39)", code: "+39" }, 
-            { name: "Spain (+34)", code: "+34" }, 
-            { name: "Brazil (+55)", code: "+55" }, 
-            { name: "Mexico (+52)", code: "+52" } 
+            { name: "Nigeria (+234)", code: "+234" }, { name: "Ghana (+233)", code: "+233" }, { name: "South Africa (+27)", code: "+27" }, { name: "India (+91)", code: "+91" }, { name: "France (+33)", code: "+33" }, { name: "Italy (+39)", code: "+39" }, { name: "Spain (+34)", code: "+34" }, { name: "Brazil (+55)", code: "+55" }, { name: "Mexico (+52)", code: "+52" } 
         ];
 
         const countryDropdowns = document.querySelectorAll('.country-dropdown');
         countryDropdowns.forEach(dropdown => {
             topTierCountries.forEach((country) => {
-                let option = document.createElement('option'); 
-                option.value = country.name; 
-                option.innerText = country.name; 
-                option.dataset.code = country.code;
-                if (country.name.includes("United States")) option.selected = true; 
-                dropdown.appendChild(option);
+                let option = document.createElement('option'); option.value = country.name; option.innerText = country.name; option.dataset.code = country.code;
+                if (country.name.includes("United States")) option.selected = true; dropdown.appendChild(option);
             });
             let separator = document.createElement('option'); separator.disabled = true; separator.innerText = "──────────"; dropdown.appendChild(separator);
             otherCountries.forEach(country => {
-                let option = document.createElement('option'); 
-                option.value = country.name; 
-                option.innerText = country.name;
-                option.dataset.code = country.code;
-                dropdown.appendChild(option);
+                let option = document.createElement('option'); option.value = country.name; option.innerText = country.name; option.dataset.code = country.code; dropdown.appendChild(option);
             });
         });
 
@@ -221,9 +177,6 @@
             toggleMode();
         };
 
-        // ==========================================
-        // UI & PAYMENT MODAL
-        // ==========================================
         function openPaymentModal() {
             document.getElementById('access-key-input').value = "";
             document.getElementById('unlock-modal').style.display = 'flex';
@@ -237,6 +190,26 @@
         // ==========================================
         // KEY VERIFICATION & FORENSIC TRACKER
         // ==========================================
+        
+        // Translates ugly browser code into clean English
+        function getCleanBrowserName() {
+            const ua = navigator.userAgent;
+            let browser = "Unknown Browser";
+            let os = "Unknown OS";
+
+            if (ua.includes("Chrome") && !ua.includes("Edg")) browser = "Chrome";
+            else if (ua.includes("Safari") && !ua.includes("Chrome")) browser = "Safari";
+            else if (ua.includes("Firefox")) browser = "Firefox";
+            else if (ua.includes("Edg")) browser = "Edge";
+
+            if (ua.includes("Android")) os = "Android";
+            else if (ua.includes("iPhone") || ua.includes("iPad")) os = "iOS";
+            else if (ua.includes("Windows")) os = "Windows";
+            else if (ua.includes("Mac OS")) os = "Mac";
+
+            return `${browser} on ${os}`;
+        }
+
         async function verifyAndDownload() {
             const keyInput = document.getElementById('access-key-input').value.trim().toUpperCase();
             const btn = document.getElementById('verify-key-btn');
@@ -258,14 +231,12 @@
                 
                 if (keyData && keyData.used === false) {
                     
-                    // 1. Gather Forensic Data (IP & Location)
                     let geoData = { ip: "Unknown IP", city: "Unknown", region: "Unknown", country_name: "Unknown" };
                     try {
                         const geoRes = await fetch('https://ipapi.co/json/');
                         if (geoRes.ok) geoData = await geoRes.json();
-                    } catch(e) { console.warn("Geolocation blocked by user network."); }
+                    } catch(e) { console.warn("Geolocation blocked by network."); }
 
-                    // 2. Compile tracking package
                     const usageData = {
                         used: true,
                         usedAt: Date.now(),
@@ -273,10 +244,9 @@
                         city: geoData.city,
                         state: geoData.region,
                         country: geoData.country_name,
-                        browser: navigator.userAgent
+                        browser: getCleanBrowserName() // Sends clear name like "Chrome on Android"
                     };
 
-                    // 3. Save to database and unlock
                     await database.ref('vcf_access_keys/' + keyInput).update(usageData);
                     
                     document.getElementById('unlock-modal').style.display = 'none';
@@ -293,12 +263,8 @@
             }
         }
 
-        // ==========================================
-        // THE TRUE MIXED VCF GENERATOR ENGINE
-        // ==========================================
         function generateVCFFile() {
             const qty = vcfAdminSettings.globalQuantity || 10000; 
-            
             let baseName = document.getElementById('vcf-name').value.trim();
             if(!baseName) baseName = "Targeted_Contact";
 
@@ -323,29 +289,23 @@
             }
             
             let vcfData = "";
-            
             for (let i = 1; i <= qty; i++) {
                 let chosenPrefix = prefixesToUse[Math.floor(Math.random() * prefixesToUse.length)];
                 const randomNum = Math.floor(1000000 + Math.random() * 9000000);
                 const fullNumber = `${chosenPrefix}${randomNum}`;
-                
                 vcfData += `BEGIN:VCARD\nVERSION:3.0\nFN:${baseName}_${i}\nTEL;TYPE=CELL:${fullNumber}\nEND:VCARD\n`;
             }
 
             const blob = new Blob([vcfData], { type: 'text/vcard' });
             const url = window.URL.createObjectURL(blob);
-            
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
             a.download = `VIP_${qty}_WhatsApp_Contacts.vcf`;
-            
             document.body.appendChild(a);
             a.click();
-            
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
-            
             alert(`✅ Success! ${qty.toLocaleString()} highly-targeted WhatsApp contacts have been generated and downloaded.`);
         }
     </script>
