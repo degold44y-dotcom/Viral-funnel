@@ -33,6 +33,8 @@
         .info-box { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 15px; margin: 20px 0; text-align: center; }
         .info-box h4 { color: #3b82f6; margin: 0 0 8px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
         .info-box p { color: #cbd5e1; font-size: 12px; margin: 0; line-height: 1.5; }
+        
+        .quantity-display { background: #0c0b1a; border: 1px dashed #10b981; color: #10b981; padding: 15px; border-radius: 10px; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; }
 
         /* MODAL STYLES */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(12, 10, 20, 0.95); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
@@ -55,20 +57,20 @@
             <h4>📈 Boost Your Status Views</h4>
             <p>Generate thousands of active WhatsApp numbers instantly. Save the VCF file to your phone, and watch your business engagement explode.</p>
         </div>
-
-        <div class="form-group">
-            <label>Country Code (Prefix)</label>
-            <input type="text" id="vcf-prefix" placeholder="e.g., +23480 or +1202" value="+234">
+        
+        <!-- DYNAMIC QUANTITY SET BY ADMIN -->
+        <div class="quantity-display" id="display-quantity">
+            Loading capacity...
         </div>
         
         <div class="form-group">
-            <label>Quantity to Generate</label>
-            <select id="vcf-qty">
-                <option value="1000">1,000 Contacts</option>
-                <option value="2000">2,000 Contacts</option>
-                <option value="5000" selected>5,000 Contacts</option>
-                <option value="10000">10,000 Contacts</option>
-            </select>
+            <label>Your Currency/Location</label>
+            <select id="buyer-country" class="country-dropdown"></select>
+        </div>
+
+        <div class="form-group">
+            <label>Target Country Prefix</label>
+            <input type="text" id="vcf-prefix" placeholder="e.g., +23480 or +1202" value="+234">
         </div>
 
         <div class="form-group">
@@ -83,12 +85,12 @@
     <div id="unlock-modal" class="modal">
         <div class="modal-content">
             <h3>VIP Access Required</h3>
-            <p style="margin-bottom: 20px; font-size: 13px; color: #cbd5e1;">Enter your 1-Time VCF Access Key below to unlock your generated file.</p>
+            <p style="margin-bottom: 20px; font-size: 13px; color: #cbd5e1;" id="modal-pricing-text">Loading price...</p>
             
             <input type="text" id="access-key-input" placeholder="ENTER ACCESS KEY" style="margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;">
             
             <button class="btn" id="verify-key-btn" onclick="verifyAndDownload()" style="margin-top: 0; background: #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">🔓 Verify & Download</button>
-            <button class="modal-btn" onclick="openPaymentPortal()">Buy VCF Access Key</button>
+            <button class="modal-btn" id="buy-key-modal-btn" onclick="openPaymentPortal()">Buy VCF Access Key</button>
             
             <p style="margin-top: 20px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="document.getElementById('unlock-modal').style.display='none'">CANCEL</p>
         </div>
@@ -108,21 +110,106 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // 💳 Change this link to your actual payment/Selar link for VCF keys
-        const PAYMENT_GATEWAY_LINK = "https://your-custom-payment-link.com/vcf";
+        let liveExchangeRates = {};
+        let vcfAdminSettings = { 
+            globalQuantity: 10000, 
+            basePriceUSD: 5.00, 
+            paymentLink: "", 
+            tierUS: 9.99, tierUK: 7.99, tierCA: 12.99, tierAU: 14.99, tierDE: 8.99 
+        };
 
+        // FETCH SETTINGS AND RATES
+        async function fetchAppSettings() {
+            try {
+                const snap = await database.ref('vcf_admin_settings').once('value');
+                if (snap.val()) {
+                    vcfAdminSettings = { ...vcfAdminSettings, ...snap.val() };
+                    // Update the UI with the Admin's chosen quantity
+                    document.getElementById('display-quantity').innerText = `🔥 Generates ${vcfAdminSettings.globalQuantity.toLocaleString()} Contacts per File`;
+                }
+            } catch (err) { console.warn("Using default settings"); }
+        }
+
+        async function fetchExchangeRates() {
+            try {
+                const response = await fetch('https://open.er-api.com/v6/latest/USD');
+                const data = await response.json();
+                liveExchangeRates = data.rates;
+            } catch (err) { console.warn("Could not fetch rates"); }
+        }
+
+        function calculateLocalizedPrice(targetCountry) {
+            const baseUSD = vcfAdminSettings.basePriceUSD || 5.00;
+            const tieredPrices = {
+                "United States": { price: vcfAdminSettings.tierUS || 9.99, currency: "USD", symbol: "$" },
+                "United Kingdom": { price: vcfAdminSettings.tierUK || 7.99, currency: "GBP", symbol: "£" },
+                "Canada": { price: vcfAdminSettings.tierCA || 12.99, currency: "CAD", symbol: "CA$" },
+                "Australia": { price: vcfAdminSettings.tierAU || 14.99, currency: "AUD", symbol: "AU$" },
+                "Germany": { price: vcfAdminSettings.tierDE || 8.99, currency: "EUR", symbol: "€" }
+            };
+
+            if (tieredPrices[targetCountry]) return `${tieredPrices[targetCountry].symbol}${tieredPrices[targetCountry].price.toFixed(2)} ${tieredPrices[targetCountry].currency}`;
+
+            let convertedRate = liveExchangeRates['NGN'] || 1500;
+            let currencySymbol = "₦"; let currencyCode = "NGN";
+
+            if (targetCountry === "South Africa") { convertedRate = liveExchangeRates['ZAR'] || 18; currencySymbol = "R"; currencyCode = "ZAR"; } 
+            else if (targetCountry === "Ghana") { convertedRate = liveExchangeRates['GHS'] || 13.5; currencySymbol = "GH₵"; currencyCode = "GHS"; }
+            else if (targetCountry === "India") { convertedRate = liveExchangeRates['INR'] || 83; currencySymbol = "₹"; currencyCode = "INR"; } 
+            else if (targetCountry === "France" || targetCountry === "Italy" || targetCountry === "Spain") { convertedRate = liveExchangeRates['EUR'] || 0.92; currencySymbol = "€"; currencyCode = "EUR"; } 
+            else if (targetCountry === "Brazil") { convertedRate = liveExchangeRates['BRL'] || 5.5; currencySymbol = "R$"; currencyCode = "BRL"; } 
+            else if (targetCountry === "Mexico") { convertedRate = liveExchangeRates['MXN'] || 18; currencySymbol = "$"; currencyCode = "MXN"; }
+
+            const finalPrice = baseUSD * convertedRate;
+            return `${currencySymbol}${Math.ceil(finalPrice).toLocaleString()} ${currencyCode}`;
+        }
+
+        // POPULATE DROPDOWNS
+        const topTierCountries = [ "United States", "United Kingdom", "Canada", "Australia", "Germany" ];
+        const otherCountries = [ "Nigeria", "Ghana", "South Africa", "India", "France", "Italy", "Spain", "Brazil", "Mexico" ];
+
+        const countryDropdowns = document.querySelectorAll('.country-dropdown');
+        countryDropdowns.forEach(dropdown => {
+            topTierCountries.forEach((country) => {
+                let option = document.createElement('option'); option.value = country; option.innerText = country;
+                if (country === "United States") option.selected = true;
+                dropdown.appendChild(option);
+            });
+            let separator = document.createElement('option'); separator.disabled = true; separator.innerText = "──────────"; dropdown.appendChild(separator);
+            otherCountries.forEach(country => {
+                let option = document.createElement('option'); option.value = country; option.innerText = country;
+                dropdown.appendChild(option);
+            });
+        });
+
+        window.onload = async () => { 
+            await fetchAppSettings();
+            await fetchExchangeRates();
+        };
+
+        // ==========================================
+        // UI & PAYMENT MODAL
+        // ==========================================
         function openPaymentModal() {
             const prefix = document.getElementById('vcf-prefix').value.trim();
             if (!prefix) {
-                alert("Please enter a Country Code or Prefix first.");
+                alert("Please enter a Target Country Prefix first.");
                 return;
             }
+            
+            const buyerCountry = document.getElementById('buyer-country').value;
+            const displayPrice = calculateLocalizedPrice(buyerCountry);
+            
+            document.getElementById('modal-pricing-text').innerText = `Cost: ${displayPrice} (Generates ${vcfAdminSettings.globalQuantity.toLocaleString()} Contacts)`;
+            document.getElementById('buy-key-modal-btn').innerText = `Buy Access Key (${displayPrice})`;
+            
             document.getElementById('access-key-input').value = "";
             document.getElementById('unlock-modal').style.display = 'flex';
         }
 
         function openPaymentPortal() {
-            window.open(PAYMENT_GATEWAY_LINK, '_blank');
+            const link = vcfAdminSettings.paymentLink || 'https://selar.co/';
+            window.open(link, '_blank');
         }
 
         // ==========================================
@@ -144,17 +231,13 @@
             btn.innerText = "Verifying..."; 
             btn.disabled = true;
 
-            // Checking the specific VCF node
             database.ref('vcf_access_keys/' + keyInput).once('value').then((snapshot) => {
                 const keyData = snapshot.val();
                 
                 if (keyData && keyData.used === false) {
-                    database.ref('vcf_access_keys/' + keyInput).update({ 
-                        used: true, 
-                        usedAt: Date.now() 
-                    }).then(() => {
+                    database.ref('vcf_access_keys/' + keyInput).update({ used: true, usedAt: Date.now() }).then(() => {
                         document.getElementById('unlock-modal').style.display = 'none';
-                        generateVCFFile(); // Trigger the actual download
+                        generateVCFFile(); 
                         btn.innerText = "🔓 Verify & Download"; 
                         btn.disabled = false;
                     });
@@ -175,27 +258,25 @@
         // ==========================================
         function generateVCFFile() {
             const prefix = document.getElementById('vcf-prefix').value.trim();
-            const qty = parseInt(document.getElementById('vcf-qty').value);
-            const baseName = document.getElementById('vcf-name').value.trim() || "VIP_Contact_";
+            // Quantity is now forced by the Admin Panel settings
+            const qty = vcfAdminSettings.globalQuantity || 10000; 
+            const baseName = document.getElementById('vcf-name').value.trim() || "VIP_Buyer_";
             
             let vcfData = "";
             
             for (let i = 1; i <= qty; i++) {
-                // Generates a random 7-digit extension to append to the prefix
                 const randomNum = Math.floor(1000000 + Math.random() * 9000000);
                 const fullNumber = `${prefix}${randomNum}`;
-                
                 vcfData += `BEGIN:VCARD\nVERSION:3.0\nFN:${baseName}${i}\nTEL;TYPE=CELL:${fullNumber}\nEND:VCARD\n`;
             }
 
-            // Create a downloadable blob
             const blob = new Blob([vcfData], { type: 'text/vcard' });
             const url = window.URL.createObjectURL(blob);
             
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = `Global_VIP_${qty}_Contacts.vcf`;
+            a.download = `VIP_${qty}_Contacts.vcf`;
             
             document.body.appendChild(a);
             a.click();
@@ -203,7 +284,7 @@
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
             
-            alert(`✅ Success! ${qty} contacts have been generated and downloaded to your device.`);
+            alert(`✅ Success! ${qty.toLocaleString()} contacts have been generated and downloaded to your device.`);
         }
     </script>
 </body>
