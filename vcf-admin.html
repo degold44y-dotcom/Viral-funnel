@@ -3,160 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VCF Engine Control Center | Admin</title>
+    <title>VCF Engine - ADMIN</title>
+    
+    <!-- FIREBASE CLOUD DATABASE -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    
     <style>
-        :root {
-            --bg-color: #0b0d10;
-            --panel-bg: #15181e;
-            --neon-gold: #ffd700;
-            --text-main: #ffffff;
-            --text-muted: #8a99a8;
-        }
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .admin-box {
-            background-color: var(--panel-bg);
-            border-radius: 24px;
-            padding: 30px;
-            width: 100%;
-            max-width: 480px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-        h2 {
-            text-align: center;
-            color: var(--neon-gold);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 20px;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
-        label { display: block; margin-bottom: 5px; font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
-        input {
-            width: 100%; padding: 12px; background-color: #0b0d10; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px; color: var(--text-main); font-size: 13px; box-sizing: border-box; margin-bottom: 15px;
-        }
-        input:focus { outline: none; border-color: var(--neon-gold); }
-        button {
-            width: 100%; padding: 15px; border-radius: 10px; font-size: 14px;
-            font-weight: bold; text-transform: uppercase; cursor: pointer; border: none;
-            background: linear-gradient(90deg, #ff8c00, var(--neon-gold)); color: #000;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-        }
-        .login-screen { display: flex; flex-direction: column; justify-content: center; }
-        .dashboard-content { display: none; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #0c0b1a; color: #f8fafc; margin: 0; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #3b82f6; padding-bottom: 15px; }
+        h1 { margin: 0; color: #3b82f6; text-transform: uppercase; font-size: 24px; letter-spacing: 2px; }
+        
+        .panel-box { background: #1a162e; padding: 25px; border-radius: 12px; max-width: 600px; margin: 0 auto; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-group label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 5px; text-transform: uppercase; }
+        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #0c0b1a; color: white; box-sizing: border-box; font-size: 15px; }
+        
+        .action-btn { background: #10b981; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .action-btn:hover { background: #059669; }
+        
+        .key-display { background: #0c0b1a; padding: 15px; font-family: monospace; font-size: 16px; color: #3b82f6; border: 1px dashed #3b82f6; margin-top: 15px; max-height: 200px; overflow-y: auto; text-align: center; white-space: pre-wrap; letter-spacing: 2px; }
+        .copy-btn { background: #3b82f6; border: none; color: white; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        
+        .key-list-container { margin-top: 30px; max-width: 600px; margin: 30px auto; }
+        .key-item { display: flex; justify-content: space-between; background: #1a162e; padding: 12px 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid #10b981; align-items: center;}
+        .key-item.used { border-left-color: #ef4444; opacity: 0.6; }
+        .copy-small-btn { background: #3b82f6; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
     </style>
 </head>
 <body>
-    <div class="admin-box">
-        <!-- LOGIN -->
-        <div id="loginScreen" class="login-screen">
-            <h2>VCF Admin Login</h2>
-            <label>Master Admin Key:</label>
-            <input type="password" id="adminPassword" placeholder="Enter Master Key">
-            <button onclick="loginAdmin()">Access VCF Dashboard</button>
+
+    <div class="header">
+        <h1>⚙️ VCF Engine Admin</h1>
+        <p style="color: #94a3b8; font-size: 14px;">WhatsApp Contact Generator Key Panel</p>
+    </div>
+
+    <!-- KEY GENERATOR SECTION -->
+    <div class="panel-box">
+        <h2 style="margin-top: 0; color: #f8fafc;">Bulk Key Generator</h2>
+        <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Generate VCF Access Keys to sell on WhatsApp or Selar.</p>
+        
+        <div class="input-group">
+            <label>Quantity to Generate</label>
+            <input type="number" id="key-quantity" value="20" min="1" max="200" style="text-align: center; font-size: 20px; font-weight: bold;">
         </div>
-
-        <!-- DASHBOARD -->
-        <div id="adminDashboard" class="dashboard-content">
-            <h2>⚙️ VCF SaaS Manager</h2>
-            
-            <label style="color: var(--neon-gold);">Change Master Admin Key:</label>
-            <input type="text" id="admMasterKey">
-
-            <label style="color: #00e5ff;">Tier 1 Button Label:</label>
-            <input type="text" id="admLabel1">
-            <label>Tier 1 Checkout URL (Selar/Stripe/Flutterwave/etc):</label>
-            <input type="text" id="admUrl1">
-
-            <label style="color: #b52aff;">Tier 2 Button Label:</label>
-            <input type="text" id="admLabel2">
-            <label>Tier 2 Checkout URL:</label>
-            <input type="text" id="admUrl2">
-
-            <label style="color: #25D366;">Tier 3 Button Label:</label>
-            <input type="text" id="admLabel3">
-            <label>Tier 3 Checkout URL:</label>
-            <input type="text" id="admUrl3">
-
-            <button onclick="saveAdminConfig()">Save Configuration to Cloud</button>
+        
+        <button class="action-btn" onclick="generateBulkKeys()">⚡ GENERATE VCF KEYS</button>
+        
+        <div id="new-key-box" style="display: none; margin-top: 20px;">
+            <div class="key-display" id="latest-keys-text"></div>
+            <button class="copy-btn" onclick="copyAllGeneratedKeys()">📋 COPY ALL KEYS</button>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <!-- RECENT KEYS LIST -->
+    <div class="key-list-container">
+        <h3 style="border-bottom: 1px solid #333; padding-bottom: 10px;">Recent VCF Keys Database</h3>
+        <div id="keys-list">Loading keys...</div>
+    </div>
+
     <script>
+        // 1. INITIALIZE FIREBASE (Using your exact database)
         const firebaseConfig = {
-            apiKey: "AIzaSyDf9TgoWF5OK0reS_KCumqqcuSpDx02UQg",
-            authDomain: "probet-syndicate.firebaseapp.com",
-            databaseURL: "https://probet-syndicate-default-rtdb.firebaseio.com",
-            projectId: "probet-syndicate",
-            storageBucket: "probet-syndicate.firebasestorage.app",
-            messagingSenderId: "418866597682",
-            appId: "1:418866597682:web:847007dbaf3c40452d912b"
+            apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
+            authDomain: "global-match-99b4e.firebaseapp.com",
+            databaseURL: "https://global-match-99b4e-default-rtdb.firebaseio.com",
+            projectId: "global-match-99b4e",
+            storageBucket: "global-match-99b4e.firebasestorage.app",
+            messagingSenderId: "816808980244",
+            appId: "1:816808980244:web:832c3852ead2b707bb9c01"
         };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const database = firebase.database();
 
-        let currentMasterKey = "PRO-VCF-777";
-        db.ref('vcfAdmin/masterKey').on('value', (snapshot) => {
-            if(snapshot.val()) currentMasterKey = snapshot.val();
-        });
+        // 2. GENERATOR LOGIC
+        function generateRandomString(length) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+            return result;
+        }
 
-        function loginAdmin() {
-            const pass = document.getElementById('adminPassword').value.trim();
-            if(pass === currentMasterKey) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('adminDashboard').style.display = 'block';
-                loadCurrentConfig();
-            } else {
-                alert("❌ Incorrect Master Key!");
+        function generateBulkKeys() {
+            const qty = parseInt(document.getElementById('key-quantity').value) || 10;
+            const updates = {};
+            let generatedList = [];
+
+            for (let i = 0; i < qty; i++) {
+                // Changed prefix to VCF so you instantly know what product this key is for
+                const newKey = `VCF-${generateRandomString(4)}-${generateRandomString(4)}`;
+                
+                // Saving to a separate 'vcf_access_keys' node in Firebase
+                updates['vcf_access_keys/' + newKey] = { used: false, createdAt: Date.now() + i };
+                generatedList.push(newKey);
             }
+
+            database.ref().update(updates).then(() => {
+                document.getElementById('new-key-box').style.display = 'block';
+                document.getElementById('latest-keys-text').innerText = generatedList.join('\n');
+                loadKeys();
+            }).catch(error => alert("Error generating keys: " + error.message));
         }
 
-        function loadCurrentConfig() {
-            document.getElementById('admMasterKey').value = currentMasterKey;
-            db.ref('vcfAdmin/config').once('value').then((snapshot) => {
-                const config = snapshot.val() || {
-                    label1: "🛒 5,000 Contacts ($2.00)", url1: "",
-                    label2: "🛒 15,000 Contacts ($5.00)", url2: "",
-                    label3: "🛒 50,000 Contacts ($10.00)", url3: ""
-                };
-                document.getElementById('admLabel1').value = config.label1;
-                document.getElementById('admUrl1').value = config.url1;
-                document.getElementById('admLabel2').value = config.label2;
-                document.getElementById('admUrl2').value = config.url2;
-                document.getElementById('admLabel3').value = config.label3;
-                document.getElementById('admUrl3').value = config.url3;
+        function copyAllGeneratedKeys() {
+            const text = document.getElementById('latest-keys-text').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("📋 All VCF keys copied successfully! You can paste them to your buyers now.");
             });
         }
 
-        function saveAdminConfig() {
-            const masterKey = document.getElementById('admMasterKey').value.trim();
-            const label1 = document.getElementById('admLabel1').value.trim();
-            const url1 = document.getElementById('admUrl1').value.trim();
-            const label2 = document.getElementById('admLabel2').value.trim();
-            const url2 = document.getElementById('admUrl2').value.trim();
-            const label3 = document.getElementById('admLabel3').value.trim();
-            const url3 = document.getElementById('admUrl3').value.trim();
+        // 3. DATABASE DISPLAY LOGIC
+        function loadKeys() {
+            const list = document.getElementById('keys-list');
+            
+            // Reading specifically from the vcf_access_keys node
+            database.ref('vcf_access_keys').orderByChild('createdAt').limitToLast(40).on('value', (snapshot) => {
+                list.innerHTML = "";
+                let hasKeys = false;
+                const keysArr = [];
+                snapshot.forEach(child => { keysArr.unshift({ key: child.key, data: child.val() }); });
 
-            Promise.all([
-                db.ref('vcfAdmin/masterKey').set(masterKey),
-                db.ref('vcfAdmin/config').set({ label1, url1, label2, url2, label3, url3 })
-            ]).then(() => {
-                alert("✅ VCF Admin Configuration Updated Successfully!");
+                keysArr.forEach(item => {
+                    hasKeys = true;
+                    const statusText = item.data.used ? "<span style='color:#ef4444; font-size:12px; font-weight:bold;'>USED</span>" : "<span style='color:#10b981; font-size:12px; font-weight:bold;'>ACTIVE</span>";
+                    
+                    list.innerHTML += `
+                        <div class="key-item ${item.data.used ? 'used' : ''}">
+                            <div style="font-family: monospace; font-size:15px; color: #f8fafc;">${item.key}</div>
+                            <div>
+                                ${statusText} 
+                                ${!item.data.used ? `<button class="copy-small-btn" style="margin-left:10px;" onclick="navigator.clipboard.writeText('${item.key}')">Copy</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                if (!hasKeys) list.innerHTML = "<p style='color:#94a3b8; text-align:center;'>No VCF keys generated yet.</p>";
             });
         }
+
+        window.onload = () => { loadKeys(); };
     </script>
 </body>
 </html>
