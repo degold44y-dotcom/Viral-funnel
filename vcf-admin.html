@@ -3,113 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VCF Engine - ADMIN</title>
+    <!-- Cache-busting meta tags -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Global VCF Generator Engine</title>
     
     <!-- FIREBASE CLOUD DATABASE -->
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #0c0b1a; color: #f8fafc; margin: 0; padding: 20px; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #3b82f6; padding-bottom: 15px; }
-        h1 { margin: 0; color: #3b82f6; text-transform: uppercase; font-size: 24px; letter-spacing: 2px; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #0c0b1a; 
+            color: #f8fafc; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
         
-        .admin-nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
-        .nav-btn { background: #1a162e; border: 1px solid #3b82f6; color: white; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .nav-btn.active { background: #3b82f6; }
+        .header { width: 100%; padding: 24px; text-align: center; background: rgba(30, 27, 56, 0.45); border-bottom: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4); }
+        .header h2 { margin: 0; font-size: 26px; font-weight: 800; color: #3b82f6; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+        .header p { margin: 5px 0 0 0; font-size: 13px; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; }
 
-        .section { display: none; }
-        .section.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .container { width: 90%; max-width: 450px; margin-top: 40px; background: #1a162e; padding: 30px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.5); box-sizing: border-box; margin-bottom: 40px; }
+        
+        .form-group { margin-bottom: 20px; transition: opacity 0.3s ease; }
+        label { display: block; margin-bottom: 8px; font-size: 13px; color: #cbd5e1; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, select { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.12); background: #0c0b1a; color: white; box-sizing: border-box; font-size: 16px; font-weight: bold; transition: all 0.3s ease; }
+        input:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.3); }
+        input:disabled, select:disabled { cursor: not-allowed; background: #111; color: #666; border-color: rgba(255,255,255,0.05); }
+        
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; background: #3b82f6; color: white; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); text-transform: uppercase; letter-spacing: 1px; }
+        .btn:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5); }
+        
+        .info-box { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px 15px; margin: 20px 0; text-align: center; }
+        .info-box h4 { color: #3b82f6; margin: 0 0 10px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        .info-box p { color: #f8fafc; font-size: 15px; font-weight: bold; margin: 0; line-height: 1.6; }
+        
+        .quantity-display { background: #0c0b1a; border: 1px dashed #10b981; color: #10b981; padding: 15px; border-radius: 10px; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+        .coverage-badge { margin-top: 10px; font-size: 12px; font-weight: bold; letter-spacing: 0.5px; transition: all 0.3s; }
 
-        .panel-box { background: #1a162e; padding: 25px; border-radius: 12px; max-width: 600px; margin: 0 auto; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-group label { display: block; font-size: 13px; color: #cbd5e1; margin-bottom: 5px; text-transform: uppercase; }
-        .input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #0c0b1a; color: white; box-sizing: border-box; font-size: 15px; }
-        
-        .action-btn { background: #10b981; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        .action-btn:hover { background: #059669; }
-        
-        .key-display { background: #0c0b1a; padding: 15px; font-family: monospace; font-size: 16px; color: #3b82f6; border: 1px dashed #3b82f6; margin-top: 15px; max-height: 200px; overflow-y: auto; text-align: center; white-space: pre-wrap; letter-spacing: 2px; }
-        .copy-btn { background: #3b82f6; border: none; color: white; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; margin-top: 10px; }
-        
-        .key-list-container { margin-top: 30px; max-width: 600px; margin: 30px auto; }
-        .key-item { display: flex; justify-content: space-between; background: #1a162e; padding: 12px 15px; margin-bottom: 10px; border-radius: 8px; align-items: center;}
-        .copy-small-btn { background: #3b82f6; border: none; color: white; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight:bold; }
-        
-        /* New detailed grid for used keys */
-        .forensic-grid { display: grid; grid-template-columns: 1fr; gap: 8px; background: #0c0b1a; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-top: 8px; width: 100%; box-sizing: border-box; }
-        .forensic-item { font-size: 12px; color: #cbd5e1; word-break: break-all; }
-        .forensic-item span { color: #f8fafc; font-weight: bold; margin-right: 5px; }
+        /* MODAL STYLES */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(12, 10, 20, 0.95); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+        .modal-content { background: #1a162e; padding: 30px; border-radius: 20px; text-align: center; width: 85%; max-width: 380px; border: 1px solid #3b82f6; box-shadow: 0 0 30px rgba(59,130,246,0.2); }
+        .modal-content h3 { color: #3b82f6; margin-top: 0; font-size: 22px; text-transform: uppercase; letter-spacing: 1px; }
+        .modal-btn { background: transparent; border: 1px solid #3b82f6; color: #3b82f6; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.3s; text-transform: uppercase; }
+        .modal-btn:hover { background: rgba(59,130,246,0.1); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>⚙️ VCF Engine Admin</h1>
-        <p style="color: #94a3b8; font-size: 14px;">WhatsApp Contact Generator Key Panel</p>
+        <h2>⚡ VCF Engine PRO</h2>
+        <p>Bulk Contact Generator</p>
     </div>
 
-    <div class="admin-nav">
-        <button class="nav-btn active" id="btn-keys" onclick="switchTab('keys')">🔑 VCF Keys</button>
-        <button class="nav-btn" id="btn-settings" onclick="switchTab('settings')">⚙️ App Config & Payment</button>
-    </div>
-
-    <!-- KEY GENERATOR SECTION -->
-    <div id="section-keys" class="section active">
-        <div class="panel-box">
-            <h2 style="margin-top: 0; color: #f8fafc;">Bulk Key Generator</h2>
-            <p style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">Generate VCF Access Keys to sell on WhatsApp or your Payment Link.</p>
-            
-            <div class="input-group">
-                <label>Quantity to Generate</label>
-                <input type="number" id="key-quantity" value="20" min="1" max="200" style="text-align: center; font-size: 20px; font-weight: bold;">
-            </div>
-            
-            <button class="action-btn" onclick="generateBulkKeys()">⚡ GENERATE VCF KEYS</button>
-            
-            <div id="new-key-box" style="display: none; margin-top: 20px;">
-                <div class="key-display" id="latest-keys-text"></div>
-                <button class="copy-btn" onclick="copyJustGeneratedKeys()">📋 COPY NEW KEYS</button>
-            </div>
+    <div class="container">
+        
+        <div class="info-box">
+            <h4>📈 Boost Your Status Views</h4>
+            <p>Generate thousands of active WhatsApp numbers instantly. Save the VCF file to your phone, and watch your business engagement explode.</p>
+        </div>
+        
+        <div class="quantity-display" id="display-quantity">
+            Loading capacity...
         </div>
 
-        <div class="key-list-container">
-            <!-- ACTIVE KEYS -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px;">
-                <h3 style="margin: 0; color: #10b981;">🟢 Active Keys</h3>
-                <button class="copy-small-btn" style="background: #10b981;" onclick="copyAllActiveKeys()">📋 Copy All Active</button>
-            </div>
-            <div id="active-keys-list">Loading active keys...</div>
-
-            <!-- USED KEYS (PROOF) -->
-            <h3 style="border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 40px; color: #ef4444;">🔴 Used Keys (Scam Proof Database)</h3>
-            <div id="used-keys-list">Loading used keys...</div>
+        <div class="form-group">
+            <label>Number Generation Mode</label>
+            <select id="number-mix-mode" onchange="toggleMode()">
+                <option value="strict">Target Country Only (Strict)</option>
+                <option value="mixed">Mixed Global Numbers (Broad)</option>
+            </select>
         </div>
+        
+        <div class="form-group" id="country-group">
+            <label>Your Target Country</label>
+            <select id="buyer-country" class="country-dropdown" onchange="updateCoverageText()"></select>
+            <!-- DYNAMIC COVERAGE TEXT -->
+            <div id="coverage-text" class="coverage-badge"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Your Targeted Customers or Niche</label>
+            <input type="text" id="vcf-name" placeholder="e.g., Crypto, Fashion, RealEstate" onfocus="this.placeholder=''" onblur="this.placeholder='e.g., Crypto, Fashion, RealEstate'">
+        </div>
+
+        <button class="btn" onclick="openPaymentModal()">Generate & Download VCF</button>
     </div>
 
-    <!-- SETTINGS SECTION -->
-    <div id="section-settings" class="section">
-        <div class="panel-box">
-            <h2 style="margin-top: 0;">App Configuration</h2>
+    <!-- VIP ACCESS KEY MODAL -->
+    <div id="unlock-modal" class="modal">
+        <div class="modal-content">
+            <h3>VIP Access Required</h3>
+            <p style="margin-bottom: 20px; font-size: 13px; color: #cbd5e1;">A 1-Time VCF Access Key is required to download this file.</p>
             
-            <div class="input-group" style="margin-bottom: 25px;">
-                <label style="color: #3b82f6;">🔥 Total Contacts Per VCF File</label>
-                <input type="number" id="setting-vcf-qty" placeholder="10000" style="font-size: 20px; font-weight:bold; color:#3b82f6;">
-                <p style="font-size: 11px; color:#94a3b8; margin-top:5px;">This is the amount of WhatsApp contacts ONE key generates.</p>
-            </div>
-
-            <div class="input-group" style="margin-bottom: 25px;">
-                <label style="color: #f9d423;">🔗 Payment Gateway Link (Any Site)</label>
-                <input type="text" id="setting-link" placeholder="https://selar.co/... or https://paystack.com/...">
-            </div>
-
-            <button class="action-btn" onclick="saveAdminSettings()" style="margin-top: 10px;">💾 Save All Settings</button>
+            <input type="text" id="access-key-input" placeholder="ENTER ACCESS KEY" style="margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;">
+            
+            <button class="btn" id="verify-key-btn" onclick="verifyAndDownload()" style="margin-top: 0; background: #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">🔓 Verify & Download</button>
+            <button class="modal-btn" onclick="openPaymentPortal()">Get Access Key Here</button>
+            
+            <p style="margin-top: 20px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="document.getElementById('unlock-modal').style.display='none'">CANCEL</p>
         </div>
     </div>
 
     <script>
-        // 1. INITIALIZE FIREBASE
+        // FIREBASE INITIALIZATION
         const firebaseConfig = {
             apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
             authDomain: "global-match-99b4e.firebaseapp.com",
@@ -122,139 +120,234 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        let windowActiveKeys = [];
+        let vcfAdminSettings = { globalQuantity: 10000, paymentLink: "" };
 
-        function switchTab(tab) {
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.getElementById(`btn-${tab}`).classList.add('active');
-            document.getElementById(`section-${tab}`).classList.add('active');
-            
-            if (tab === 'settings') loadAdminSettings();
-        }
-
-        // ==========================================
-        // SETTINGS (No Pricing, Just Quantity & Link)
-        // ==========================================
-        function loadAdminSettings() {
-            database.ref('vcf_admin_settings').once('value').then((snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    document.getElementById('setting-vcf-qty').value = data.globalQuantity || 10000;
-                    document.getElementById('setting-link').value = data.paymentLink || "";
+        // FETCH SETTINGS
+        async function fetchAppSettings() {
+            try {
+                const snap = await database.ref('vcf_admin_settings').once('value');
+                if (snap.val()) {
+                    vcfAdminSettings = { ...vcfAdminSettings, ...snap.val() };
+                    document.getElementById('display-quantity').innerText = `🔥 Generates ${vcfAdminSettings.globalQuantity.toLocaleString()} WhatsApp Contacts per File`;
                 }
-            }).catch(err => console.log("Error loading settings:", err));
-        }
-
-        function saveAdminSettings() {
-            const adminSettings = {
-                globalQuantity: parseInt(document.getElementById('setting-vcf-qty').value) || 10000,
-                paymentLink: document.getElementById('setting-link').value.trim()
-            };
-
-            database.ref('vcf_admin_settings').update(adminSettings)
-                .then(() => alert("✅ VCF Config updated!"))
-                .catch(error => alert("Error saving settings: " + error.message));
+            } catch (err) { console.warn("Using default settings"); }
         }
 
         // ==========================================
-        // KEY GENERATOR LOGIC
+        // BACKGROUND NETWORK ARRAYS (Hidden from UI)
         // ==========================================
-        function generateRandomString(length) {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = '';
-            for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-            return result;
-        }
+        const telecomNetworks = {
+            "United States (+1)": ["+1202", "+1212", "+1310", "+1415", "+1512", "+1646", "+1713", "+1832", "+1305", "+1404"],
+            "Nigeria (+234)": ["+234803", "+234806", "+234703", "+234706", "+234813", "+234816", "+234810", "+234814", "+234903", "+234906", "+234913", "+234916", "+234802", "+234808", "+234708", "+234812", "+234701", "+234902", "+234907", "+234901", "+234912", "+234911", "+234805", "+234807", "+234705", "+234815", "+234811", "+234905", "+234915", "+234809", "+234817", "+234818", "+234909", "+234908"],
+            "United Kingdom (+44)": ["+4477", "+4478", "+4479", "+4475", "+4474", "+4473"],
+            "South Africa (+27)": ["+2782", "+2772", "+2771", "+2779", "+2776", "+2781", "+2783", "+2773", "+2778", "+2760", "+2763", "+2784", "+2774", "+2761"],
+            "Ghana (+233)": ["+23324", "+23354", "+23355", "+23359", "+23320", "+23350", "+23327", "+23357", "+23326", "+23356"]
+        };
 
-        function generateBulkKeys() {
-            const qty = parseInt(document.getElementById('key-quantity').value) || 10;
-            const updates = {};
-            let generatedList = [];
-
-            for (let i = 0; i < qty; i++) {
-                const newKey = `VCF-${generateRandomString(4)}-${generateRandomString(4)}`;
-                updates['vcf_access_keys/' + newKey] = { used: false, createdAt: Date.now() + i };
-                generatedList.push(newKey);
+        // DYNAMIC COVERAGE TEXT
+        function updateCoverageText() {
+            const countrySelect = document.getElementById('buyer-country');
+            const mode = document.getElementById('number-mix-mode').value;
+            const coverageText = document.getElementById('coverage-text');
+            
+            if (mode === 'mixed') {
+                coverageText.innerText = "🌍 COVERAGE: GLOBAL NETWORKS (MIXED)";
+                coverageText.style.color = "#3b82f6";
+            } else {
+                const countryName = countrySelect.value.split(" (+")[0];
+                coverageText.innerText = `⚡ COVERAGE: ALL ${countryName.toUpperCase()} NETWORKS (MIXED)`;
+                coverageText.style.color = "#10b981";
             }
-
-            database.ref().update(updates).then(() => {
-                document.getElementById('new-key-box').style.display = 'block';
-                document.getElementById('latest-keys-text').innerText = generatedList.join('\n');
-                loadKeys();
-            }).catch(error => alert("Error generating keys: " + error.message));
         }
 
-        function copyJustGeneratedKeys() {
-            const text = document.getElementById('latest-keys-text').innerText;
-            navigator.clipboard.writeText(text).then(() => alert("📋 New keys copied successfully!"));
+        // UI TOGGLE FOR GLOBAL GENERATION MODE
+        function toggleMode() {
+            const mode = document.getElementById('number-mix-mode').value;
+            const countryDropdown = document.getElementById('buyer-country');
+            const countryGroup = document.getElementById('country-group');
+            
+            if (mode === 'mixed') {
+                countryDropdown.disabled = true;
+                countryGroup.style.opacity = '0.4';
+            } else {
+                countryDropdown.disabled = false;
+                countryGroup.style.opacity = '1';
+            }
+            updateCoverageText(); 
         }
 
-        function copyAllActiveKeys() {
-            if (windowActiveKeys.length === 0) {
-                alert("There are no active keys available to copy.");
+        // POPULATE COUNTRIES
+        const topTierCountries = [ 
+            { name: "United States (+1)", code: "+1" }, 
+            { name: "United Kingdom (+44)", code: "+44" }, 
+            { name: "Canada (+1)", code: "+1" }, 
+            { name: "Australia (+61)", code: "+61" }, 
+            { name: "Germany (+49)", code: "+49" } 
+        ];
+        const otherCountries = [ 
+            { name: "Nigeria (+234)", code: "+234" }, 
+            { name: "Ghana (+233)", code: "+233" }, 
+            { name: "South Africa (+27)", code: "+27" }, 
+            { name: "India (+91)", code: "+91" }, 
+            { name: "France (+33)", code: "+33" }, 
+            { name: "Italy (+39)", code: "+39" }, 
+            { name: "Spain (+34)", code: "+34" }, 
+            { name: "Brazil (+55)", code: "+55" }, 
+            { name: "Mexico (+52)", code: "+52" } 
+        ];
+
+        const countryDropdowns = document.querySelectorAll('.country-dropdown');
+        countryDropdowns.forEach(dropdown => {
+            topTierCountries.forEach((country) => {
+                let option = document.createElement('option'); 
+                option.value = country.name; 
+                option.innerText = country.name; 
+                option.dataset.code = country.code;
+                if (country.name.includes("United States")) option.selected = true; 
+                dropdown.appendChild(option);
+            });
+            let separator = document.createElement('option'); separator.disabled = true; separator.innerText = "──────────"; dropdown.appendChild(separator);
+            otherCountries.forEach(country => {
+                let option = document.createElement('option'); 
+                option.value = country.name; 
+                option.innerText = country.name;
+                option.dataset.code = country.code;
+                dropdown.appendChild(option);
+            });
+        });
+
+        window.onload = async () => { 
+            await fetchAppSettings();
+            toggleMode();
+        };
+
+        // ==========================================
+        // UI & PAYMENT MODAL
+        // ==========================================
+        function openPaymentModal() {
+            document.getElementById('access-key-input').value = "";
+            document.getElementById('unlock-modal').style.display = 'flex';
+        }
+
+        function openPaymentPortal() {
+            const link = vcfAdminSettings.paymentLink || 'https://selar.co/';
+            window.open(link, '_blank');
+        }
+
+        // ==========================================
+        // KEY VERIFICATION & FORENSIC TRACKER
+        // ==========================================
+        async function verifyAndDownload() {
+            const keyInput = document.getElementById('access-key-input').value.trim().toUpperCase();
+            const btn = document.getElementById('verify-key-btn');
+
+            if (!keyInput) { alert("Please enter a valid Access Key."); return; }
+
+            if (keyInput === "GOLD-BOSS-LIFETIME") {
+                document.getElementById('unlock-modal').style.display = 'none';
+                generateVCFFile();
                 return;
             }
-            navigator.clipboard.writeText(windowActiveKeys.join('\n')).then(() => alert(`📋 Copied ${windowActiveKeys.length} active keys to clipboard!`));
-        }
 
-        function loadKeys() {
-            database.ref('vcf_access_keys').orderByChild('createdAt').limitToLast(150).on('value', (snapshot) => {
-                let activeHtml = "";
-                let usedHtml = "";
-                windowActiveKeys = [];
+            btn.innerText = "Verifying..."; 
+            btn.disabled = true;
+
+            try {
+                const snapshot = await database.ref('vcf_access_keys/' + keyInput).once('value');
+                const keyData = snapshot.val();
                 
-                const keysArr = [];
-                snapshot.forEach(child => { keysArr.unshift({ key: child.key, data: child.val() }); });
+                if (keyData && keyData.used === false) {
+                    
+                    // 1. Gather Forensic Data (IP & Location)
+                    let geoData = { ip: "Unknown IP", city: "Unknown", region: "Unknown", country_name: "Unknown" };
+                    try {
+                        const geoRes = await fetch('https://ipapi.co/json/');
+                        if (geoRes.ok) geoData = await geoRes.json();
+                    } catch(e) { console.warn("Geolocation blocked by user network."); }
 
-                keysArr.forEach(item => {
-                    if (item.data.used) {
-                        // DETAILED FORENSIC PROOF FOR USED KEYS
-                        const usedDate = item.data.usedAt ? new Date(item.data.usedAt).toLocaleString() : "Unknown Time";
-                        const city = item.data.city || "Unknown City";
-                        const state = item.data.state || "Unknown State";
-                        const country = item.data.country || "Unknown Country";
-                        const ip = item.data.ip || "Hidden/Unknown IP";
-                        
-                        // Clean up long browser strings
-                        let browserShort = item.data.browser || "Unknown Device";
-                        if(browserShort.length > 55) browserShort = browserShort.substring(0, 55) + "...";
+                    // 2. Compile tracking package
+                    const usageData = {
+                        used: true,
+                        usedAt: Date.now(),
+                        ip: geoData.ip,
+                        city: geoData.city,
+                        state: geoData.region,
+                        country: geoData.country_name,
+                        browser: navigator.userAgent
+                    };
 
-                        usedHtml += `
-                            <div class="key-item" style="border-left: 4px solid #ef4444; opacity: 0.9; flex-direction: column; align-items: flex-start;">
-                                <div style="display: flex; justify-content: space-between; width: 100%;">
-                                    <div style="font-family: monospace; font-size:16px; color: #ef4444; text-decoration: line-through; font-weight:bold;">${item.key}</div>
-                                    <span style='color:#ef4444; font-size:12px; font-weight:bold; background: rgba(239, 68, 68, 0.15); padding: 3px 8px; border-radius: 4px;'>USED</span>
-                                </div>
-                                <div class="forensic-grid">
-                                    <div class="forensic-item"><span>📅 TIME:</span> ${usedDate}</div>
-                                    <div class="forensic-item"><span>📍 LOCATION:</span> ${city}, ${state}, ${country}</div>
-                                    <div class="forensic-item"><span>🌐 IP ADDRESS:</span> ${ip}</div>
-                                    <div class="forensic-item"><span>📱 BROWSER/DEVICE:</span> ${browserShort}</div>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        // ACTIVE KEYS
-                        windowActiveKeys.push(item.key);
-                        activeHtml += `
-                            <div class="key-item" style="border-left: 4px solid #10b981;">
-                                <div style="font-family: monospace; font-size:15px; color: #f8fafc;">${item.key}</div>
-                                <div>
-                                    <span style='color:#10b981; font-size:12px; font-weight:bold;'>ACTIVE</span> 
-                                    <button class="copy-small-btn" style="margin-left:10px;" onclick="navigator.clipboard.writeText('${item.key}')">Copy</button>
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-
-                document.getElementById('active-keys-list').innerHTML = activeHtml || "<p style='color:#94a3b8; text-align:center;'>No active keys available.</p>";
-                document.getElementById('used-keys-list').innerHTML = usedHtml || "<p style='color:#94a3b8; text-align:center;'>No keys have been used yet.</p>";
-            });
+                    // 3. Save to database and unlock
+                    await database.ref('vcf_access_keys/' + keyInput).update(usageData);
+                    
+                    document.getElementById('unlock-modal').style.display = 'none';
+                    generateVCFFile(); 
+                    
+                } else {
+                    alert("❌ Error: Invalid or Already Used Key.");
+                }
+            } catch (error) {
+                alert("Network Error: " + error.message);
+            } finally {
+                btn.innerText = "🔓 Verify & Download"; 
+                btn.disabled = false;
+            }
         }
 
-        window.onload = () => { loadKeys(); };
+        // ==========================================
+        // THE TRUE MIXED VCF GENERATOR ENGINE
+        // ==========================================
+        function generateVCFFile() {
+            const qty = vcfAdminSettings.globalQuantity || 10000; 
+            
+            let baseName = document.getElementById('vcf-name').value.trim();
+            if(!baseName) baseName = "Targeted_Contact";
+
+            const mixMode = document.getElementById('number-mix-mode').value;
+            const selectedCountry = document.getElementById('buyer-country').value;
+            
+            let prefixesToUse = [];
+
+            if (mixMode === 'mixed') {
+                prefixesToUse = [
+                    "+1212", "+1310", "+1415", "+4477", "+4478", "+4479", "+234803", "+234903", "+234802", "+234805", 
+                    "+2782", "+2783", "+2772", "+23324", "+23320", "+6140", "+6141", "+4915", "+4916", "+9198", 
+                    "+9199", "+336", "+337", "+3933", "+346", "+5511", "+5255"
+                ];
+            } else {
+                if (telecomNetworks[selectedCountry]) {
+                    prefixesToUse = telecomNetworks[selectedCountry];
+                } else {
+                    const baseCode = document.getElementById('buyer-country').options[document.getElementById('buyer-country').selectedIndex].dataset.code;
+                    prefixesToUse = [baseCode];
+                }
+            }
+            
+            let vcfData = "";
+            
+            for (let i = 1; i <= qty; i++) {
+                let chosenPrefix = prefixesToUse[Math.floor(Math.random() * prefixesToUse.length)];
+                const randomNum = Math.floor(1000000 + Math.random() * 9000000);
+                const fullNumber = `${chosenPrefix}${randomNum}`;
+                
+                vcfData += `BEGIN:VCARD\nVERSION:3.0\nFN:${baseName}_${i}\nTEL;TYPE=CELL:${fullNumber}\nEND:VCARD\n`;
+            }
+
+            const blob = new Blob([vcfData], { type: 'text/vcard' });
+            const url = window.URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `VIP_${qty}_WhatsApp_Contacts.vcf`;
+            
+            document.body.appendChild(a);
+            a.click();
+            
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            alert(`✅ Success! ${qty.toLocaleString()} highly-targeted WhatsApp contacts have been generated and downloaded.`);
+        }
     </script>
 </body>
 </html>
