@@ -37,10 +37,11 @@
         
         .info-box { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px 15px; margin: 20px 0; text-align: center; }
         .info-box h4 { color: #3b82f6; margin: 0 0 10px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
-        /* Increased font size and made bold as requested */
         .info-box p { color: #f8fafc; font-size: 15px; font-weight: bold; margin: 0; line-height: 1.6; }
         
         .quantity-display { background: #0c0b1a; border: 1px dashed #10b981; color: #10b981; padding: 15px; border-radius: 10px; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+
+        .coverage-badge { margin-top: 10px; font-size: 12px; font-weight: bold; letter-spacing: 0.5px; transition: all 0.3s; }
 
         /* MODAL STYLES */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(12, 10, 20, 0.95); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
@@ -78,7 +79,9 @@
         
         <div class="form-group" id="country-group">
             <label>Your Target Country</label>
-            <select id="buyer-country" class="country-dropdown"></select>
+            <select id="buyer-country" class="country-dropdown" onchange="updateCoverageText()"></select>
+            <!-- DYNAMIC COVERAGE TEXT -->
+            <div id="coverage-text" class="coverage-badge"></div>
         </div>
 
         <div class="form-group">
@@ -132,7 +135,6 @@
                 const snap = await database.ref('vcf_admin_settings').once('value');
                 if (snap.val()) {
                     vcfAdminSettings = { ...vcfAdminSettings, ...snap.val() };
-                    // Added "WhatsApp Contacts" to the display string
                     document.getElementById('display-quantity').innerText = `🔥 Generates ${vcfAdminSettings.globalQuantity.toLocaleString()} WhatsApp Contacts per File`;
                 }
             } catch (err) { console.warn("Using default settings"); }
@@ -185,6 +187,22 @@
             "Ghana (+233)": ["+23324", "+23354", "+23355", "+23359", "+23320", "+23350", "+23327", "+23357", "+23326", "+23356"]
         };
 
+        // DYNAMIC COVERAGE TEXT
+        function updateCoverageText() {
+            const countrySelect = document.getElementById('buyer-country');
+            const mode = document.getElementById('number-mix-mode').value;
+            const coverageText = document.getElementById('coverage-text');
+            
+            if (mode === 'mixed') {
+                coverageText.innerText = "🌍 COVERAGE: GLOBAL NETWORKS (MIXED)";
+                coverageText.style.color = "#3b82f6";
+            } else {
+                const countryName = countrySelect.value.split(" (+")[0];
+                coverageText.innerText = `⚡ COVERAGE: ALL ${countryName.toUpperCase()} NETWORKS (MIXED)`;
+                coverageText.style.color = "#10b981";
+            }
+        }
+
         // UI TOGGLE FOR GLOBAL GENERATION MODE
         function toggleMode() {
             const mode = document.getElementById('number-mix-mode').value;
@@ -193,11 +211,12 @@
             
             if (mode === 'mixed') {
                 countryDropdown.disabled = true;
-                countryGroup.style.opacity = '0.3';
+                countryGroup.style.opacity = '0.4';
             } else {
                 countryDropdown.disabled = false;
                 countryGroup.style.opacity = '1';
             }
+            updateCoverageText(); // Update the text badge when mode changes
         }
 
         // POPULATE COUNTRIES
@@ -320,18 +339,15 @@
             let prefixesToUse = [];
 
             if (mixMode === 'mixed') {
-                // If they want global, smash massive world prefixes into the array
                 prefixesToUse = [
                     "+1212", "+1310", "+1415", "+4477", "+4478", "+4479", "+234803", "+234903", "+234802", "+234805", 
                     "+2782", "+2783", "+2772", "+23324", "+23320", "+6140", "+6141", "+4915", "+4916", "+9198", 
                     "+9199", "+336", "+337", "+3933", "+346", "+5511", "+5255"
                 ];
             } else {
-                // Read from our hidden background database of prefixes for the selected country
                 if (telecomNetworks[selectedCountry]) {
                     prefixesToUse = telecomNetworks[selectedCountry];
                 } else {
-                    // Fallback to the country code if we don't have detailed network prefixes for them
                     const baseCode = document.getElementById('buyer-country').options[document.getElementById('buyer-country').selectedIndex].dataset.code;
                     prefixesToUse = [baseCode];
                 }
@@ -340,10 +356,7 @@
             let vcfData = "";
             
             for (let i = 1; i <= qty; i++) {
-                // Dynamically pick a random prefix for EACH number
                 let chosenPrefix = prefixesToUse[Math.floor(Math.random() * prefixesToUse.length)];
-
-                // Add 7 random digits to complete the number
                 const randomNum = Math.floor(1000000 + Math.random() * 9000000);
                 const fullNumber = `${chosenPrefix}${randomNum}`;
                 
