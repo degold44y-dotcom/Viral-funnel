@@ -35,9 +35,10 @@
         .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; background: #3b82f6; color: white; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); text-transform: uppercase; letter-spacing: 1px; }
         .btn:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5); }
         
-        .info-box { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 15px; margin: 20px 0; text-align: center; }
-        .info-box h4 { color: #3b82f6; margin: 0 0 8px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
-        .info-box p { color: #cbd5e1; font-size: 12px; margin: 0; line-height: 1.5; }
+        .info-box { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px 15px; margin: 20px 0; text-align: center; }
+        .info-box h4 { color: #3b82f6; margin: 0 0 10px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        /* Increased font size and made bold as requested */
+        .info-box p { color: #f8fafc; font-size: 15px; font-weight: bold; margin: 0; line-height: 1.6; }
         
         .quantity-display { background: #0c0b1a; border: 1px dashed #10b981; color: #10b981; padding: 15px; border-radius: 10px; text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; }
 
@@ -77,17 +78,11 @@
         
         <div class="form-group" id="country-group">
             <label>Your Target Country</label>
-            <select id="buyer-country" class="country-dropdown" onchange="updateNetworkDropdown()"></select>
-        </div>
-
-        <div class="form-group" id="network-group">
-            <label>Telecom Network</label>
-            <select id="network-select"></select>
+            <select id="buyer-country" class="country-dropdown"></select>
         </div>
 
         <div class="form-group">
             <label>Your Targeted Customers or Niche</label>
-            <!-- Set to instantly clear text when clicked -->
             <input type="text" id="vcf-name" placeholder="e.g., Crypto, Fashion, RealEstate" onfocus="this.placeholder=''" onblur="this.placeholder='e.g., Crypto, Fashion, RealEstate'">
         </div>
 
@@ -137,7 +132,8 @@
                 const snap = await database.ref('vcf_admin_settings').once('value');
                 if (snap.val()) {
                     vcfAdminSettings = { ...vcfAdminSettings, ...snap.val() };
-                    document.getElementById('display-quantity').innerText = `🔥 Generates ${vcfAdminSettings.globalQuantity.toLocaleString()} Contacts per File`;
+                    // Added "WhatsApp Contacts" to the display string
+                    document.getElementById('display-quantity').innerText = `🔥 Generates ${vcfAdminSettings.globalQuantity.toLocaleString()} WhatsApp Contacts per File`;
                 }
             } catch (err) { console.warn("Using default settings"); }
         }
@@ -179,83 +175,28 @@
         }
 
         // ==========================================
-        // ADVANCED MULTI-PREFIX NETWORK ARRAYS
+        // BACKGROUND NETWORK ARRAYS (Hidden from UI)
         // ==========================================
         const telecomNetworks = {
-            "United States (+1)": [
-                { name: "All US Networks (Mixed)", prefixes: ["+1202", "+1212", "+1310", "+1415", "+1512", "+1646", "+1713", "+1832", "+1305", "+1404"] },
-                { name: "AT&T", prefixes: ["+1202", "+1212", "+1310", "+1415", "+1404"] },
-                { name: "T-Mobile", prefixes: ["+1646", "+1713", "+1832", "+1305"] },
-                { name: "Verizon", prefixes: ["+1512", "+1702", "+1914", "+1917"] }
-            ],
-            "Nigeria (+234)": [
-                { name: "All Networks (Mixed)", prefixes: ["+234803", "+234806", "+234703", "+234706", "+234813", "+234816", "+234810", "+234814", "+234903", "+234906", "+234913", "+234916", "+234802", "+234808", "+234708", "+234812", "+234701", "+234902", "+234907", "+234901", "+234912", "+234911", "+234805", "+234807", "+234705", "+234815", "+234811", "+234905", "+234915", "+234809", "+234817", "+234818", "+234909", "+234908"] },
-                { name: "MTN Nigeria", prefixes: ["+234803", "+234806", "+234703", "+234706", "+234813", "+234816", "+234810", "+234814", "+234903", "+234906", "+234913", "+234916"] },
-                { name: "Airtel Nigeria", prefixes: ["+234802", "+234808", "+234708", "+234812", "+234701", "+234902", "+234907", "+234901", "+234912", "+234911"] },
-                { name: "Glo Mobile", prefixes: ["+234805", "+234807", "+234705", "+234815", "+234811", "+234905", "+234915"] },
-                { name: "9mobile", prefixes: ["+234809", "+234817", "+234818", "+234909", "+234908"] }
-            ],
-            "United Kingdom (+44)": [
-                { name: "All UK Networks (Mixed)", prefixes: ["+4477", "+4478", "+4479", "+4475", "+4474", "+4473"] },
-                { name: "EE", prefixes: ["+4473", "+4474", "+4475"] },
-                { name: "O2", prefixes: ["+4477", "+4478"] },
-                { name: "Vodafone", prefixes: ["+4479", "+4477"] }
-            ],
-            "South Africa (+27)": [
-                { name: "All Networks (Mixed)", prefixes: ["+2782", "+2772", "+2771", "+2779", "+2776", "+2781", "+2783", "+2773", "+2778", "+2760", "+2763", "+2784", "+2774", "+2761"] },
-                { name: "Vodacom", prefixes: ["+2782", "+2772", "+2771", "+2779", "+2776", "+2781"] },
-                { name: "MTN South Africa", prefixes: ["+2783", "+2773", "+2778", "+2760", "+2763"] },
-                { name: "Cell C", prefixes: ["+2784", "+2774", "+2761"] }
-            ],
-            "Ghana (+233)": [
-                { name: "All Networks (Mixed)", prefixes: ["+23324", "+23354", "+23355", "+23359", "+23320", "+23350", "+23327", "+23357", "+23326", "+23356"] },
-                { name: "MTN Ghana", prefixes: ["+23324", "+23354", "+23355", "+23359"] },
-                { name: "Vodafone Ghana", prefixes: ["+23320", "+23350"] },
-                { name: "AirtelTigo", prefixes: ["+23327", "+23357", "+23326", "+23356"] }
-            ]
+            "United States (+1)": ["+1202", "+1212", "+1310", "+1415", "+1512", "+1646", "+1713", "+1832", "+1305", "+1404"],
+            "Nigeria (+234)": ["+234803", "+234806", "+234703", "+234706", "+234813", "+234816", "+234810", "+234814", "+234903", "+234906", "+234913", "+234916", "+234802", "+234808", "+234708", "+234812", "+234701", "+234902", "+234907", "+234901", "+234912", "+234911", "+234805", "+234807", "+234705", "+234815", "+234811", "+234905", "+234915", "+234809", "+234817", "+234818", "+234909", "+234908"],
+            "United Kingdom (+44)": ["+4477", "+4478", "+4479", "+4475", "+4474", "+4473"],
+            "South Africa (+27)": ["+2782", "+2772", "+2771", "+2779", "+2776", "+2781", "+2783", "+2773", "+2778", "+2760", "+2763", "+2784", "+2774", "+2761"],
+            "Ghana (+233)": ["+23324", "+23354", "+23355", "+23359", "+23320", "+23350", "+23327", "+23357", "+23326", "+23356"]
         };
-
-        function updateNetworkDropdown() {
-            const country = document.getElementById('buyer-country').value;
-            const networkSelect = document.getElementById('network-select');
-            networkSelect.innerHTML = ""; 
-
-            let options = telecomNetworks[country];
-            
-            // Auto fallback for countries not detailed above
-            if (!options) {
-                const baseCode = document.getElementById('buyer-country').options[document.getElementById('buyer-country').selectedIndex].dataset.code;
-                options = [ { name: "All Networks (Mixed)", prefixes: [baseCode] } ];
-            }
-
-            options.forEach(opt => {
-                let el = document.createElement('option');
-                // Store the ENTIRE array of prefixes into the dropdown value
-                el.value = JSON.stringify(opt.prefixes);
-                el.innerText = opt.name;
-                networkSelect.appendChild(el);
-            });
-        }
 
         // UI TOGGLE FOR GLOBAL GENERATION MODE
         function toggleMode() {
             const mode = document.getElementById('number-mix-mode').value;
             const countryDropdown = document.getElementById('buyer-country');
-            const networkDropdown = document.getElementById('network-select');
-            
             const countryGroup = document.getElementById('country-group');
-            const networkGroup = document.getElementById('network-group');
             
             if (mode === 'mixed') {
                 countryDropdown.disabled = true;
-                networkDropdown.disabled = true;
                 countryGroup.style.opacity = '0.3';
-                networkGroup.style.opacity = '0.3';
             } else {
                 countryDropdown.disabled = false;
-                networkDropdown.disabled = false;
                 countryGroup.style.opacity = '1';
-                networkGroup.style.opacity = '1';
             }
         }
 
@@ -300,7 +241,6 @@
         });
 
         window.onload = async () => { 
-            updateNetworkDropdown(); 
             await fetchAppSettings();
             await fetchExchangeRates();
             toggleMode();
@@ -313,7 +253,7 @@
             const buyerCountry = document.getElementById('buyer-country').value;
             const displayPrice = calculateLocalizedPrice(buyerCountry);
             
-            document.getElementById('modal-pricing-text').innerText = `Cost: ${displayPrice} (Generates ${vcfAdminSettings.globalQuantity.toLocaleString()} Contacts)`;
+            document.getElementById('modal-pricing-text').innerText = `Cost: ${displayPrice} (Generates ${vcfAdminSettings.globalQuantity.toLocaleString()} WhatsApp Contacts)`;
             document.getElementById('buy-key-modal-btn').innerText = `Buy Access Key (${displayPrice})`;
             
             document.getElementById('access-key-input').value = "";
@@ -371,12 +311,11 @@
         function generateVCFFile() {
             const qty = vcfAdminSettings.globalQuantity || 10000; 
             
-            // Get niche or fallback
             let baseName = document.getElementById('vcf-name').value.trim();
             if(!baseName) baseName = "Targeted_Contact";
 
             const mixMode = document.getElementById('number-mix-mode').value;
-            const networkSelect = document.getElementById('network-select').value;
+            const selectedCountry = document.getElementById('buyer-country').value;
             
             let prefixesToUse = [];
 
@@ -388,18 +327,20 @@
                     "+9199", "+336", "+337", "+3933", "+346", "+5511", "+5255"
                 ];
             } else {
-                // Read the array of prefixes belonging to the selected network
-                try {
-                    prefixesToUse = JSON.parse(networkSelect);
-                } catch(e) {
-                    prefixesToUse = ["+1"]; // Fail-safe
+                // Read from our hidden background database of prefixes for the selected country
+                if (telecomNetworks[selectedCountry]) {
+                    prefixesToUse = telecomNetworks[selectedCountry];
+                } else {
+                    // Fallback to the country code if we don't have detailed network prefixes for them
+                    const baseCode = document.getElementById('buyer-country').options[document.getElementById('buyer-country').selectedIndex].dataset.code;
+                    prefixesToUse = [baseCode];
                 }
             }
             
             let vcfData = "";
             
             for (let i = 1; i <= qty; i++) {
-                // Dynamically pick a random prefix from the network's array for EACH number
+                // Dynamically pick a random prefix for EACH number
                 let chosenPrefix = prefixesToUse[Math.floor(Math.random() * prefixesToUse.length)];
 
                 // Add 7 random digits to complete the number
@@ -415,7 +356,7 @@
             const a = document.createElement('a');
             a.style.display = 'none';
             a.href = url;
-            a.download = `VIP_${qty}_Contacts.vcf`;
+            a.download = `VIP_${qty}_WhatsApp_Contacts.vcf`;
             
             document.body.appendChild(a);
             a.click();
@@ -423,7 +364,7 @@
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
             
-            alert(`✅ Success! ${qty.toLocaleString()} highly-targeted, mixed network contacts have been generated and downloaded.`);
+            alert(`✅ Success! ${qty.toLocaleString()} highly-targeted WhatsApp contacts have been generated and downloaded.`);
         }
     </script>
 </body>
