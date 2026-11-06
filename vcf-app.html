@@ -63,12 +63,10 @@
             <p>Generate thousands of active WhatsApp numbers instantly. Save the VCF file to your phone, and watch your business engagement explode.</p>
         </div>
         
-        <!-- DYNAMIC QUANTITY SET BY ADMIN -->
         <div class="quantity-display" id="display-quantity">
             Loading capacity...
         </div>
 
-        <!-- NEW ORDER: MODE GOES FIRST -->
         <div class="form-group">
             <label>Number Generation Mode</label>
             <select id="number-mix-mode" onchange="toggleMode()">
@@ -79,19 +77,23 @@
         
         <div class="form-group" id="country-group">
             <label>Your Target Country</label>
-            <select id="buyer-country" class="country-dropdown"></select>
+            <select id="buyer-country" class="country-dropdown" onchange="updateNetworkDropdown()"></select>
+        </div>
+
+        <!-- NEW TELECOM NETWORK DROPDOWN -->
+        <div class="form-group" id="network-group">
+            <label>Telecom Network</label>
+            <select id="network-select" onchange="updatePrefixFromNetwork()"></select>
         </div>
 
         <div class="form-group" id="prefix-group">
             <label>Target Country Prefix</label>
-            <!-- Hardcoded default text directly in the value field -->
-            <input type="text" id="vcf-prefix" value="+23480">
+            <input type="text" id="vcf-prefix" value="+1202">
         </div>
 
         <div class="form-group">
             <label>Your Targeted Customers or Niche</label>
-            <!-- Hardcoded default text directly in the value field -->
-            <input type="text" id="vcf-name" value="CryptoBuyer">
+            <input type="text" id="vcf-name" placeholder="e.g., Crypto, Fashion, RealEstate" value="CryptoBuyer">
         </div>
 
         <button class="btn" onclick="openPaymentModal()">Generate & Download VCF</button>
@@ -181,30 +183,103 @@
             return `${currencySymbol}${Math.ceil(finalPrice).toLocaleString()} ${currencyCode}`;
         }
 
-        // UI TOGGLE FOR GENERATION MODE
+        // ==========================================
+        // DYNAMIC NETWORK DROPDOWN LOGIC
+        // ==========================================
+        const telecomNetworks = {
+            "United States (+1)": [
+                { name: "All Networks (Mixed)", prefix: "+1202" },
+                { name: "AT&T / T-Mobile (Generic)", prefix: "+1310" },
+                { name: "Verizon (Generic)", prefix: "+1212" },
+                { name: "Texas Area", prefix: "+1512" }
+            ],
+            "Nigeria (+234)": [
+                { name: "All Networks (Mixed)", prefix: "+23480" },
+                { name: "MTN Nigeria", prefix: "+234803" },
+                { name: "MTN Nigeria (Alt)", prefix: "+234903" },
+                { name: "Airtel Nigeria", prefix: "+234802" },
+                { name: "Glo Mobile", prefix: "+234805" },
+                { name: "9mobile", prefix: "+234809" }
+            ],
+            "United Kingdom (+44)": [
+                { name: "All Networks (Mixed)", prefix: "+4477" },
+                { name: "EE / O2 UK", prefix: "+4478" },
+                { name: "Vodafone UK", prefix: "+4479" }
+            ],
+            "South Africa (+27)": [
+                { name: "All Networks (Mixed)", prefix: "+2760" },
+                { name: "Vodacom", prefix: "+2772" },
+                { name: "MTN South Africa", prefix: "+2783" },
+                { name: "Cell C", prefix: "+2784" }
+            ],
+            "Ghana (+233)": [
+                { name: "All Networks (Mixed)", prefix: "+23320" },
+                { name: "MTN Ghana", prefix: "+23324" },
+                { name: "Vodafone Ghana", prefix: "+23320" },
+                { name: "AirtelTigo", prefix: "+23327" }
+            ]
+        };
+
+        function updateNetworkDropdown() {
+            const country = document.getElementById('buyer-country').value;
+            const networkSelect = document.getElementById('network-select');
+            networkSelect.innerHTML = ""; // Clear existing
+
+            let options = telecomNetworks[country];
+            
+            // If country isn't in our detailed list, provide a generic mixed option
+            if (!options) {
+                const baseCode = document.getElementById('buyer-country').options[document.getElementById('buyer-country').selectedIndex].dataset.code;
+                options = [ { name: "All Networks (Mixed)", prefix: baseCode } ];
+            }
+
+            options.forEach(opt => {
+                let el = document.createElement('option');
+                el.value = opt.prefix;
+                el.innerText = opt.name;
+                networkSelect.appendChild(el);
+            });
+
+            // Automatically set the prefix input to match the first network
+            updatePrefixFromNetwork();
+        }
+
+        function updatePrefixFromNetwork() {
+            const networkSelect = document.getElementById('network-select');
+            document.getElementById('vcf-prefix').value = networkSelect.value;
+        }
+
+        // UI TOGGLE FOR GLOBAL GENERATION MODE
         function toggleMode() {
             const mode = document.getElementById('number-mix-mode').value;
             const countryDropdown = document.getElementById('buyer-country');
+            const networkDropdown = document.getElementById('network-select');
             const prefixInput = document.getElementById('vcf-prefix');
+            
             const countryGroup = document.getElementById('country-group');
+            const networkGroup = document.getElementById('network-group');
             const prefixGroup = document.getElementById('prefix-group');
             
             if (mode === 'mixed') {
-                // Lock the inputs and dim them visually
+                // Lock the inputs and dim them visually for Global mode
                 countryDropdown.disabled = true;
+                networkDropdown.disabled = true;
                 prefixInput.disabled = true;
-                countryGroup.style.opacity = '0.4';
-                prefixGroup.style.opacity = '0.4';
+                countryGroup.style.opacity = '0.3';
+                networkGroup.style.opacity = '0.3';
+                prefixGroup.style.opacity = '0.3';
             } else {
-                // Unlock the inputs
+                // Unlock the inputs for Target Country mode
                 countryDropdown.disabled = false;
+                networkDropdown.disabled = false;
                 prefixInput.disabled = false;
                 countryGroup.style.opacity = '1';
+                networkGroup.style.opacity = '1';
                 prefixGroup.style.opacity = '1';
             }
         }
 
-        // POPULATE DROPDOWNS & HANDLE PREFIX AUTO-FILL
+        // POPULATE COUNTRIES
         const topTierCountries = [ 
             { name: "United States (+1)", code: "+1" }, 
             { name: "United Kingdom (+44)", code: "+44" }, 
@@ -231,7 +306,7 @@
                 option.value = country.name; 
                 option.innerText = country.name; 
                 option.dataset.code = country.code;
-                if (country.name.includes("Nigeria")) option.selected = true; // Set default to match the +23480
+                if (country.name.includes("United States")) option.selected = true; // DEFAULT TO USA
                 dropdown.appendChild(option);
             });
             let separator = document.createElement('option'); separator.disabled = true; separator.innerText = "──────────"; dropdown.appendChild(separator);
@@ -240,23 +315,15 @@
                 option.value = country.name; 
                 option.innerText = country.name;
                 option.dataset.code = country.code;
-                if (country.name.includes("Nigeria")) option.selected = true;
                 dropdown.appendChild(option);
             });
         });
 
-        // Automatically update the prefix field when country changes
-        document.getElementById('buyer-country').addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if(selectedOption.dataset.code) {
-                document.getElementById('vcf-prefix').value = selectedOption.dataset.code;
-            }
-        });
-
         window.onload = async () => { 
+            updateNetworkDropdown(); // Setup the networks based on the default US selection
             await fetchAppSettings();
             await fetchExchangeRates();
-            toggleMode(); // Ensure correct state on page load
+            toggleMode();
         };
 
         // ==========================================
@@ -267,7 +334,7 @@
             const prefix = document.getElementById('vcf-prefix').value.trim();
             
             if (mode === 'strict' && !prefix) {
-                alert("Please enter a Target Country Prefix first.");
+                alert("Please ensure a Target Country Prefix is entered.");
                 return;
             }
             
@@ -329,7 +396,7 @@
         // ==========================================
         // THE VCF GENERATOR ENGINE
         // ==========================================
-        const globalCountryCodes = ['+1', '+44', '+61', '+49', '+33', '+234', '+27', '+91', '+39', '+34', '+55', '+52', '+81', '+86'];
+        const globalCountryCodes = ['+1', '+44', '+61', '+49', '+33', '+23480', '+2760', '+91', '+39', '+34', '+55', '+52'];
 
         function generateVCFFile() {
             const basePrefix = document.getElementById('vcf-prefix').value.trim();
@@ -347,6 +414,7 @@
                     currentPrefix = globalCountryCodes[Math.floor(Math.random() * globalCountryCodes.length)];
                 }
 
+                // Add 7 random digits to the selected prefix
                 const randomNum = Math.floor(1000000 + Math.random() * 9000000);
                 const fullNumber = `${currentPrefix}${randomNum}`;
                 
