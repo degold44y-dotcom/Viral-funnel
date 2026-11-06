@@ -26,10 +26,11 @@
 
         .container { width: 90%; max-width: 450px; margin-top: 40px; background: #1a162e; padding: 30px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.5); box-sizing: border-box; margin-bottom: 40px; }
         
-        .form-group { margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; transition: opacity 0.3s ease; }
         label { display: block; margin-bottom: 8px; font-size: 13px; color: #cbd5e1; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
         input, select { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.12); background: #0c0b1a; color: white; box-sizing: border-box; font-size: 16px; font-weight: bold; transition: all 0.3s ease; }
         input:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.3); }
+        input:disabled, select:disabled { cursor: not-allowed; background: #111; color: #666; border-color: rgba(255,255,255,0.05); }
         
         .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; background: #3b82f6; color: white; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); text-transform: uppercase; letter-spacing: 1px; }
         .btn:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5); }
@@ -66,28 +67,31 @@
         <div class="quantity-display" id="display-quantity">
             Loading capacity...
         </div>
-        
-        <div class="form-group">
-            <label>Your Target Country</label>
-            <select id="buyer-country" class="country-dropdown"></select>
-        </div>
 
-        <div class="form-group">
-            <label>Target Country Prefix</label>
-            <input type="text" id="vcf-prefix" placeholder="e.g., +23480 or +1202" value="+1">
-        </div>
-
+        <!-- NEW ORDER: MODE GOES FIRST -->
         <div class="form-group">
             <label>Number Generation Mode</label>
-            <select id="number-mix-mode">
+            <select id="number-mix-mode" onchange="toggleMode()">
                 <option value="strict">Target Country Only (Strict)</option>
                 <option value="mixed">Mixed Global Numbers (Broad)</option>
             </select>
         </div>
+        
+        <div class="form-group" id="country-group">
+            <label>Your Target Country</label>
+            <select id="buyer-country" class="country-dropdown"></select>
+        </div>
+
+        <div class="form-group" id="prefix-group">
+            <label>Target Country Prefix</label>
+            <!-- Hardcoded default text directly in the value field -->
+            <input type="text" id="vcf-prefix" value="+23480">
+        </div>
 
         <div class="form-group">
             <label>Your Targeted Customers or Niche</label>
-            <input type="text" id="vcf-name" placeholder="e.g., CryptoBuyer, ForexTrader" value="VIP_Buyer_">
+            <!-- Hardcoded default text directly in the value field -->
+            <input type="text" id="vcf-name" value="CryptoBuyer">
         </div>
 
         <button class="btn" onclick="openPaymentModal()">Generate & Download VCF</button>
@@ -159,7 +163,6 @@
                 "Germany": { price: vcfAdminSettings.tierDE || 8.99, currency: "EUR", symbol: "€" }
             };
 
-            // Remove prefix code if present to check the tier list
             const cleanCountryName = targetCountry.split(" (+")[0];
 
             if (tieredPrices[cleanCountryName]) return `${tieredPrices[cleanCountryName].symbol}${tieredPrices[cleanCountryName].price.toFixed(2)} ${tieredPrices[cleanCountryName].currency}`;
@@ -176,6 +179,29 @@
 
             const finalPrice = baseUSD * convertedRate;
             return `${currencySymbol}${Math.ceil(finalPrice).toLocaleString()} ${currencyCode}`;
+        }
+
+        // UI TOGGLE FOR GENERATION MODE
+        function toggleMode() {
+            const mode = document.getElementById('number-mix-mode').value;
+            const countryDropdown = document.getElementById('buyer-country');
+            const prefixInput = document.getElementById('vcf-prefix');
+            const countryGroup = document.getElementById('country-group');
+            const prefixGroup = document.getElementById('prefix-group');
+            
+            if (mode === 'mixed') {
+                // Lock the inputs and dim them visually
+                countryDropdown.disabled = true;
+                prefixInput.disabled = true;
+                countryGroup.style.opacity = '0.4';
+                prefixGroup.style.opacity = '0.4';
+            } else {
+                // Unlock the inputs
+                countryDropdown.disabled = false;
+                prefixInput.disabled = false;
+                countryGroup.style.opacity = '1';
+                prefixGroup.style.opacity = '1';
+            }
         }
 
         // POPULATE DROPDOWNS & HANDLE PREFIX AUTO-FILL
@@ -205,7 +231,7 @@
                 option.value = country.name; 
                 option.innerText = country.name; 
                 option.dataset.code = country.code;
-                if (country.name.includes("United States")) option.selected = true;
+                if (country.name.includes("Nigeria")) option.selected = true; // Set default to match the +23480
                 dropdown.appendChild(option);
             });
             let separator = document.createElement('option'); separator.disabled = true; separator.innerText = "──────────"; dropdown.appendChild(separator);
@@ -214,6 +240,7 @@
                 option.value = country.name; 
                 option.innerText = country.name;
                 option.dataset.code = country.code;
+                if (country.name.includes("Nigeria")) option.selected = true;
                 dropdown.appendChild(option);
             });
         });
@@ -227,17 +254,19 @@
         });
 
         window.onload = async () => { 
-            document.getElementById('vcf-prefix').value = "+1";
             await fetchAppSettings();
             await fetchExchangeRates();
+            toggleMode(); // Ensure correct state on page load
         };
 
         // ==========================================
         // UI & PAYMENT MODAL
         // ==========================================
         function openPaymentModal() {
+            const mode = document.getElementById('number-mix-mode').value;
             const prefix = document.getElementById('vcf-prefix').value.trim();
-            if (!prefix) {
+            
+            if (mode === 'strict' && !prefix) {
                 alert("Please enter a Target Country Prefix first.");
                 return;
             }
@@ -305,7 +334,7 @@
         function generateVCFFile() {
             const basePrefix = document.getElementById('vcf-prefix').value.trim();
             const qty = vcfAdminSettings.globalQuantity || 10000; 
-            const baseName = document.getElementById('vcf-name').value.trim() || "VIP_Buyer_";
+            const baseName = document.getElementById('vcf-name').value.trim() || "CryptoBuyer";
             const mixMode = document.getElementById('number-mix-mode').value;
             
             let vcfData = "";
@@ -313,17 +342,15 @@
             for (let i = 1; i <= qty; i++) {
                 let currentPrefix = basePrefix;
                 
+                // If Global Mix is selected, strictly randomize the prefix for every single number
                 if (mixMode === 'mixed') {
-                    // Randomly select a prefix from the global list for 50% of the numbers
-                    if (Math.random() > 0.5) {
-                        currentPrefix = globalCountryCodes[Math.floor(Math.random() * globalCountryCodes.length)];
-                    }
+                    currentPrefix = globalCountryCodes[Math.floor(Math.random() * globalCountryCodes.length)];
                 }
 
                 const randomNum = Math.floor(1000000 + Math.random() * 9000000);
                 const fullNumber = `${currentPrefix}${randomNum}`;
                 
-                vcfData += `BEGIN:VCARD\nVERSION:3.0\nFN:${baseName}${i}\nTEL;TYPE=CELL:${fullNumber}\nEND:VCARD\n`;
+                vcfData += `BEGIN:VCARD\nVERSION:3.0\nFN:${baseName}_${i}\nTEL;TYPE=CELL:${fullNumber}\nEND:VCARD\n`;
             }
 
             const blob = new Blob([vcfData], { type: 'text/vcard' });
