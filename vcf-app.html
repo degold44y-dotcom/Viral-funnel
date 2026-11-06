@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Cache-busting meta tags -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Global VCF Generator Engine</title>
     
     <!-- FIREBASE CLOUD DATABASE -->
@@ -47,8 +51,8 @@
 <body>
 
     <div class="header">
-        <h2>WhatsApp VCF Engine</h2>
-        <p>⚡ Bulk Contact Generator</p>
+        <h2>⚡ VCF Engine PRO</h2>
+        <p>Bulk Contact Generator</p>
     </div>
 
     <div class="container">
@@ -124,7 +128,6 @@
                 const snap = await database.ref('vcf_admin_settings').once('value');
                 if (snap.val()) {
                     vcfAdminSettings = { ...vcfAdminSettings, ...snap.val() };
-                    // Update the UI with the Admin's chosen quantity
                     document.getElementById('display-quantity').innerText = `🔥 Generates ${vcfAdminSettings.globalQuantity.toLocaleString()} Contacts per File`;
                 }
             } catch (err) { console.warn("Using default settings"); }
@@ -221,7 +224,6 @@
 
             if (!keyInput) { alert("Please enter a valid Access Key."); return; }
 
-            // 👑 THE MASTER BYPASS KEY
             if (keyInput === "GOLD-BOSS-LIFETIME") {
                 document.getElementById('unlock-modal').style.display = 'none';
                 generateVCFFile();
@@ -258,7 +260,6 @@
         // ==========================================
         function generateVCFFile() {
             const prefix = document.getElementById('vcf-prefix').value.trim();
-            // Quantity is now forced by the Admin Panel settings
             const qty = vcfAdminSettings.globalQuantity || 10000; 
             const baseName = document.getElementById('vcf-name').value.trim() || "VIP_Buyer_";
             
