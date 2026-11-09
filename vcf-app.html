@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Cache-busting meta tags -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -72,7 +71,10 @@
         
         <div class="form-group" id="country-group">
             <label>Your Target Country</label>
-            <select id="buyer-country" class="country-dropdown" onchange="updateCoverageText()"></select>
+            <select id="buyer-country" class="country-dropdown" onchange="updateCoverageText()">
+                <!-- Default empty option to force selection -->
+                <option value="" disabled selected>--- Select Target Country ---</option>
+            </select>
             <div id="coverage-text" class="coverage-badge"></div>
         </div>
 
@@ -85,9 +87,10 @@
         <button class="btn" onclick="openPaymentModal()">Generate & Download VCF</button>
         
         <!-- THE NEW FREE TEST BUTTON FOR DOUBTERS -->
-        <button class="btn-demo" onclick="generateDemoVCF()">🧪 Generate Free Sample (7 Contacts)</button>
+        <button class="btn-demo" onclick="generateDemoVCF()">🧪 Generate Free Sample (10 Contacts)</button>
     </div>
 
+    <!-- VIP ACCESS MODAL -->
     <div id="unlock-modal" class="modal">
         <div class="modal-content">
             <h3>VIP Access Required</h3>
@@ -105,6 +108,7 @@
     </div>
 
     <script>
+        // FIREBASE SETUP
         const firebaseConfig = {
             apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
             authDomain: "global-match-99b4e.firebaseapp.com",
@@ -136,36 +140,6 @@
             "South Africa (+27)": ["+2782", "+2772", "+2771", "+2779", "+2776", "+2781", "+2783", "+2773", "+2778", "+2760", "+2763", "+2784", "+2774", "+2761"],
             "Ghana (+233)": ["+23324", "+23354", "+23355", "+23359", "+23320", "+23350", "+23327", "+23357", "+23326", "+23356"]
         };
-
-        function updateCoverageText() {
-            const countrySelect = document.getElementById('buyer-country');
-            const mode = document.getElementById('number-mix-mode').value;
-            const coverageText = document.getElementById('coverage-text');
-            
-            if (mode === 'mixed') {
-                coverageText.innerText = "🌍 COVERAGE: GLOBAL NETWORKS (MIXED)";
-                coverageText.style.color = "#3b82f6";
-            } else {
-                const countryName = countrySelect.value.split(" (+")[0];
-                coverageText.innerText = `⚡ COVERAGE: ALL ${countryName.toUpperCase()} NETWORKS (MIXED)`;
-                coverageText.style.color = "#10b981";
-            }
-        }
-
-        function toggleMode() {
-            const mode = document.getElementById('number-mix-mode').value;
-            const countryDropdown = document.getElementById('buyer-country');
-            const countryGroup = document.getElementById('country-group');
-            
-            if (mode === 'mixed') {
-                countryDropdown.disabled = true;
-                countryGroup.style.opacity = '0.4';
-            } else {
-                countryDropdown.disabled = false;
-                countryGroup.style.opacity = '1';
-            }
-            updateCoverageText(); 
-        }
 
         const topTierCountries = [ 
             { name: "United States (+1)", code: "+1" }, { name: "United Kingdom (+44)", code: "+44" }, { name: "Canada (+1)", code: "+1" }, { name: "Australia (+61)", code: "+61" }, { name: "Germany (+49)", code: "+49" } 
@@ -224,7 +198,7 @@
         countryDropdowns.forEach(dropdown => {
             topTierCountries.forEach((country) => {
                 let option = document.createElement('option'); option.value = country.name; option.innerText = country.name; option.dataset.code = country.code;
-                if (country.name.includes("United States")) option.selected = true; dropdown.appendChild(option);
+                dropdown.appendChild(option);
             });
             let separator = document.createElement('option'); separator.disabled = true; separator.innerText = "──────────"; dropdown.appendChild(separator);
             otherCountries.forEach(country => {
@@ -237,7 +211,50 @@
             toggleMode();
         };
 
+        function updateCoverageText() {
+            const countrySelect = document.getElementById('buyer-country').value;
+            const mode = document.getElementById('number-mix-mode').value;
+            const coverageText = document.getElementById('coverage-text');
+            
+            if (mode === 'mixed') {
+                coverageText.innerText = "🌍 COVERAGE: GLOBAL NETWORKS (MIXED)";
+                coverageText.style.color = "#3b82f6";
+            } else {
+                if(countrySelect) {
+                    const countryName = countrySelect.split(" (+")[0];
+                    coverageText.innerText = `⚡ COVERAGE: ALL ${countryName.toUpperCase()} NETWORKS (MIXED)`;
+                    coverageText.style.color = "#10b981";
+                } else {
+                    coverageText.innerText = "";
+                }
+            }
+        }
+
+        function toggleMode() {
+            const mode = document.getElementById('number-mix-mode').value;
+            const countryDropdown = document.getElementById('buyer-country');
+            const countryGroup = document.getElementById('country-group');
+            
+            if (mode === 'mixed') {
+                countryDropdown.disabled = true;
+                countryGroup.style.opacity = '0.4';
+            } else {
+                countryDropdown.disabled = false;
+                countryGroup.style.opacity = '1';
+            }
+            updateCoverageText(); 
+        }
+
         function openPaymentModal() {
+            const mixMode = document.getElementById('number-mix-mode').value;
+            const selectedCountry = document.getElementById('buyer-country').value;
+            
+            // VALIDATION: Must pick a country if in Strict mode
+            if (mixMode === 'strict' && selectedCountry === "") {
+                alert("❌ Please select your Target Country first.");
+                return;
+            }
+            
             document.getElementById('access-key-input').value = "";
             document.getElementById('unlock-modal').style.display = 'flex';
         }
@@ -372,17 +389,29 @@
         }
 
         // ==========================================
-        // THE FREE DEMO GENERATOR (7 CONTACTS ONLY)
+        // THE FREE DEMO GENERATOR (10 CONTACTS ONLY)
         // ==========================================
         function generateDemoVCF() {
-            const qty = 7; // strictly limited to 7 contacts
+            const mixMode = document.getElementById('number-mix-mode').value;
+            const selectedCountry = document.getElementById('buyer-country').value;
+            
+            // 1. VALIDATION: Must pick a country if in Strict mode
+            if (mixMode === 'strict' && selectedCountry === "") {
+                alert("❌ Please select your Target Country first.");
+                return;
+            }
+
+            // 2. BROWSER LOCKDOWN: Check if they already generated a free file
+            if (localStorage.getItem('vcf_demo_used') === 'true') {
+                alert("❌ Free Demo Limit Reached! You have already tested the system.\n\nPlease purchase a VIP Access Key to generate bulk contacts for your business.");
+                return;
+            }
+
+            const qty = 10; // strictly limited to 10 contacts
             
             let baseName = document.getElementById('vcf-name').value.trim();
             if(!baseName) baseName = "Targeted_Contact";
             baseName = "DEMO_" + baseName; // clearly marks it as a demo file
-
-            const mixMode = document.getElementById('number-mix-mode').value;
-            const selectedCountry = document.getElementById('buyer-country').value;
             
             let prefixesToUse = [];
 
@@ -422,8 +451,11 @@
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
             
+            // 3. SECURE THE LOCKDOWN: Mark the browser as having used the demo
+            localStorage.setItem('vcf_demo_used', 'true');
+            
             // Pop-up specifically designed to upsell the full VIP key
-            alert(`✅ Success! Your free sample of 7 contacts has been downloaded.\n\nSave it to your phone to see how it works, then click "Generate & Download VCF" and purchase an Access Key to unlock the full database of 10,000+ contacts!`);
+            alert(`✅ Success! Your free sample of ${qty} contacts has been downloaded.\n\nSave it to your phone to see how it works, then click "Generate & Download VCF" and purchase an Access Key to unlock the full database of 10,000+ contacts!`);
         }
     </script>
 </body>
