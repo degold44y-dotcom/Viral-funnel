@@ -6,27 +6,15 @@
     <title>ViralSniper | YouTube Outlier Engine</title>
     <style>
         :root {
-            --bg-main: #0f172a;
-            --bg-card: #1e293b;
-            --primary: #ef4444; /* YouTube Red */
-            --primary-hover: #dc2626;
-            --accent: #10b981; /* Success Green */
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --bg-main: #0f172a; --bg-card: #1e293b; --primary: #ef4444; 
+            --primary-hover: #dc2626; --accent: #10b981; --text-main: #f8fafc; --text-muted: #94a3b8;
         }
-
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        
-        /* HEADER */
         .header { width: 100%; padding: 20px; text-align: center; background: rgba(30, 41, 59, 0.8); border-bottom: 1px solid rgba(239, 68, 68, 0.3); box-shadow: 0 4px 20px rgba(0,0,0,0.3); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
         .header h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
         .header h1 span { color: var(--primary); }
         .header p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
-
-        /* MAIN CONTAINER */
         .container { width: 90%; max-width: 800px; margin-top: 40px; padding-bottom: 50px; }
-
-        /* SEARCH BAR SECTION */
         .search-box { background: var(--bg-card); padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .search-box h2 { margin-top: 0; font-size: 22px; margin-bottom: 20px; }
         .input-group { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -34,30 +22,24 @@
         .input-group input:focus { outline: none; border-color: var(--primary); }
         .btn-search { padding: 16px 30px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); text-transform: uppercase; }
         .btn-search:hover { background: var(--primary-hover); transform: translateY(-2px); }
-
-        /* RESULTS SECTION */
+        
         .results-container { margin-top: 30px; display: none; }
         .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
         .results-header h3 { margin: 0; color: var(--accent); }
         
-        /* VIDEO CARD */
         .video-card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 15px; transition: 0.2s; cursor: pointer; position: relative; overflow: hidden; }
         .video-card:hover { border-color: var(--primary); box-shadow: 0 5px 20px rgba(239,68,68,0.15); transform: translateY(-3px); }
-        
         .outlier-badge { position: absolute; top: 15px; right: 15px; background: rgba(16, 185, 129, 0.2); color: var(--accent); padding: 5px 10px; border-radius: 6px; font-weight: bold; font-size: 12px; border: 1px solid var(--accent); }
-        
         .video-title { font-size: 18px; font-weight: bold; margin: 0; padding-right: 80px; line-height: 1.4; }
         .video-stats { display: flex; gap: 20px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
         .stat-item span { color: white; font-weight: bold; }
-
-        /* X-RAY PANEL (HIDDEN BY DEFAULT) */
+        
         .xray-panel { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); }
         .tags-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .tag { background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 4px; font-size: 12px; color: var(--text-muted); }
         .btn-action { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; margin-top: 15px; transition: 0.2s; }
         .btn-action:hover { background: rgba(16, 185, 129, 0.1); }
-
-        /* VIP PAYWALL MODAL */
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px); }
         .modal-content { background: var(--bg-card); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 450px; border: 1px solid var(--primary); box-shadow: 0 0 40px rgba(239,68,68,0.2); }
         .modal-content h2 { margin-top: 0; color: white; font-size: 26px; }
@@ -65,7 +47,7 @@
         .btn-upgrade { width: 100%; background: var(--accent); color: #000; padding: 18px; border: none; border-radius: 12px; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 20px rgba(16,185,129,0.4); transition: 0.2s; }
         .btn-upgrade:hover { transform: scale(1.02); }
         .lock-icon { font-size: 40px; margin-bottom: 10px; }
-
+        #loading-text { display: none; color: var(--accent); font-size: 14px; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -76,13 +58,13 @@
     </div>
 
     <div class="container">
-        
         <div class="search-box">
             <h2>What is your niche?</h2>
             <div class="input-group">
                 <input type="text" id="niche-input" placeholder="e.g., Faceless Finance, Real Estate, Tech Reviews">
-                <button class="btn-search" onclick="runSearch()" id="search-btn">Find Viral Outliers</button>
+                <button class="btn-search" onclick="runRealSearch()" id="search-btn">Find Viral Outliers</button>
             </div>
+            <p id="loading-text">Fetching Live YouTube Data & Calculating Outlier Scores...</p>
             <p style="font-size: 12px; color: var(--text-muted); margin-top: 15px;">🔍 1 Free Search Remaining Today</p>
         </div>
 
@@ -91,44 +73,12 @@
                 <h3>🔥 High-Outlier Videos Found</h3>
                 <span style="font-size: 12px; color: var(--text-muted);">Click a video to reveal its tags</span>
             </div>
-
-            <!-- MOCK RESULT 1 -->
-            <div class="video-card" onclick="toggleXray(1)">
-                <div class="outlier-badge">🚀 850x Outlier</div>
-                <h4 class="video-title">How I Made $10,000 in 30 Days Using Free AI Tools (No Experience)</h4>
-                <div class="video-stats">
-                    <div class="stat-item">👁️ Views: <span>1.2M</span></div>
-                    <div class="stat-item">👤 Subs: <span>1,410</span></div>
-                    <div class="stat-item">📅 Age: <span>3 Weeks</span></div>
-                </div>
-                
-                <!-- X-RAY HIDDEN PANEL -->
-                <div class="xray-panel" id="xray-1">
-                    <span style="font-size: 13px; font-weight: bold; color: var(--accent);">🔓 SEO Tags Revealed:</span>
-                    <div class="tags-list">
-                        <span class="tag">AI side hustle</span>
-                        <span class="tag">make money online 2026</span>
-                        <span class="tag">chatgpt tutorials</span>
-                        <span class="tag">passive income beginners</span>
-                    </div>
-                    <button class="btn-action" onclick="event.stopPropagation(); alert('Tags Copied to Clipboard!')">📋 Copy Tags</button>
-                    <button class="btn-action" style="margin-left: 10px; border-color: var(--primary); color: var(--primary);" onclick="event.stopPropagation(); showPaywall()">🎯 Score My Video</button>
-                </div>
-            </div>
-
-            <!-- MOCK RESULT 2 -->
-            <div class="video-card" onclick="showPaywall()">
-                <div class="outlier-badge">🚀 420x Outlier</div>
-                <h4 class="video-title">The "Faceless" YouTube Strategy Making Me $500/Day</h4>
-                <div class="video-stats">
-                    <div class="stat-item">👁️ Views: <span>840K</span></div>
-                    <div class="stat-item">👤 Subs: <span>2,000</span></div>
-                    <div class="stat-item">📅 Age: <span>1 Month</span></div>
-                </div>
-            </div>
             
-            <!-- BLURRED VIP RESULT -->
-            <div class="video-card" style="filter: blur(4px); pointer-events: none; opacity: 0.6;">
+            <!-- Real results will be injected here via JavaScript -->
+            <div id="dynamic-results"></div>
+
+            <!-- BLURRED VIP RESULT TRAP -->
+            <div class="video-card" style="filter: blur(4px); pointer-events: none; opacity: 0.6; margin-top: 20px;">
                 <h4 class="video-title">Hidden Viral Video Title...</h4>
                 <div class="video-stats">
                     <div class="stat-item">👁️ Views: <span>2.5M</span></div>
@@ -139,7 +89,6 @@
                 <button class="btn-search" style="background: var(--accent); box-shadow: 0 4px 15px rgba(16,185,129,0.3);" onclick="showPaywall()">Unlock 50+ More Outliers</button>
             </div>
         </div>
-
     </div>
 
     <!-- VIP PAYWALL MODAL -->
@@ -154,43 +103,123 @@
     </div>
 
     <script>
+        const API_KEY = 'AIzaSyC7Nu3u8EWJTm2ytloAeep-BtD16s8X-g0';
         let searchCount = 0;
 
-        function runSearch() {
-            const input = document.getElementById('niche-input').value;
-            if(!input) {
-                alert("Please enter a niche first!");
-                return;
-            }
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num;
+        }
 
-            if(searchCount >= 1) {
-                showPaywall();
-                return;
-            }
+        async function runRealSearch() {
+            const input = document.getElementById('niche-input').value;
+            if(!input) { alert("Please enter a niche first!"); return; }
+
+            // Trigger Paywall after 1 free search
+            if(searchCount >= 1) { showPaywall(); return; }
 
             const btn = document.getElementById('search-btn');
-            btn.innerText = "Scanning Algorithm...";
+            const loadingText = document.getElementById('loading-text');
+            const resultsArea = document.getElementById('results-area');
+            const dynamicResults = document.getElementById('dynamic-results');
+            
+            btn.innerText = "Scanning...";
             btn.disabled = true;
+            loadingText.style.display = "block";
+            resultsArea.style.display = "none";
+            dynamicResults.innerHTML = "";
 
-            // Simulate API load time
-            setTimeout(() => {
-                document.getElementById('results-area').style.display = 'block';
-                btn.innerText = "Find Viral Outliers";
-                btn.disabled = false;
-                searchCount++;
+            try {
+                // Step 1: Search for videos based on niche
+                const searchResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(input)}&type=video&order=viewCount&key=${API_KEY}`);
+                const searchData = await searchResponse.json();
                 
-                // Scroll to results
-                document.getElementById('results-area').scrollIntoView({ behavior: 'smooth' });
-            }, 1200);
+                if (!searchData.items || searchData.items.length === 0) {
+                    alert("No videos found. Try a different keyword.");
+                    resetUI(btn, loadingText);
+                    return;
+                }
+
+                const videoIds = searchData.items.map(item => item.id.videoId).join(',');
+
+                // Step 2: Fetch exact Video Statistics (Views, Tags)
+                const videoResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${videoIds}&key=${API_KEY}`);
+                const videoData = await videoResponse.json();
+
+                // Step 3: Fetch exact Channel Statistics (Subscribers)
+                const channelIds = videoData.items.map(item => item.snippet.channelId).join(',');
+                const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelIds}&key=${API_KEY}`);
+                const channelData = await channelResponse.json();
+
+                // Build mapping for channel subs
+                let channelSubsMap = {};
+                channelData.items.forEach(channel => {
+                    channelSubsMap[channel.id] = parseInt(channel.statistics.subscriberCount) || 1; 
+                });
+
+                // Step 4: Calculate Outlier Math & Build HTML
+                let htmlOutput = "";
+                
+                videoData.items.forEach((video, index) => {
+                    let views = parseInt(video.statistics.viewCount) || 0;
+                    let subs = channelSubsMap[video.snippet.channelId];
+                    let outlierScore = (views / subs).toFixed(1);
+                    
+                    // Cap it for clean UI if it's ridiculously high
+                    if(outlierScore > 999) outlierScore = "999+"; 
+
+                    let tagsHTML = "";
+                    if (video.snippet.tags) {
+                        // Show first 5 tags
+                        tagsHTML = video.snippet.tags.slice(0, 5).map(tag => `<span class="tag">${tag}</span>`).join('');
+                    } else {
+                        tagsHTML = `<span class="tag">No tags found</span>`;
+                    }
+
+                    // For demo purposes, we will force the second card to trigger the paywall
+                    let onclickLogic = index === 0 ? `toggleXray('${video.id}')` : `showPaywall()`;
+
+                    htmlOutput += `
+                    <div class="video-card" onclick="${onclickLogic}">
+                        <div class="outlier-badge">🚀 ${outlierScore}x Outlier</div>
+                        <h4 class="video-title">${video.snippet.title}</h4>
+                        <div class="video-stats">
+                            <div class="stat-item">👁️ Views: <span>${formatNumber(views)}</span></div>
+                            <div class="stat-item">👤 Subs: <span>${formatNumber(subs)}</span></div>
+                        </div>
+                        
+                        <div class="xray-panel" id="xray-${video.id}">
+                            <span style="font-size: 13px; font-weight: bold; color: var(--accent);">🔓 SEO Tags Revealed:</span>
+                            <div class="tags-list">${tagsHTML}</div>
+                            <button class="btn-action" onclick="event.stopPropagation(); alert('Tags Copied to Clipboard!')">📋 Copy Tags</button>
+                            <button class="btn-action" style="margin-left: 10px; border-color: var(--primary); color: var(--primary);" onclick="event.stopPropagation(); showPaywall()">🎯 Score My Video</button>
+                        </div>
+                    </div>
+                    `;
+                });
+
+                dynamicResults.innerHTML = htmlOutput;
+                resultsArea.style.display = 'block';
+                searchCount++;
+
+            } catch (error) {
+                alert("Error connecting to YouTube. Check your internet connection.");
+                console.error(error);
+            }
+
+            resetUI(btn, loadingText);
+        }
+
+        function resetUI(btn, loadingText) {
+            btn.innerText = "Find Viral Outliers";
+            btn.disabled = false;
+            loadingText.style.display = "none";
         }
 
         function toggleXray(id) {
             const panel = document.getElementById('xray-' + id);
-            if (panel.style.display === 'block') {
-                panel.style.display = 'none';
-            } else {
-                panel.style.display = 'block';
-            }
+            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
         }
 
         function showPaywall() {
