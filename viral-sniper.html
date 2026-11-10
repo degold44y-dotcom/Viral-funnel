@@ -98,7 +98,7 @@
             <p style="color: var(--text-muted); margin-bottom: 20px;">Stop guessing what to film. Upgrade to VIP to instantly unlock unlimited Outlier Searches and the SEO Tag Copier.</p>
             
             <!-- UNIVERSAL PAYMENT BUTTON -->
-            <button class="btn-upgrade" onclick="window.open('YOUR_PAYMENT_LINK_HERE', '_blank')">Get VIP Access Key</button>
+            <button class="btn-upgrade" onclick="window.open('https://selar.co/', '_blank')">Get VIP Access Key</button>
             
             <div class="key-input-group">
                 <p style="margin-top: 0; font-size: 13px; color: var(--text-muted);">Already bought a key?</p>
@@ -112,15 +112,15 @@
     </div>
 
     <script>
-        // --- 1. FIREBASE CONFIGURATION (REPLACE WITH YOURS) ---
+        // --- 1. FIREBASE CONFIGURATION (LIVE) ---
         const firebaseConfig = {
-            apiKey: "YOUR_FIREBASE_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-            projectId: "YOUR_PROJECT",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
+            authDomain: "global-match-99b4e.firebaseapp.com",
+            databaseURL: "https://global-match-99b4e-default-rtdb.firebaseio.com",
+            projectId: "global-match-99b4e",
+            storageBucket: "global-match-99b4e.firebasestorage.app",
+            messagingSenderId: "816808980244",
+            appId: "1:816808980244:web:832c3852ead2b707bb9c01"
         };
         // Initialize Firebase
         if (!firebase.apps.length) {
@@ -286,7 +286,7 @@
                 }
             }).catch((error) => {
                 console.error("Firebase error:", error);
-                alert("Database connection error. Check your Firebase credentials in the code.");
+                alert("Database connection error. Check your database rules in Firebase.");
             });
         }
 
