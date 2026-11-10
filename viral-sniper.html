@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ViralSniper | YouTube Outlier Engine</title>
+    <!-- FIREBASE CDNs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
         :root {
             --bg-main: #0f172a; --bg-card: #1e293b; --primary: #ef4444; 
@@ -13,7 +17,8 @@
         .header { width: 100%; padding: 20px; text-align: center; background: rgba(30, 41, 59, 0.8); border-bottom: 1px solid rgba(239, 68, 68, 0.3); box-shadow: 0 4px 20px rgba(0,0,0,0.3); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
         .header h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
         .header h1 span { color: var(--primary); }
-        .header p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
+        .vip-status-badge { display: none; background: var(--accent); color: #000; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 10px; text-transform: uppercase; }
+        
         .container { width: 90%; max-width: 800px; margin-top: 40px; padding-bottom: 50px; }
         .search-box { background: var(--bg-card); padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .search-box h2 { margin-top: 0; font-size: 22px; margin-bottom: 20px; }
@@ -38,55 +43,47 @@
         .tags-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .tag { background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 4px; font-size: 12px; color: var(--text-muted); }
         .btn-action { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; margin-top: 15px; transition: 0.2s; }
-        .btn-action:hover { background: rgba(16, 185, 129, 0.1); }
         
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px); }
         .modal-content { background: var(--bg-card); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 450px; border: 1px solid var(--primary); box-shadow: 0 0 40px rgba(239,68,68,0.2); }
         .modal-content h2 { margin-top: 0; color: white; font-size: 26px; }
-        .modal-content p { color: var(--text-muted); line-height: 1.6; margin-bottom: 25px; }
-        .btn-upgrade { width: 100%; background: var(--accent); color: #000; padding: 18px; border: none; border-radius: 12px; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 20px rgba(16,185,129,0.4); transition: 0.2s; }
-        .btn-upgrade:hover { transform: scale(1.02); }
-        .lock-icon { font-size: 40px; margin-bottom: 10px; }
+        .btn-upgrade { width: 100%; background: var(--primary); color: white; padding: 18px; border: none; border-radius: 12px; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; transition: 0.2s; margin-bottom: 20px; }
+        .btn-upgrade:hover { background: var(--primary-hover); }
+        
+        .key-input-group { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin-top: 15px; }
+        .key-input-group input { width: 90%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: var(--bg-main); color: white; margin-bottom: 10px; text-align: center; font-family: monospace; font-size: 16px; }
+        .btn-verify { background: var(--accent); color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+        
         #loading-text { display: none; color: var(--accent); font-size: 14px; margin-top: 15px; font-weight: bold; }
+        #free-uses-text { font-size: 12px; color: var(--text-muted); margin-top: 15px; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>Viral<span>Sniper</span></h1>
-        <p>Find YouTube's Hidden Algorithm Outliers</p>
+        <div id="vip-badge" class="vip-status-badge">⭐ Lifetime VIP Active</div>
     </div>
 
     <div class="container">
         <div class="search-box">
             <h2>What is your niche?</h2>
             <div class="input-group">
-                <input type="text" id="niche-input" placeholder="e.g., Faceless Finance, Real Estate, Tech Reviews">
+                <input type="text" id="niche-input" placeholder="e.g., Faceless Finance, Real Estate">
                 <button class="btn-search" onclick="runRealSearch()" id="search-btn">Find Viral Outliers</button>
             </div>
-            <p id="loading-text">Fetching Live YouTube Data & Calculating Outlier Scores...</p>
-            <p style="font-size: 12px; color: var(--text-muted); margin-top: 15px;">🔍 1 Free Search Remaining Today</p>
+            <p id="loading-text">Fetching Live YouTube Data...</p>
+            <p id="free-uses-text">🔍 1 Free Search Remaining Today</p>
         </div>
 
         <div class="results-container" id="results-area">
             <div class="results-header">
                 <h3>🔥 High-Outlier Videos Found (Last 90 Days)</h3>
-                <span style="font-size: 12px; color: var(--text-muted);">Click a video to reveal its tags</span>
             </div>
-            
             <div id="dynamic-results"></div>
-
-            <!-- BLURRED VIP RESULT TRAP -->
-            <div class="video-card" style="filter: blur(4px); pointer-events: none; opacity: 0.6; margin-top: 20px;">
-                <h4 class="video-title">Hidden Viral Video Title...</h4>
-                <div class="video-stats">
-                    <div class="stat-item">👁️ Views: <span>2.5M</span></div>
-                    <div class="stat-item">👤 Subs: <span>950</span></div>
-                    <div class="stat-item">📅 Age: <span>3 days</span></div>
-                </div>
-            </div>
-            <div style="text-align: center; margin-top: -60px; position: relative; z-index: 10;">
-                <button class="btn-search" style="background: var(--accent); box-shadow: 0 4px 15px rgba(16,185,129,0.3);" onclick="showPaywall()">Unlock 50+ More Outliers</button>
+            
+            <div id="vip-trap" style="text-align: center; margin-top: 20px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px;">
+                <button class="btn-search" style="background: var(--accent); color: black;" onclick="showPaywall()">Unlock 50+ More Outliers</button>
             </div>
         </div>
     </div>
@@ -94,17 +91,50 @@
     <!-- VIP PAYWALL MODAL -->
     <div id="paywall-modal" class="modal">
         <div class="modal-content">
-            <div class="lock-icon">🔒</div>
-            <h2>Free Limit Reached</h2>
-            <p>You have discovered the power of the <strong>Outlier Engine</strong>. Stop guessing what to film. Upgrade to VIP to instantly unlock unlimited Niche Searches, the Tag Copier, and the Viral Match Scorer.</p>
-            <button class="btn-upgrade" onclick="window.open('https://selar.co', '_blank')">Get VIP Access Key</button>
+            <div style="font-size: 40px; margin-bottom: 10px;">🔒</div>
+            <h2>Unlock Unlimited Searches</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Stop guessing what to film. Upgrade to VIP to instantly unlock unlimited Outlier Searches and the SEO Tag Copier.</p>
+            
+            <!-- UNIVERSAL PAYMENT BUTTON -->
+            <button class="btn-upgrade" onclick="window.open('YOUR_PAYMENT_LINK_HERE', '_blank')">Get VIP Access Key</button>
+            
+            <div class="key-input-group">
+                <p style="margin-top: 0; font-size: 13px; color: var(--text-muted);">Already bought a key?</p>
+                <input type="text" id="vip-key-input" placeholder="Paste Access Key Here">
+                <button class="btn-verify" onclick="verifyFirebaseKey()">Unlock Dashboard</button>
+                <p id="key-error" style="color: var(--primary); font-size: 12px; display: none; margin-bottom: 0;">Invalid Key. Please try again.</p>
+            </div>
+
             <p style="margin-top: 20px; font-size: 12px; color: var(--text-muted); cursor: pointer;" onclick="document.getElementById('paywall-modal').style.display='none'">Close</p>
         </div>
     </div>
 
     <script>
-        const API_KEY = 'AIzaSyC7Nu3u8EWJTm2ytloAeep-BtD16s8X-g0';
+        // --- 1. FIREBASE CONFIGURATION (REPLACE WITH YOURS) ---
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // --- 2. YOUTUBE API SETUP ---
+        const YOUTUBE_API_KEY = 'AIzaSyC7Nu3u8EWJTm2ytloAeep-BtD16s8X-g0';
+        
+        // --- 3. VIP STATE MANAGEMENT ---
         let searchCount = 0;
+        let isVIP = localStorage.getItem("viralsniper_vip") === "true";
+
+        // Check VIP status on load
+        window.onload = () => {
+            if (isVIP) unlockVIPInterface();
+        };
 
         function formatNumber(num) {
             if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -130,7 +160,8 @@
             const input = document.getElementById('niche-input').value;
             if(!input) { alert("Please enter a niche first!"); return; }
 
-            if(searchCount >= 1) { showPaywall(); return; }
+            // Block non-VIPs after 1 search
+            if(!isVIP && searchCount >= 1) { showPaywall(); return; }
 
             const btn = document.getElementById('search-btn');
             const loadingText = document.getElementById('loading-text');
@@ -144,28 +175,25 @@
             dynamicResults.innerHTML = "";
 
             try {
-                // Calculate the date 90 days ago in ISO format
                 const dateLimit = new Date();
                 dateLimit.setDate(dateLimit.getDate() - 90); 
                 const publishedAfter = dateLimit.toISOString();
 
-                // Append publishedAfter to the search URL to filter out old videos
-                const searchResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(input)}&type=video&order=viewCount&publishedAfter=${publishedAfter}&key=${API_KEY}`);
+                const searchResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(input)}&type=video&order=viewCount&publishedAfter=${publishedAfter}&key=${YOUTUBE_API_KEY}`);
                 const searchData = await searchResponse.json();
                 
                 if (!searchData.items || searchData.items.length === 0) {
-                    alert("No recent viral videos found for this keyword. Try a broader search.");
-                    resetUI(btn, loadingText);
+                    alert("No recent viral videos found for this keyword.");
+                    btn.innerText = "Find Viral Outliers"; btn.disabled = false; loadingText.style.display = "none";
                     return;
                 }
 
                 const videoIds = searchData.items.map(item => item.id.videoId).join(',');
-
-                const videoResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${videoIds}&key=${API_KEY}`);
+                const videoResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${videoIds}&key=${YOUTUBE_API_KEY}`);
                 const videoData = await videoResponse.json();
 
                 const channelIds = videoData.items.map(item => item.snippet.channelId).join(',');
-                const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelIds}&key=${API_KEY}`);
+                const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelIds}&key=${YOUTUBE_API_KEY}`);
                 const channelData = await channelResponse.json();
 
                 let channelSubsMap = {};
@@ -179,17 +207,12 @@
                     let views = parseInt(video.statistics.viewCount) || 0;
                     let subs = channelSubsMap[video.snippet.channelId] || 1;
                     let outlierScore = (views / subs).toFixed(1);
-                    
                     if(outlierScore > 999) outlierScore = "999+"; 
 
-                    let tagsHTML = "";
-                    if (video.snippet.tags) {
-                        tagsHTML = video.snippet.tags.slice(0, 5).map(tag => `<span class="tag">${tag}</span>`).join('');
-                    } else {
-                        tagsHTML = `<span class="tag">No tags found</span>`;
-                    }
+                    let tagsHTML = video.snippet.tags ? video.snippet.tags.slice(0, 5).map(tag => `<span class="tag">${tag}</span>`).join('') : `<span class="tag">No tags found</span>`;
 
-                    let onclickLogic = index === 0 ? `toggleXray('${video.id}')` : `showPaywall()`;
+                    // If VIP, all clicks work. If not, only the first card works.
+                    let onclickLogic = (isVIP || index === 0) ? `toggleXray('${video.id}')` : `showPaywall()`;
 
                     htmlOutput += `
                     <div class="video-card" onclick="${onclickLogic}">
@@ -204,29 +227,58 @@
                         <div class="xray-panel" id="xray-${video.id}">
                             <span style="font-size: 13px; font-weight: bold; color: var(--accent);">🔓 SEO Tags Revealed:</span>
                             <div class="tags-list">${tagsHTML}</div>
-                            <button class="btn-action" onclick="event.stopPropagation(); alert('Tags Copied to Clipboard!')">📋 Copy Tags</button>
-                            <button class="btn-action" style="margin-left: 10px; border-color: var(--primary); color: var(--primary);" onclick="event.stopPropagation(); showPaywall()">🎯 Score My Video</button>
+                            <button class="btn-action" onclick="event.stopPropagation(); alert('Tags Copied!')">📋 Copy Tags</button>
                         </div>
-                    </div>
-                    `;
+                    </div>`;
                 });
 
                 dynamicResults.innerHTML = htmlOutput;
                 resultsArea.style.display = 'block';
-                searchCount++;
+                
+                if(!isVIP) {
+                    searchCount++;
+                    document.getElementById('free-uses-text').innerText = "⚠️ Free Limits Exhausted. Upgrade to VIP.";
+                }
 
             } catch (error) {
-                alert("Error connecting to YouTube. Check your internet connection.");
-                console.error(error);
+                alert("Error connecting to YouTube.");
             }
 
-            resetUI(btn, loadingText);
-        }
-
-        function resetUI(btn, loadingText) {
             btn.innerText = "Find Viral Outliers";
             btn.disabled = false;
             loadingText.style.display = "none";
+        }
+
+        // --- 4. FIREBASE KEY VERIFICATION ---
+        function verifyFirebaseKey() {
+            const inputKey = document.getElementById('vip-key-input').value.trim();
+            const errorMsg = document.getElementById('key-error');
+            
+            if(!inputKey) return;
+
+            // Check database for the key
+            database.ref('vip_keys/' + inputKey).once('value').then((snapshot) => {
+                if (snapshot.exists() && snapshot.val() === true) {
+                    // Key is valid! Save locally and unlock
+                    localStorage.setItem("viralsniper_vip", "true");
+                    isVIP = true;
+                    unlockVIPInterface();
+                    document.getElementById('paywall-modal').style.display = 'none';
+                    alert("VIP Key Accepted! Unlimited access unlocked.");
+                } else {
+                    errorMsg.style.display = 'block';
+                }
+            }).catch((error) => {
+                console.error("Firebase error:", error);
+                alert("Database connection error.");
+            });
+        }
+
+        function unlockVIPInterface() {
+            document.getElementById('vip-badge').style.display = 'inline-block';
+            document.getElementById('free-uses-text').style.display = 'none';
+            const trap = document.getElementById('vip-trap');
+            if(trap) trap.style.display = 'none';
         }
 
         function toggleXray(id) {
