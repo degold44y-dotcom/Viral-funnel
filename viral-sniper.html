@@ -31,7 +31,7 @@
         .video-card:hover { border-color: var(--primary); box-shadow: 0 5px 20px rgba(239,68,68,0.15); transform: translateY(-3px); }
         .outlier-badge { position: absolute; top: 15px; right: 15px; background: rgba(16, 185, 129, 0.2); color: var(--accent); padding: 5px 10px; border-radius: 6px; font-weight: bold; font-size: 12px; border: 1px solid var(--accent); }
         .video-title { font-size: 18px; font-weight: bold; margin: 0; padding-right: 80px; line-height: 1.4; }
-        .video-stats { display: flex; gap: 20px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
+        .video-stats { display: flex; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
         .stat-item span { color: white; font-weight: bold; }
         
         .xray-panel { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); }
@@ -70,11 +70,10 @@
 
         <div class="results-container" id="results-area">
             <div class="results-header">
-                <h3>🔥 High-Outlier Videos Found</h3>
+                <h3>🔥 High-Outlier Videos Found (Last 90 Days)</h3>
                 <span style="font-size: 12px; color: var(--text-muted);">Click a video to reveal its tags</span>
             </div>
             
-            <!-- Real results will be injected here via JavaScript -->
             <div id="dynamic-results"></div>
 
             <!-- BLURRED VIP RESULT TRAP -->
@@ -83,6 +82,7 @@
                 <div class="video-stats">
                     <div class="stat-item">👁️ Views: <span>2.5M</span></div>
                     <div class="stat-item">👤 Subs: <span>950</span></div>
+                    <div class="stat-item">📅 Age: <span>3 days</span></div>
                 </div>
             </div>
             <div style="text-align: center; margin-top: -60px; position: relative; z-index: 10;">
@@ -112,11 +112,24 @@
             return num;
         }
 
+        function timeSince(dateString) {
+            const date = new Date(dateString);
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval >= 1) return Math.floor(interval) + " yrs";
+            interval = seconds / 2592000;
+            if (interval >= 1) return Math.floor(interval) + " mos";
+            interval = seconds / 604800;
+            if (interval >= 1) return Math.floor(interval) + " wks";
+            interval = seconds / 86400;
+            if (interval >= 1) return Math.floor(interval) + " days";
+            return "New";
+        }
+
         async function runRealSearch() {
             const input = document.getElementById('niche-input').value;
             if(!input) { alert("Please enter a niche first!"); return; }
 
-            // Trigger Paywall after 1 free search
             if(searchCount >= 1) { showPaywall(); return; }
 
             const btn = document.getElementById('search-btn');
@@ -131,53 +144,51 @@
             dynamicResults.innerHTML = "";
 
             try {
-                // Step 1: Search for videos based on niche
-                const searchResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(input)}&type=video&order=viewCount&key=${API_KEY}`);
+                // Calculate the date 90 days ago in ISO format
+                const dateLimit = new Date();
+                dateLimit.setDate(dateLimit.getDate() - 90); 
+                const publishedAfter = dateLimit.toISOString();
+
+                // Append publishedAfter to the search URL to filter out old videos
+                const searchResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(input)}&type=video&order=viewCount&publishedAfter=${publishedAfter}&key=${API_KEY}`);
                 const searchData = await searchResponse.json();
                 
                 if (!searchData.items || searchData.items.length === 0) {
-                    alert("No videos found. Try a different keyword.");
+                    alert("No recent viral videos found for this keyword. Try a broader search.");
                     resetUI(btn, loadingText);
                     return;
                 }
 
                 const videoIds = searchData.items.map(item => item.id.videoId).join(',');
 
-                // Step 2: Fetch exact Video Statistics (Views, Tags)
                 const videoResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${videoIds}&key=${API_KEY}`);
                 const videoData = await videoResponse.json();
 
-                // Step 3: Fetch exact Channel Statistics (Subscribers)
                 const channelIds = videoData.items.map(item => item.snippet.channelId).join(',');
                 const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelIds}&key=${API_KEY}`);
                 const channelData = await channelResponse.json();
 
-                // Build mapping for channel subs
                 let channelSubsMap = {};
                 channelData.items.forEach(channel => {
                     channelSubsMap[channel.id] = parseInt(channel.statistics.subscriberCount) || 1; 
                 });
 
-                // Step 4: Calculate Outlier Math & Build HTML
                 let htmlOutput = "";
                 
                 videoData.items.forEach((video, index) => {
                     let views = parseInt(video.statistics.viewCount) || 0;
-                    let subs = channelSubsMap[video.snippet.channelId];
+                    let subs = channelSubsMap[video.snippet.channelId] || 1;
                     let outlierScore = (views / subs).toFixed(1);
                     
-                    // Cap it for clean UI if it's ridiculously high
                     if(outlierScore > 999) outlierScore = "999+"; 
 
                     let tagsHTML = "";
                     if (video.snippet.tags) {
-                        // Show first 5 tags
                         tagsHTML = video.snippet.tags.slice(0, 5).map(tag => `<span class="tag">${tag}</span>`).join('');
                     } else {
                         tagsHTML = `<span class="tag">No tags found</span>`;
                     }
 
-                    // For demo purposes, we will force the second card to trigger the paywall
                     let onclickLogic = index === 0 ? `toggleXray('${video.id}')` : `showPaywall()`;
 
                     htmlOutput += `
@@ -187,6 +198,7 @@
                         <div class="video-stats">
                             <div class="stat-item">👁️ Views: <span>${formatNumber(views)}</span></div>
                             <div class="stat-item">👤 Subs: <span>${formatNumber(subs)}</span></div>
+                            <div class="stat-item">📅 Age: <span>${timeSince(video.snippet.publishedAt)}</span></div>
                         </div>
                         
                         <div class="xray-panel" id="xray-${video.id}">
