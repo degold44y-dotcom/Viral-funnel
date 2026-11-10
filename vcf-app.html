@@ -32,7 +32,16 @@
         .btn-demo:hover { background: rgba(245, 158, 11, 0.1); }
         
         .demo-dropdown { display: none; background: #0c0b1a; border: 1px dashed #f59e0b; border-radius: 12px; padding: 15px; margin-top: 15px; text-align: center; animation: fadeIn 0.4s ease; }
-        .demo-number-list { height: 120px; overflow-y: auto; background: #1a162e; border-radius: 8px; padding: 10px; font-family: monospace; font-size: 14px; color: #cbd5e1; text-align: left; margin-bottom: 15px; line-height: 1.6; }
+        .demo-number-list { max-height: 180px; overflow-y: auto; background: #1a162e; border-radius: 8px; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: left; margin-bottom: 15px; }
+        
+        /* NEW STYLES FOR THE DIRECT WHATSAPP TEST BUTTONS */
+        .contact-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .contact-row:last-child { border-bottom: none; }
+        .contact-info { font-size: 14px; color: #cbd5e1; font-weight: bold; }
+        .contact-number { color: #10b981; font-size: 12px; font-family: monospace; display: block; margin-top: 2px; }
+        .wa-test-btn { background: #25d366; color: white; text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3); transition: 0.2s; }
+        .wa-test-btn:hover { background: #1ebe57; transform: scale(1.05); }
+
         .marketing-spin { font-size: 13px; color: #ef4444; font-weight: bold; margin-bottom: 15px; line-height: 1.5; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -95,15 +104,17 @@
         
         <!-- THE DROPDOWN PREVIEW BOX -->
         <div id="demo-box" class="demo-dropdown">
-            <h4 style="color: #f59e0b; margin-top: 0; text-transform: uppercase;">Generating Trial Contacts...</h4>
+            <h4 style="color: #f59e0b; margin-top: 0; text-transform: uppercase; font-size: 15px;">Live WhatsApp Testing</h4>
+            <p style="font-size: 11px; color: #94a3b8; margin: 0 0 10px 0;">Click "Test" to instantly check if the number is on WhatsApp!</p>
+            
             <div id="demo-list" class="demo-number-list"></div>
             
             <!-- THE PSYCHOLOGICAL UPSELL SPIN -->
             <div class="marketing-spin">
-                Notice how only a few of these random numbers will be active on WhatsApp? This is why guessing doesn't work! To guarantee thousands of active WhatsApp buyers for your business, you MUST generate 10,000+ contacts at once.
+                Did you notice that some random numbers are not on WhatsApp? This is why guessing fails! To guarantee you capture thousands of active WhatsApp buyers for your business, you MUST generate 10,000+ contacts at once.
             </div>
             
-            <button class="btn" style="background: #f59e0b; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);" onclick="downloadDemoVCF()">💾 Save to Phonebook to Test</button>
+            <button class="btn" style="background: #f59e0b; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);" onclick="downloadDemoVCF()">💾 Download VCF File</button>
             <button class="btn" style="background: #10b981; margin-top: 10px;" onclick="openPaymentModal()">🔓 Get VIP Access Key Now</button>
         </div>
     </div>
@@ -255,7 +266,7 @@
         }
 
         // ==========================================
-        // THE DROPDOWN PREVIEW SYSTEM (10 CONTACTS)
+        // THE DROPDOWN PREVIEW SYSTEM WITH DIRECT WA TESTING
         // ==========================================
         function generateDemoPreview() {
             const mixMode = document.getElementById('number-mix-mode').value;
@@ -300,8 +311,21 @@
                 
                 const fullNumber = `${chosenPrefix}${randomNum}`;
                 
+                // Clean the + sign for the wa.me link
+                const cleanNumber = fullNumber.replace('+', '');
+                const waLink = `https://wa.me/${cleanNumber}`;
+                
                 vcfData += `BEGIN:VCARD\nVERSION:3.0\nFN:${baseName}_${i}\nTEL;TYPE=CELL:${fullNumber}\nEND:VCARD\n`;
-                displayHtml += `<div>👤 ${baseName}_${i} <span style="color:#10b981;">[${fullNumber}]</span></div>`;
+                
+                // NEW: HTML with the WhatsApp Direct Test Button
+                displayHtml += `
+                <div class="contact-row">
+                    <div class="contact-info">
+                        👤 ${baseName}_${i}
+                        <span class="contact-number">${fullNumber}</span>
+                    </div>
+                    <a href="${waLink}" target="_blank" class="wa-test-btn">💬 Test</a>
+                </div>`;
             }
 
             globalDemoVcfData = vcfData;
@@ -329,7 +353,7 @@
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
             
-            alert("✅ File saved to your phone! Open it to import the 10 contacts, then check WhatsApp to see which ones are active.");
+            alert("✅ File saved to your phone! You can import these 10 contacts into your phonebook to test bulk uploading.");
         }
 
         // ==========================================
