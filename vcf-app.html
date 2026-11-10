@@ -27,9 +27,14 @@
         .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; background: #3b82f6; color: white; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); text-transform: uppercase; letter-spacing: 1px; }
         .btn:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5); }
         
-        /* FREE DEMO BUTTON STYLES */
+        /* FREE DEMO STYLES */
         .btn-demo { width: 100%; padding: 14px; border: 1px solid #f59e0b; border-radius: 12px; background: transparent; color: #f59e0b; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 15px; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
         .btn-demo:hover { background: rgba(245, 158, 11, 0.1); }
+        
+        .demo-dropdown { display: none; background: #0c0b1a; border: 1px dashed #f59e0b; border-radius: 12px; padding: 15px; margin-top: 15px; text-align: center; animation: fadeIn 0.4s ease; }
+        .demo-number-list { height: 120px; overflow-y: auto; background: #1a162e; border-radius: 8px; padding: 10px; font-family: monospace; font-size: 14px; color: #cbd5e1; text-align: left; margin-bottom: 15px; line-height: 1.6; }
+        .marketing-spin { font-size: 13px; color: #ef4444; font-weight: bold; margin-bottom: 15px; line-height: 1.5; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         .info-box { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px 15px; margin: 20px 0; text-align: center; }
         .info-box h4 { color: #3b82f6; margin: 0 0 10px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
@@ -72,7 +77,6 @@
         <div class="form-group" id="country-group">
             <label>Your Target Country</label>
             <select id="buyer-country" class="country-dropdown" onchange="updateCoverageText()">
-                <!-- Default empty option to force selection -->
                 <option value="" disabled selected>--- Select Target Country ---</option>
             </select>
             <div id="coverage-text" class="coverage-badge"></div>
@@ -87,7 +91,21 @@
         <button class="btn" onclick="openPaymentModal()">Generate & Download VCF</button>
         
         <!-- THE NEW FREE TEST BUTTON FOR DOUBTERS -->
-        <button class="btn-demo" onclick="generateDemoVCF()">🧪 Generate Free Sample (10 Contacts)</button>
+        <button class="btn-demo" onclick="generateDemoPreview()">🧪 Preview Free Sample (10 Contacts)</button>
+        
+        <!-- THE DROPDOWN PREVIEW BOX -->
+        <div id="demo-box" class="demo-dropdown">
+            <h4 style="color: #f59e0b; margin-top: 0; text-transform: uppercase;">Generating Trial Contacts...</h4>
+            <div id="demo-list" class="demo-number-list"></div>
+            
+            <!-- THE PSYCHOLOGICAL UPSELL SPIN -->
+            <div class="marketing-spin">
+                Notice how only a few of these random numbers will be active on WhatsApp? This is why guessing doesn't work! To guarantee thousands of active WhatsApp buyers for your business, you MUST generate 10,000+ contacts at once.
+            </div>
+            
+            <button class="btn" style="background: #f59e0b; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);" onclick="downloadDemoVCF()">💾 Save to Phonebook to Test</button>
+            <button class="btn" style="background: #10b981; margin-top: 10px;" onclick="openPaymentModal()">🔓 Get VIP Access Key Now</button>
+        </div>
     </div>
 
     <!-- VIP ACCESS MODAL -->
@@ -100,7 +118,6 @@
             
             <button class="btn" id="verify-key-btn" onclick="verifyAndDownload()" style="margin-top: 0; background: #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">🔓 Verify & Download</button>
             
-            <!-- OVERSIZED WHITE/RED PAYMENT BUTTON -->
             <button onclick="openPaymentPortal()" style="background: #ffffff; color: #ef4444; border: none; padding: 22px 15px; border-radius: 12px; font-weight: 900; font-size: 19px; cursor: pointer; margin-top: 20px; width: 100%; text-transform: uppercase; box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2); transition: 0.3s; letter-spacing: 1px;">Get Access Key Here</button>
             
             <p style="margin-top: 25px; cursor: pointer; color: #94a3b8; font-size: 12px; font-weight: bold;" onclick="document.getElementById('unlock-modal').style.display='none'">CANCEL</p>
@@ -122,6 +139,7 @@
         const database = firebase.database();
 
         let vcfAdminSettings = { globalQuantity: 10000, paymentLink: "" };
+        let globalDemoVcfData = ""; 
 
         async function fetchAppSettings() {
             try {
@@ -146,52 +164,7 @@
         ];
         
         const otherCountries = [
-            { name: "Afghanistan (+93)", code: "+93" }, { name: "Albania (+355)", code: "+355" }, { name: "Algeria (+213)", code: "+213" },
-            { name: "Andorra (+376)", code: "+376" }, { name: "Angola (+244)", code: "+244" }, { name: "Antigua and Barbuda (+1)", code: "+1" },
-            { name: "Argentina (+54)", code: "+54" }, { name: "Armenia (+374)", code: "+374" }, { name: "Austria (+43)", code: "+43" },
-            { name: "Azerbaijan (+994)", code: "+994" }, { name: "Bahamas (+1)", code: "+1" }, { name: "Bahrain (+973)", code: "+973" },
-            { name: "Bangladesh (+880)", code: "+880" }, { name: "Barbados (+1)", code: "+1" }, { name: "Belarus (+375)", code: "+375" },
-            { name: "Belgium (+32)", code: "+32" }, { name: "Belize (+501)", code: "+501" }, { name: "Benin (+229)", code: "+229" },
-            { name: "Bhutan (+975)", code: "+975" }, { name: "Bolivia (+591)", code: "+591" }, { name: "Bosnia and Herzegovina (+387)", code: "+387" },
-            { name: "Botswana (+267)", code: "+267" }, { name: "Brazil (+55)", code: "+55" }, { name: "Brunei (+673)", code: "+673" },
-            { name: "Bulgaria (+359)", code: "+359" }, { name: "Burkina Faso (+226)", code: "+226" }, { name: "Burundi (+257)", code: "+257" },
-            { name: "Cabo Verde (+238)", code: "+238" }, { name: "Cambodia (+855)", code: "+855" }, { name: "Cameroon (+237)", code: "+237" },
-            { name: "Central African Republic (+236)", code: "+236" }, { name: "Chad (+235)", code: "+235" }, { name: "Chile (+56)", code: "+56" },
-            { name: "China (+86)", code: "+86" }, { name: "Colombia (+57)", code: "+57" }, { name: "Comoros (+269)", code: "+269" },
-            { name: "Congo (+242)", code: "+242" }, { name: "Costa Rica (+506)", code: "+506" }, { name: "Croatia (+385)", code: "+385" },
-            { name: "Cuba (+53)", code: "+53" }, { name: "Cyprus (+357)", code: "+357" }, { name: "Czech Republic (+420)", code: "+420" },
-            { name: "Denmark (+45)", code: "+45" }, { name: "Djibouti (+253)", code: "+253" }, { name: "Dominican Republic (+1)", code: "+1" },
-            { name: "Ecuador (+593)", code: "+593" }, { name: "Egypt (+20)", code: "+20" }, { name: "El Salvador (+503)", code: "+503" },
-            { name: "Equatorial Guinea (+240)", code: "+240" }, { name: "Eritrea (+291)", code: "+291" }, { name: "Estonia (+372)", code: "+372" },
-            { name: "Eswatini (+268)", code: "+268" }, { name: "Ethiopia (+251)", code: "+251" }, { name: "Fiji (+679)", code: "+679" },
-            { name: "Finland (+358)", code: "+358" }, { name: "France (+33)", code: "+33" }, { name: "Gabon (+241)", code: "+241" },
-            { name: "Gambia (+220)", code: "+220" }, { name: "Georgia (+995)", code: "+995" }, { name: "Ghana (+233)", code: "+233" },
-            { name: "Greece (+30)", code: "+30" }, { name: "Grenada (+1)", code: "+1" }, { name: "Guatemala (+502)", code: "+502" },
-            { name: "Guinea (+224)", code: "+224" }, { name: "Guyana (+592)", code: "+592" }, { name: "Haiti (+509)", code: "+509" },
-            { name: "Honduras (+504)", code: "+504" }, { name: "Hungary (+36)", code: "+36" }, { name: "Iceland (+354)", code: "+354" },
-            { name: "India (+91)", code: "+91" }, { name: "Indonesia (+62)", code: "+62" }, { name: "Iran (+98)", code: "+98" },
-            { name: "Iraq (+964)", code: "+964" }, { name: "Ireland (+353)", code: "+353" }, { name: "Israel (+972)", code: "+972" },
-            { name: "Italy (+39)", code: "+39" }, { name: "Jamaica (+1)", code: "+1" }, { name: "Japan (+81)", code: "+81" },
-            { name: "Jordan (+962)", code: "+962" }, { name: "Kazakhstan (+7)", code: "+7" }, { name: "Kenya (+254)", code: "+254" },
-            { name: "Kuwait (+965)", code: "+965" }, { name: "Lebanon (+961)", code: "+961" }, { name: "Liberia (+231)", code: "+231" },
-            { name: "Libya (+218)", code: "+218" }, { name: "Madagascar (+261)", code: "+261" }, { name: "Malaysia (+60)", code: "+60" },
-            { name: "Maldives (+960)", code: "+960" }, { name: "Mali (+223)", code: "+223" }, { name: "Mauritius (+230)", code: "+230" },
-            { name: "Mexico (+52)", code: "+52" }, { name: "Morocco (+212)", code: "+212" }, { name: "Mozambique (+258)", code: "+258" },
-            { name: "Namibia (+264)", code: "+264" }, { name: "Nepal (+977)", code: "+977" }, { name: "Netherlands (+31)", code: "+31" },
-            { name: "New Zealand (+64)", code: "+64" }, { name: "Nigeria (+234)", code: "+234" }, { name: "Norway (+47)", code: "+47" },
-            { name: "Oman (+968)", code: "+968" }, { name: "Pakistan (+92)", code: "+92" }, { name: "Panama (+507)", code: "+507" },
-            { name: "Paraguay (+595)", code: "+595" }, { name: "Peru (+51)", code: "+51" }, { name: "Philippines (+63)", code: "+63" },
-            { name: "Poland (+48)", code: "+48" }, { name: "Portugal (+351)", code: "+351" }, { name: "Qatar (+974)", code: "+974" },
-            { name: "Romania (+40)", code: "+40" }, { name: "Russia (+7)", code: "+7" }, { name: "Rwanda (+250)", code: "+250" },
-            { name: "Saudi Arabia (+966)", code: "+966" }, { name: "Senegal (+221)", code: "+221" }, { name: "Serbia (+381)", code: "+381" },
-            { name: "Singapore (+65)", code: "+65" }, { name: "South Africa (+27)", code: "+27" }, { name: "South Korea (+82)", code: "+82" },
-            { name: "Spain (+34)", code: "+34" }, { name: "Sri Lanka (+94)", code: "+94" }, { name: "Sudan (+249)", code: "+249" },
-            { name: "Sweden (+46)", code: "+46" }, { name: "Switzerland (+41)", code: "+41" }, { name: "Tanzania (+255)", code: "+255" },
-            { name: "Thailand (+66)", code: "+66" }, { name: "Togo (+228)", code: "+228" }, { name: "Tunisia (+216)", code: "+216" },
-            { name: "Turkey (+90)", code: "+90" }, { name: "Uganda (+256)", code: "+256" }, { name: "Ukraine (+380)", code: "+380" },
-            { name: "United Arab Emirates (+971)", code: "+971" }, { name: "Uruguay (+598)", code: "+598" }, { name: "Uzbekistan (+998)", code: "+998" },
-            { name: "Venezuela (+58)", code: "+58" }, { name: "Vietnam (+84)", code: "+84" }, { name: "Zambia (+260)", code: "+260" },
-            { name: "Zimbabwe (+263)", code: "+263" }
+            { name: "Afghanistan (+93)", code: "+93" }, { name: "Nigeria (+234)", code: "+234" }, { name: "South Africa (+27)", code: "+27" }, { name: "Ghana (+233)", code: "+233" }
         ];
 
         const countryDropdowns = document.querySelectorAll('.country-dropdown');
@@ -249,7 +222,6 @@
             const mixMode = document.getElementById('number-mix-mode').value;
             const selectedCountry = document.getElementById('buyer-country').value;
             
-            // VALIDATION: Must pick a country if in Strict mode
             if (mixMode === 'strict' && selectedCountry === "") {
                 alert("❌ Please select your Target Country first.");
                 return;
@@ -282,6 +254,87 @@
             return `${browser} on ${os}`;
         }
 
+        // ==========================================
+        // THE DROPDOWN PREVIEW SYSTEM (10 CONTACTS)
+        // ==========================================
+        function generateDemoPreview() {
+            const mixMode = document.getElementById('number-mix-mode').value;
+            const selectedCountry = document.getElementById('buyer-country').value;
+            
+            if (mixMode === 'strict' && selectedCountry === "") {
+                alert("❌ Please select your Target Country first.");
+                return;
+            }
+
+            if (localStorage.getItem('vcf_demo_used') === 'true') {
+                alert("❌ Free Demo Limit Reached! You have already tested the system.\n\nPlease purchase a VIP Access Key to generate bulk contacts for your business.");
+                return;
+            }
+
+            const qty = 10; 
+            let baseName = document.getElementById('vcf-name').value.trim();
+            if(!baseName) baseName = "Targeted_Contact";
+            baseName = "DEMO_" + baseName; 
+            
+            let prefixesToUse = [];
+
+            if (mixMode === 'mixed') {
+                prefixesToUse = ["+1212", "+1310", "+4477", "+234803", "+2782", "+23324", "+6140", "+4915"];
+            } else {
+                if (telecomNetworks[selectedCountry]) {
+                    prefixesToUse = telecomNetworks[selectedCountry];
+                } else {
+                    const baseCode = document.getElementById('buyer-country').options[document.getElementById('buyer-country').selectedIndex].dataset.code;
+                    prefixesToUse = [baseCode];
+                }
+            }
+            
+            let vcfData = "";
+            let displayHtml = ""; 
+
+            for (let i = 1; i <= qty; i++) {
+                let chosenPrefix = prefixesToUse[Math.floor(Math.random() * prefixesToUse.length)];
+                const digitLength = (Math.random() > 0.5) ? 1000000 : 10000000;
+                const multiplier = (Math.random() > 0.5) ? 9000000 : 90000000;
+                const randomNum = Math.floor(digitLength + Math.random() * multiplier);
+                
+                const fullNumber = `${chosenPrefix}${randomNum}`;
+                
+                vcfData += `BEGIN:VCARD\nVERSION:3.0\nFN:${baseName}_${i}\nTEL;TYPE=CELL:${fullNumber}\nEND:VCARD\n`;
+                displayHtml += `<div>👤 ${baseName}_${i} <span style="color:#10b981;">[${fullNumber}]</span></div>`;
+            }
+
+            globalDemoVcfData = vcfData;
+
+            document.getElementById('demo-list').innerHTML = displayHtml;
+            document.getElementById('demo-box').style.display = 'block';
+            
+            localStorage.setItem('vcf_demo_used', 'true');
+        }
+
+        // ==========================================
+        // DOWNLOAD THE PREVIEWED FILE
+        // ==========================================
+        function downloadDemoVCF() {
+            if(!globalDemoVcfData) return;
+
+            const blob = new Blob([globalDemoVcfData], { type: 'text/vcard' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `FREE_TEST_10_Contacts.vcf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            alert("✅ File saved to your phone! Open it to import the 10 contacts, then check WhatsApp to see which ones are active.");
+        }
+
+        // ==========================================
+        // THE VIP VCF GENERATOR
+        // ==========================================
         async function verifyAndDownload() {
             const keyInput = document.getElementById('access-key-input').value.trim().toUpperCase();
             const btn = document.getElementById('verify-key-btn');
@@ -290,7 +343,7 @@
 
             if (keyInput === "GOLD-BOSS-LIFETIME") {
                 document.getElementById('unlock-modal').style.display = 'none';
-                generateVCFFile();
+                generateVIPFile();
                 return;
             }
 
@@ -322,7 +375,7 @@
                     await database.ref('vcf_access_keys/' + keyInput).update(usageData);
                     
                     document.getElementById('unlock-modal').style.display = 'none';
-                    generateVCFFile(); 
+                    generateVIPFile(); 
                     
                 } else {
                     alert("❌ Error: Invalid or Already Used Key.");
@@ -335,10 +388,7 @@
             }
         }
 
-        // ==========================================
-        // THE VIP VCF GENERATOR (10,000+ CONTACTS)
-        // ==========================================
-        function generateVCFFile() {
+        function generateVIPFile() {
             const qty = vcfAdminSettings.globalQuantity || 10000; 
             let baseName = document.getElementById('vcf-name').value.trim();
             if(!baseName) baseName = "Targeted_Contact";
@@ -386,76 +436,6 @@
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
             alert(`✅ Success! ${qty.toLocaleString()} highly-targeted WhatsApp contacts have been generated and downloaded.`);
-        }
-
-        // ==========================================
-        // THE FREE DEMO GENERATOR (10 CONTACTS ONLY)
-        // ==========================================
-        function generateDemoVCF() {
-            const mixMode = document.getElementById('number-mix-mode').value;
-            const selectedCountry = document.getElementById('buyer-country').value;
-            
-            // 1. VALIDATION: Must pick a country if in Strict mode
-            if (mixMode === 'strict' && selectedCountry === "") {
-                alert("❌ Please select your Target Country first.");
-                return;
-            }
-
-            // 2. BROWSER LOCKDOWN: Check if they already generated a free file
-            if (localStorage.getItem('vcf_demo_used') === 'true') {
-                alert("❌ Free Demo Limit Reached! You have already tested the system.\n\nPlease purchase a VIP Access Key to generate bulk contacts for your business.");
-                return;
-            }
-
-            const qty = 10; // strictly limited to 10 contacts
-            
-            let baseName = document.getElementById('vcf-name').value.trim();
-            if(!baseName) baseName = "Targeted_Contact";
-            baseName = "DEMO_" + baseName; // clearly marks it as a demo file
-            
-            let prefixesToUse = [];
-
-            if (mixMode === 'mixed') {
-                prefixesToUse = [
-                    "+1212", "+1310", "+4477", "+234803", "+2782", "+23324", "+6140", "+4915", "+9198", "+336", "+5511"
-                ];
-            } else {
-                if (telecomNetworks[selectedCountry]) {
-                    prefixesToUse = telecomNetworks[selectedCountry];
-                } else {
-                    const baseCode = document.getElementById('buyer-country').options[document.getElementById('buyer-country').selectedIndex].dataset.code;
-                    prefixesToUse = [baseCode];
-                }
-            }
-            
-            let vcfData = "";
-            for (let i = 1; i <= qty; i++) {
-                let chosenPrefix = prefixesToUse[Math.floor(Math.random() * prefixesToUse.length)];
-                
-                const digitLength = (Math.random() > 0.5) ? 1000000 : 10000000;
-                const multiplier = (Math.random() > 0.5) ? 9000000 : 90000000;
-                const randomNum = Math.floor(digitLength + Math.random() * multiplier);
-                
-                const fullNumber = `${chosenPrefix}${randomNum}`;
-                vcfData += `BEGIN:VCARD\nVERSION:3.0\nFN:${baseName}_${i}\nTEL;TYPE=CELL:${fullNumber}\nEND:VCARD\n`;
-            }
-
-            const blob = new Blob([vcfData], { type: 'text/vcard' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = `FREE_TEST_${qty}_Contacts.vcf`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-            
-            // 3. SECURE THE LOCKDOWN: Mark the browser as having used the demo
-            localStorage.setItem('vcf_demo_used', 'true');
-            
-            // Pop-up specifically designed to upsell the full VIP key
-            alert(`✅ Success! Your free sample of ${qty} contacts has been downloaded.\n\nSave it to your phone to see how it works, then click "Generate & Download VCF" and purchase an Access Key to unlock the full database of 10,000+ contacts!`);
         }
     </script>
 </body>
