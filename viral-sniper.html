@@ -97,8 +97,8 @@
             <h2>Unlock Unlimited Searches</h2>
             <p style="color: var(--text-muted); margin-bottom: 20px;">Stop guessing what to film. Upgrade to VIP to instantly unlock unlimited Outlier Searches and the SEO Tag Copier.</p>
             
-            <!-- UNIVERSAL PAYMENT BUTTON -->
-            <button class="btn-upgrade" onclick="window.open('https://selar.co/', '_blank')">Get VIP Access Key</button>
+            <!-- DYNAMIC PAYMENT BUTTON -->
+            <button class="btn-upgrade" id="dynamic-buy-btn" onclick="executePurchase()">Get VIP Access Key</button>
             
             <div class="key-input-group">
                 <p style="margin-top: 0; font-size: 13px; color: var(--text-muted);">Already bought a key?</p>
@@ -128,14 +128,33 @@
         }
         const database = firebase.database();
 
-        // --- 2. YOUTUBE API SETUP ---
+        // --- 2. DYNAMIC PRICING & LINKS ---
+        let activeCheckoutLink = "https://selar.co/"; // Fallback link
+        
+        // Listen to Admin Dashboard Settings
+        database.ref('app_settings').on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                const settings = snapshot.val();
+                if (settings.current_price) {
+                    document.getElementById('dynamic-buy-btn').innerText = `Get VIP Access Key - ${settings.current_price}`;
+                }
+                if (settings.checkout_link) {
+                    activeCheckoutLink = settings.checkout_link;
+                }
+            }
+        });
+
+        function executePurchase() {
+            window.open(activeCheckoutLink, '_blank');
+        }
+
+        // --- 3. YOUTUBE API SETUP ---
         const YOUTUBE_API_KEY = 'AIzaSyC7Nu3u8EWJTm2ytloAeep-BtD16s8X-g0';
         
-        // --- 3. VIP STATE MANAGEMENT ---
+        // --- 4. VIP STATE MANAGEMENT ---
         let searchCount = 0;
         let isVIP = localStorage.getItem("viralsniper_vip") === "true";
 
-        // Check VIP status on load
         window.onload = () => {
             if (isVIP) unlockVIPInterface();
         };
@@ -164,7 +183,6 @@
             const input = document.getElementById('niche-input').value;
             if(!input) { alert("Please enter a niche first!"); return; }
 
-            // Block non-VIPs after 1 search
             if(!isVIP && searchCount >= 1) { showPaywall(); return; }
 
             const btn = document.getElementById('search-btn');
@@ -179,7 +197,6 @@
             dynamicResults.innerHTML = "";
 
             try {
-                // 90-Day Filter Math
                 const dateLimit = new Date();
                 dateLimit.setDate(dateLimit.getDate() - 90); 
                 const publishedAfter = dateLimit.toISOString();
@@ -215,8 +232,6 @@
                     if(outlierScore > 999) outlierScore = "999+"; 
 
                     let tagsHTML = video.snippet.tags ? video.snippet.tags.slice(0, 5).map(tag => `<span class="tag">${tag}</span>`).join('') : `<span class="tag">No tags found</span>`;
-
-                    // If VIP, all clicks work. If not, only the first card works.
                     let onclickLogic = (isVIP || index === 0) ? `toggleXray('${video.id}')` : `showPaywall()`;
 
                     htmlOutput += `
@@ -254,29 +269,21 @@
             loadingText.style.display = "none";
         }
 
-        // --- 4. FIREBASE KEY VERIFICATION (SINGLE-USE BURNER) ---
+        // --- 5. FIREBASE KEY VERIFICATION (SINGLE-USE BURNER) ---
         function verifyFirebaseKey() {
             const inputKey = document.getElementById('vip-key-input').value.trim();
             const errorMsg = document.getElementById('key-error');
             
             if(!inputKey) return;
 
-            // Check database for the key
             database.ref('vip_keys/' + inputKey).once('value').then((snapshot) => {
                 if (snapshot.exists() && snapshot.val() === true) {
-                    
-                    // 1. Key is valid! Save VIP status locally
                     localStorage.setItem("viralsniper_vip", "true");
                     isVIP = true;
-                    
-                    // 2. BURN THE KEY: Change it from 'true' to 'used' in Firebase
                     database.ref('vip_keys/' + inputKey).set("used");
-
-                    // 3. Unlock the dashboard
                     unlockVIPInterface();
                     document.getElementById('paywall-modal').style.display = 'none';
                     alert("VIP Key Accepted! This key has now been burned to secure your account.");
-                    
                 } else if (snapshot.exists() && snapshot.val() === "used") {
                     errorMsg.innerText = "This key has already been used on another device.";
                     errorMsg.style.display = 'block';
