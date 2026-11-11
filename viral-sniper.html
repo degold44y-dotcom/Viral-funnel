@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ViralSniper | YouTube Outlier Engine</title>
+    
+    <!-- FIREBASE CDNs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        :root {
+            --bg-main: #0f172a; --bg-card: #1e293b; --primary: #ef4444; 
+            --primary-hover: #dc2626; --accent: #10b981; --text-main: #f8fafc; --text-muted: #94a3b8;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .header { width: 100%; padding: 20px; text-align: center; background: rgba(30, 41, 59, 0.8); border-bottom: 1px solid rgba(239, 68, 68, 0.3); box-shadow: 0 4px 20px rgba(0,0,0,0.3); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; }
+        .header h1 span { color: var(--primary); }
+        .vip-status-badge { display: none; background: var(--accent); color: #000; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-top: 10px; text-transform: uppercase; }
+        
+        .container { width: 90%; max-width: 800px; margin-top: 40px; padding-bottom: 50px; }
+        .search-box { background: var(--bg-card); padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .search-box h2 { margin-top: 0; font-size: 22px; margin-bottom: 20px; }
+        .input-group { display: flex; gap: 10px; flex-wrap: wrap; }
+        .input-group input { flex: 1; min-width: 250px; padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: var(--bg-main); color: white; font-size: 16px; }
+        .input-group input:focus { outline: none; border-color: var(--primary); }
+        .btn-search { padding: 16px 30px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); text-transform: uppercase; }
+        .btn-search:hover { background: var(--primary-hover); transform: translateY(-2px); }
+        
+        .results-container { margin-top: 30px; display: none; }
+        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .results-header h3 { margin: 0; color: var(--accent); }
+        
+        .video-card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 15px; transition: 0.2s; cursor: pointer; position: relative; overflow: hidden; }
+        .video-card:hover { border-color: var(--primary); box-shadow: 0 5px 20px rgba(239,68,68,0.15); transform: translateY(-3px); }
+        .outlier-badge { position: absolute; top: 15px; right: 15px; background: rgba(16, 185, 129, 0.2); color: var(--accent); padding: 5px 10px; border-radius: 6px; font-weight: bold; font-size: 12px; border: 1px solid var(--accent); }
+        .video-title { font-size: 18px; font-weight: bold; margin: 0; padding-right: 80px; line-height: 1.4; }
+        .video-stats { display: flex; flex-wrap: wrap; gap: 20px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
+        .stat-item span { color: white; font-weight: bold; }
+        
+        .xray-panel { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed rgba(255,255,255,0.1); }
+        .tags-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .tag { background: rgba(255,255,255,0.05); padding: 5px 10px; border-radius: 4px; font-size: 12px; color: var(--text-muted); }
+        .btn-action { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; margin-top: 15px; transition: 0.2s; }
+        .btn-action:hover { background: rgba(16, 185, 129, 0.1); }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px); }
+        .modal-content { background: var(--bg-card); padding: 40px; border-radius: 20px; text-align: center; width: 90%; max-width: 450px; border: 1px solid var(--primary); box-shadow: 0 0 40px rgba(239,68,68,0.2); }
+        .modal-content h2 { margin-top: 0; color: white; font-size: 26px; }
+        .btn-upgrade { width: 100%; background: var(--primary); color: white; padding: 18px; border: none; border-radius: 12px; font-weight: 900; font-size: 18px; text-transform: uppercase; cursor: pointer; transition: 0.2s; margin-bottom: 20px; }
+        .btn-upgrade:hover { background: var(--primary-hover); }
+        
+        .key-input-group { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin-top: 15px; }
+        .key-input-group input { width: 90%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: var(--bg-main); color: white; margin-bottom: 10px; text-align: center; font-family: monospace; font-size: 16px; }
+        .btn-verify { background: var(--accent); color: black; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+        
+        #loading-text { display: none; color: var(--accent); font-size: 14px; margin-top: 15px; font-weight: bold; }
+        #free-uses-text { font-size: 12px; color: var(--text-muted); margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Viral<span>Sniper</span></h1>
+        <div id="vip-badge" class="vip-status-badge">⭐ Lifetime VIP Active</div>
+    </div>
+
+    <div class="container">
+        <div class="search-box">
+            <h2>What is your niche?</h2>
+            <div class="input-group">
+                <input type="text" id="niche-input" placeholder="e.g., Faceless Finance, Real Estate">
+                <button class="btn-search" onclick="runRealSearch()" id="search-btn">Find Viral Outliers</button>
+            </div>
+            <p id="loading-text">Fetching Live YouTube Data...</p>
+            <p id="free-uses-text">🔍 1 Free Search Remaining Today</p>
+        </div>
+
+        <div class="results-container" id="results-area">
+            <div class="results-header">
+                <h3>🔥 High-Outlier Videos Found (Last 90 Days)</h3>
+            </div>
+            <div id="dynamic-results"></div>
+            
+            <div id="vip-trap" style="text-align: center; margin-top: 20px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 20px;">
+                <button class="btn-search" style="background: var(--accent); color: black;" onclick="showPaywall()">Unlock 50+ More Outliers</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIP PAYWALL MODAL -->
+    <div id="paywall-modal" class="modal">
+        <div class="modal-content">
+            <div style="font-size: 40px; margin-bottom: 10px;">🔒</div>
+            <h2>Unlock Unlimited Searches</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Stop guessing what to film. Upgrade to VIP to instantly unlock unlimited Outlier Searches and the SEO Tag Copier.</p>
+            
+            <!-- UNIVERSAL PAYMENT BUTTON -->
+            <button class="btn-upgrade" onclick="window.open('https://selar.co/', '_blank')">Get VIP Access Key</button>
+            
+            <div class="key-input-group">
+                <p style="margin-top: 0; font-size: 13px; color: var(--text-muted);">Already bought a key?</p>
+                <input type="text" id="vip-key-input" placeholder="Paste Access Key Here">
+                <button class="btn-verify" onclick="verifyFirebaseKey()">Unlock Dashboard</button>
+                <p id="key-error" style="color: var(--primary); font-size: 12px; display: none; margin-bottom: 0;">Invalid Key. Please try again.</p>
+            </div>
+
+            <p style="margin-top: 20px; font-size: 12px; color: var(--text-muted); cursor: pointer;" onclick="document.getElementById('paywall-modal').style.display='none'">Close</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. FIREBASE CONFIGURATION (LIVE) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
+            authDomain: "global-match-99b4e.firebaseapp.com",
+            databaseURL: "https://global-match-99b4e-default-rtdb.firebaseio.com",
+            projectId: "global-match-99b4e",
+            storageBucket: "global-match-99b4e.firebasestorage.app",
+            messagingSenderId: "816808980244",
+            appId: "1:816808980244:web:832c3852ead2b707bb9c01"
+        };
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+
+        // --- 2. YOUTUBE API SETUP ---
+        const YOUTUBE_API_KEY = 'AIzaSyC7Nu3u8EWJTm2ytloAeep-BtD16s8X-g0';
+        
+        // --- 3. VIP STATE MANAGEMENT ---
+        let searchCount = 0;
+        let isVIP = localStorage.getItem("viralsniper_vip") === "true";
+
+        // Check VIP status on load
+        window.onload = () => {
+            if (isVIP) unlockVIPInterface();
+        };
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num;
+        }
+
+        function timeSince(dateString) {
+            const date = new Date(dateString);
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval >= 1) return Math.floor(interval) + " yrs";
+            interval = seconds / 2592000;
+            if (interval >= 1) return Math.floor(interval) + " mos";
+            interval = seconds / 604800;
+            if (interval >= 1) return Math.floor(interval) + " wks";
+            interval = seconds / 86400;
+            if (interval >= 1) return Math.floor(interval) + " days";
+            return "New";
+        }
+
+        async function runRealSearch() {
+            const input = document.getElementById('niche-input').value;
+            if(!input) { alert("Please enter a niche first!"); return; }
+
+            // Block non-VIPs after 1 search
+            if(!isVIP && searchCount >= 1) { showPaywall(); return; }
+
+            const btn = document.getElementById('search-btn');
+            const loadingText = document.getElementById('loading-text');
+            const resultsArea = document.getElementById('results-area');
+            const dynamicResults = document.getElementById('dynamic-results');
+            
+            btn.innerText = "Scanning...";
+            btn.disabled = true;
+            loadingText.style.display = "block";
+            resultsArea.style.display = "none";
+            dynamicResults.innerHTML = "";
+
+            try {
+                // 90-Day Filter Math
+                const dateLimit = new Date();
+                dateLimit.setDate(dateLimit.getDate() - 90); 
+                const publishedAfter = dateLimit.toISOString();
+
+                const searchResponse = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(input)}&type=video&order=viewCount&publishedAfter=${publishedAfter}&key=${YOUTUBE_API_KEY}`);
+                const searchData = await searchResponse.json();
+                
+                if (!searchData.items || searchData.items.length === 0) {
+                    alert("No recent viral videos found for this keyword.");
+                    btn.innerText = "Find Viral Outliers"; btn.disabled = false; loadingText.style.display = "none";
+                    return;
+                }
+
+                const videoIds = searchData.items.map(item => item.id.videoId).join(',');
+                const videoResponse = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${videoIds}&key=${YOUTUBE_API_KEY}`);
+                const videoData = await videoResponse.json();
+
+                const channelIds = videoData.items.map(item => item.snippet.channelId).join(',');
+                const channelResponse = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelIds}&key=${YOUTUBE_API_KEY}`);
+                const channelData = await channelResponse.json();
+
+                let channelSubsMap = {};
+                channelData.items.forEach(channel => {
+                    channelSubsMap[channel.id] = parseInt(channel.statistics.subscriberCount) || 1; 
+                });
+
+                let htmlOutput = "";
+                
+                videoData.items.forEach((video, index) => {
+                    let views = parseInt(video.statistics.viewCount) || 0;
+                    let subs = channelSubsMap[video.snippet.channelId] || 1;
+                    let outlierScore = (views / subs).toFixed(1);
+                    if(outlierScore > 999) outlierScore = "999+"; 
+
+                    let tagsHTML = video.snippet.tags ? video.snippet.tags.slice(0, 5).map(tag => `<span class="tag">${tag}</span>`).join('') : `<span class="tag">No tags found</span>`;
+
+                    // If VIP, all clicks work. If not, only the first card works.
+                    let onclickLogic = (isVIP || index === 0) ? `toggleXray('${video.id}')` : `showPaywall()`;
+
+                    htmlOutput += `
+                    <div class="video-card" onclick="${onclickLogic}">
+                        <div class="outlier-badge">🚀 ${outlierScore}x Outlier</div>
+                        <h4 class="video-title">${video.snippet.title}</h4>
+                        <div class="video-stats">
+                            <div class="stat-item">👁️ Views: <span>${formatNumber(views)}</span></div>
+                            <div class="stat-item">👤 Subs: <span>${formatNumber(subs)}</span></div>
+                            <div class="stat-item">📅 Age: <span>${timeSince(video.snippet.publishedAt)}</span></div>
+                        </div>
+                        
+                        <div class="xray-panel" id="xray-${video.id}">
+                            <span style="font-size: 13px; font-weight: bold; color: var(--accent);">🔓 SEO Tags Revealed:</span>
+                            <div class="tags-list">${tagsHTML}</div>
+                            <button class="btn-action" onclick="event.stopPropagation(); alert('Tags Copied!')">📋 Copy Tags</button>
+                        </div>
+                    </div>`;
+                });
+
+                dynamicResults.innerHTML = htmlOutput;
+                resultsArea.style.display = 'block';
+                
+                if(!isVIP) {
+                    searchCount++;
+                    document.getElementById('free-uses-text').innerText = "⚠️ Free Limits Exhausted. Upgrade to VIP.";
+                }
+
+            } catch (error) {
+                alert("Error connecting to YouTube.");
+            }
+
+            btn.innerText = "Find Viral Outliers";
+            btn.disabled = false;
+            loadingText.style.display = "none";
+        }
+
+        // --- 4. FIREBASE KEY VERIFICATION (SINGLE-USE BURNER) ---
+        function verifyFirebaseKey() {
+            const inputKey = document.getElementById('vip-key-input').value.trim();
+            const errorMsg = document.getElementById('key-error');
+            
+            if(!inputKey) return;
+
+            // Check database for the key
+            database.ref('vip_keys/' + inputKey).once('value').then((snapshot) => {
+                if (snapshot.exists() && snapshot.val() === true) {
+                    
+                    // 1. Key is valid! Save VIP status locally
+                    localStorage.setItem("viralsniper_vip", "true");
+                    isVIP = true;
+                    
+                    // 2. BURN THE KEY: Change it from 'true' to 'used' in Firebase
+                    database.ref('vip_keys/' + inputKey).set("used");
+
+                    // 3. Unlock the dashboard
+                    unlockVIPInterface();
+                    document.getElementById('paywall-modal').style.display = 'none';
+                    alert("VIP Key Accepted! This key has now been burned to secure your account.");
+                    
+                } else if (snapshot.exists() && snapshot.val() === "used") {
+                    errorMsg.innerText = "This key has already been used on another device.";
+                    errorMsg.style.display = 'block';
+                } else {
+                    errorMsg.innerText = "Invalid Key. Please check your purchase email.";
+                    errorMsg.style.display = 'block';
+                }
+            }).catch((error) => {
+                console.error("Firebase error:", error);
+                alert("Database connection error. Check your database rules in Firebase.");
+            });
+        }
+
+        function unlockVIPInterface() {
+            document.getElementById('vip-badge').style.display = 'inline-block';
+            document.getElementById('free-uses-text').style.display = 'none';
+            const trap = document.getElementById('vip-trap');
+            if(trap) trap.style.display = 'none';
+        }
+
+        function toggleXray(id) {
+            const panel = document.getElementById('xray-' + id);
+            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function showPaywall() {
+            document.getElementById('paywall-modal').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
