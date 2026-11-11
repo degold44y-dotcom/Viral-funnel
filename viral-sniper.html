@@ -122,16 +122,14 @@
             messagingSenderId: "816808980244",
             appId: "1:816808980244:web:832c3852ead2b707bb9c01"
         };
-        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
         const database = firebase.database();
 
         // --- 2. DYNAMIC PRICING & LINKS ---
-        let activeCheckoutLink = "https://selar.co/"; // Fallback link
+        let activeCheckoutLink = "https://selar.co/";
         
-        // Listen to Admin Dashboard Settings
         database.ref('app_settings').on('value', (snapshot) => {
             if (snapshot.exists()) {
                 const settings = snapshot.val();
@@ -269,13 +267,24 @@
             loadingText.style.display = "none";
         }
 
-        // --- 5. FIREBASE KEY VERIFICATION (SINGLE-USE BURNER) ---
+        // --- 5. KEY VERIFICATION (INCLUDES MASTER ADMIN BYPASS) ---
         function verifyFirebaseKey() {
             const inputKey = document.getElementById('vip-key-input').value.trim();
             const errorMsg = document.getElementById('key-error');
             
             if(!inputKey) return;
 
+            // MASTER KEY BYPASS: Instantly unlocks your app if you type your admin key
+            if (inputKey === "GOLDMASTER2026") {
+                localStorage.setItem("viralsniper_vip", "true");
+                isVIP = true;
+                unlockVIPInterface();
+                document.getElementById('paywall-modal').style.display = 'none';
+                alert("Master Key Accepted! Lifetime VIP unlocked on this device.");
+                return;
+            }
+
+            // Normal customer key verification via Firebase
             database.ref('vip_keys/' + inputKey).once('value').then((snapshot) => {
                 if (snapshot.exists() && snapshot.val() === true) {
                     localStorage.setItem("viralsniper_vip", "true");
