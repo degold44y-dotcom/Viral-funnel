@@ -33,7 +33,8 @@
         
         /* RANK SCORE ENGINE SECTION */
         .rank-engine-card { background: var(--bg-card); border-radius: 16px; padding: 30px; margin-top: 30px; border: 1px solid var(--accent); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.1); }
-        .rank-engine-card h3 { margin-top: 0; color: var(--accent); display: flex; align-items: center; gap: 10px; font-size: 20px; }
+        .rank-engine-card h3 { margin-top: 0; color: var(--accent); display: flex; align-items: center; gap: 10px; font-size: 20px; flex-wrap: wrap; justify-content: center; }
+        .vip-lock-badge { font-size: 11px; background: var(--primary); color: white; padding: 3px 8px; border-radius: 6px; font-weight: bold; letter-spacing: 0.5px; }
         .rank-form-group { margin-bottom: 15px; text-align: left; }
         .rank-form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 5px; font-weight: bold; }
         .rank-form-group input, .rank-form-group textarea { width: 100%; padding: 14px; background: var(--bg-main); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: white; font-size: 15px; box-sizing: border-box; }
@@ -96,7 +97,7 @@
 
         <!-- PRE-UPLOAD RANK SCORE & THUMBNAIL ENGINE -->
         <div class="rank-engine-card">
-            <h3>⚡ Pre-Upload Rank Score Engine</h3>
+            <h3>⚡ Pre-Upload Rank Score Engine <span class="vip-lock-badge" id="rank-lock-badge">🔒 VIP</span></h3>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Test your twisted title and tags against outlier algorithms *before* filming or uploading to predict performance.</p>
             
             <div class="rank-form-group">
@@ -108,6 +109,7 @@
                 <textarea id="test-tags" rows="3" placeholder="tag1, tag2, tag3..."></textarea>
             </div>
             
+            <!-- This button now checks VIP status first -->
             <button class="btn-rank" onclick="calculateRankScore()">Calculate Rank & Saturation Score</button>
 
             <div id="rank-results-box">
@@ -311,6 +313,12 @@
 
         // --- 5. PRE-UPLOAD RANK SCORE & PLAGIARISM CHECKER ---
         function calculateRankScore() {
+            // STOP FREE USERS HERE
+            if (!isVIP) {
+                showPaywall();
+                return;
+            }
+
             const title = document.getElementById('test-title').value.toLowerCase().trim();
             const tags = document.getElementById('test-tags').value.trim();
             const resultsBox = document.getElementById('rank-results-box');
@@ -389,6 +397,7 @@
         function unlockVIPInterface() {
             document.getElementById('vip-badge').style.display = 'inline-block';
             document.getElementById('free-uses-text').style.display = 'none';
+            document.getElementById('rank-lock-badge').style.display = 'none'; // Hide the lock icon once VIP is active
             const trap = document.getElementById('vip-trap');
             if(trap) trap.style.display = 'none';
         }
