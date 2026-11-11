@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ViralSniper | Admin Command Center</title>
+    
+    <!-- FIREBASE CDNs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        :root {
+            --bg-main: #0f172a; --bg-card: #1e293b; --primary: #ef4444; 
+            --accent: #10b981; --text-main: #f8fafc; --text-muted: #94a3b8;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 800px; }
+        
+        /* LOGIN SCREEN */
+        #login-screen { background: var(--bg-card); padding: 40px; border-radius: 16px; text-align: center; margin-top: 100px; border: 1px solid var(--primary); box-shadow: 0 10px 30px rgba(239,68,68,0.2); }
+        .input-box { width: 100%; padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: var(--bg-main); color: white; margin-bottom: 15px; font-size: 16px; box-sizing: border-box; }
+        .btn { background: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; transition: 0.2s; text-transform: uppercase; }
+        .btn:hover { background: #dc2626; }
+        
+        /* DASHBOARD (Hidden by default) */
+        #dashboard { display: none; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { margin: 0; color: var(--primary); }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        
+        .card { background: var(--bg-card); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .card h3 { margin-top: 0; color: var(--accent); border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 10px; }
+        
+        .btn-action { background: var(--accent); color: #000; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .textarea-box { width: 100%; height: 150px; background: var(--bg-main); color: var(--accent); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 10px; font-family: monospace; margin-top: 10px; box-sizing: border-box; resize: none; }
+        
+        select { width: 100%; padding: 12px; background: var(--bg-main); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; margin-bottom: 10px; outline: none; }
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .bg-used { background: rgba(239,68,68,0.2); color: var(--primary); }
+        .bg-active { background: rgba(16,185,129,0.2); color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 1. SECURE LOGIN SCREEN -->
+        <div id="login-screen">
+            <h2 style="margin-top:0;">Admin Command Center</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Enter your Lifetime Admin Access Key</p>
+            <input type="password" id="admin-key" class="input-box" placeholder="Master Key">
+            <button class="btn" onclick="verifyAdmin()">Unlock Dashboard</button>
+            <p id="login-error" style="color: var(--primary); display: none; margin-top: 15px; font-size: 14px;">Access Denied. Incorrect Master Key.</p>
+        </div>
+
+        <!-- 2. MAIN DASHBOARD -->
+        <div id="dashboard">
+            <div class="header">
+                <h1>Command Center</h1>
+                <button class="btn" style="width: auto; padding: 10px 20px; background: transparent; border: 1px solid var(--primary);" onclick="location.reload()">Lock</button>
+            </div>
+
+            <div class="grid">
+                <!-- BATCH KEY GENERATOR -->
+                <div class="card">
+                    <h3>🔑 Batch Key Generator</h3>
+                    <p style="font-size: 13px; color: var(--text-muted);">Generate up to 100 keys at once.</p>
+                    <input type="number" id="key-qty" class="input-box" placeholder="How many keys? (e.g., 50)" min="1" max="100">
+                    <button class="btn-action" onclick="generateKeys()">Generate Keys</button>
+                    
+                    <textarea id="generated-keys" class="textarea-box" placeholder="Your new keys will appear here for easy copying..." readonly></textarea>
+                    <button class="btn" style="background: transparent; border: 1px dashed var(--accent); color: var(--accent); margin-top: 10px; padding: 10px;" onclick="copyKeys()">📋 Copy All Keys</button>
+                </div>
+
+                <!-- PRICE & SETTINGS CONTROLLER -->
+                <div class="card">
+                    <h3>💰 Dynamic Price Controller</h3>
+                    <p style="font-size: 13px; color: var(--text-muted);">Update your live app pricing directly from here.</p>
+                    <label style="font-size: 13px; color: var(--text-muted);">Current Price Display (e.g., ₦5,000 or $10)</label>
+                    <input type="text" id="live-price" class="input-box" placeholder="₦5,000">
+                    
+                    <label style="font-size: 13px; color: var(--text-muted);">Selar Checkout Link</label>
+                    <input type="text" id="live-link" class="input-box" placeholder="https://selar.co/your-link">
+                    
+                    <button class="btn-action" style="background: var(--primary); color: white;" onclick="updateSettings()">Update Live App</button>
+                </div>
+
+                <!-- KEY TRACKER & LIAR DETECTOR -->
+                <div class="card" style="grid-column: 1 / -1;">
+                    <h3>🛡️ Burned Key Detector (Catch Liars)</h3>
+                    <p style="font-size: 13px; color: var(--text-muted);">Check if a customer's key is genuinely unused or if they already burned it.</p>
+                    
+                    <button class="btn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); margin-bottom: 15px;" onclick="fetchKeys()">🔄 Refresh Database</button>
+
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 250px;">
+                            <label style="color: var(--accent); font-weight: bold;">🟢 Unused / Active Keys</label>
+                            <select id="active-keys-list" size="8"></select>
+                        </div>
+                        <div style="flex: 1; min-width: 250px;">
+                            <label style="color: var(--primary); font-weight: bold;">🔴 Burned / Used Keys</label>
+                            <select id="used-keys-list" size="8"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
+            authDomain: "global-match-99b4e.firebaseapp.com",
+            databaseURL: "https://global-match-99b4e-default-rtdb.firebaseio.com",
+            projectId: "global-match-99b4e",
+            storageBucket: "global-match-99b4e.firebasestorage.app",
+            messagingSenderId: "816808980244",
+            appId: "1:816808980244:web:832c3852ead2b707bb9c01"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+
+        // --- 2. YOUR LIFETIME ADMIN KEY ---
+        // Change "GOLDMASTER2026" to whatever secret password you want!
+        const MY_LIFETIME_KEY = "GOLDMASTER2026";
+
+        function verifyAdmin() {
+            const input = document.getElementById('admin-key').value;
+            if (input === MY_LIFETIME_KEY) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                fetchKeys();
+                fetchSettings();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        // --- 3. BATCH GENERATE KEYS ---
+        function generateKeys() {
+            let qty = parseInt(document.getElementById('key-qty').value);
+            if (!qty || qty < 1) qty = 1;
+            if (qty > 100) qty = 100; // Limit to 100 at a time to prevent browser crash
+
+            let newKeys = [];
+            let updates = {};
+
+            for (let i = 0; i < qty; i++) {
+                // Generate a random 8-character code: VS-XXXXXX
+                let randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                let fullKey = "VS-" + randomCode;
+                
+                // Set to true (active) in Firebase
+                updates['vip_keys/' + fullKey] = true;
+                newKeys.push(fullKey);
+            }
+
+            // Push all to database simultaneously
+            database.ref().update(updates).then(() => {
+                document.getElementById('generated-keys').value = newKeys.join('\n');
+                alert(`Successfully generated ${qty} new keys!`);
+                fetchKeys(); // Refresh lists
+            }).catch(error => alert("Error: " + error.message));
+        }
+
+        function copyKeys() {
+            const copyText = document.getElementById("generated-keys");
+            copyText.select();
+            document.execCommand("copy");
+            alert("All keys copied to clipboard! You can now paste them into a document or directly to buyers.");
+        }
+
+        // --- 4. TRACK ACTIVE VS USED KEYS ---
+        function fetchKeys() {
+            const activeList = document.getElementById('active-keys-list');
+            const usedList = document.getElementById('used-keys-list');
+            
+            activeList.innerHTML = "";
+            usedList.innerHTML = "";
+
+            database.ref('vip_keys').once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    const keys = snapshot.val();
+                    let activeCount = 0;
+                    let usedCount = 0;
+
+                    for (let key in keys) {
+                        let status = keys[key];
+                        let option = document.createElement("option");
+                        option.text = key;
+
+                        if (status === true) {
+                            activeList.add(option);
+                            activeCount++;
+                        } else if (status === "used") {
+                            option.text = key + " (BURNED)";
+                            usedList.add(option);
+                            usedCount++;
+                        }
+                    }
+
+                    // Add summary options at the top
+                    if(activeCount === 0) activeList.add(new Option("No active keys", ""));
+                    if(usedCount === 0) usedList.add(new Option("No burned keys", ""));
+                }
+            });
+        }
+
+        // --- 5. DYNAMIC PRICING ---
+        function updateSettings() {
+            const price = document.getElementById('live-price').value;
+            const link = document.getElementById('live-link').value;
+
+            database.ref('app_settings').set({
+                current_price: price,
+                checkout_link: link
+            }).then(() => {
+                alert("Live app updated! Customers will now see the new price and link.");
+            });
+        }
+
+        function fetchSettings() {
+            database.ref('app_settings').once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if(data.current_price) document.getElementById('live-price').value = data.current_price;
+                    if(data.checkout_link) document.getElementById('live-link').value = data.checkout_link;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
