@@ -95,7 +95,7 @@
             </div>
             
             <div id="dynamic-matches">
-                <!-- Matches will load here via Footballdata.io -->
+                <!-- Matches will load here -->
             </div>
 
             <div class="total-odds-box" id="total-odds-display">
@@ -149,7 +149,7 @@
             document.getElementById('date-label').innerText = new Date().toLocaleDateString(undefined, options);
         };
 
-        // --- 2. FOOTBALLDATA.IO API ENGINE ---
+        // --- 2. FOOTBALLDATA.IO DIRECT API ENGINE ---
         const FOOTBALLDATA_KEY = "fd_2354c51ee0691e8c300248228a2365506b686f530115eca7"; 
 
         async function startScan() {
@@ -169,14 +169,13 @@
             results.style.display = 'none';
             dynamicContainer.innerHTML = "";
 
-            scanText.innerText = "Attempting to connect to Live API...";
+            scanText.innerText = "Connecting directly to Footballdata.io...";
             
             try {
-                // Switched to a robust proxy that preserves Authorization headers
-                const targetUrl = encodeURIComponent('https://footballdata.io/api/v1/fixtures/today?status=NS');
-                const proxyUrl = `https://corsproxy.io/?${targetUrl}`;
+                // Stripped all proxies. Connecting straight to the true endpoint.
+                const targetUrl = 'https://footballdata.io/api/v1/fixtures/today?status=NS';
 
-                const response = await fetch(proxyUrl, {
+                const response = await fetch(targetUrl, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${FOOTBALLDATA_KEY}`,
@@ -230,14 +229,13 @@
                 results.style.display = 'block';
 
             } catch (error) {
-                // If it fails again, we will see the exact reason
                 loader.style.display = 'none';
                 results.style.display = 'block';
                 dynamicContainer.innerHTML = `
                     <div style="background: rgba(239, 68, 68, 0.1); border: 1px dashed red; padding: 20px; border-radius: 12px; color: red;">
                         <h4 style="margin-top:0;">API Connection Failed</h4>
                         <p style="font-size: 14px; word-break: break-all;"><b>Error Details:</b> ${error.message}</p>
-                        <p style="font-size: 13px; color: #64748b;">Please copy this error and send it to me so we can fix the endpoint!</p>
+                        <p style="font-size: 13px; color: #64748b;">If this says "Failed to fetch" again, Footballdata.io requires a backend server and blocks browser-only apps.</p>
                     </div>`;
                 document.getElementById('total-odds-display').style.display = 'none';
             }
