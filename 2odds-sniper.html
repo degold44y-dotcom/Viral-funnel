@@ -172,9 +172,9 @@
             scanText.innerText = "Attempting to connect to Live API...";
             
             try {
-                // Using a CORS proxy to bypass browser security blocks
+                // Switched to a robust proxy that preserves Authorization headers
                 const targetUrl = encodeURIComponent('https://footballdata.io/api/v1/fixtures/today?status=NS');
-                const proxyUrl = `https://api.allorigins.win/raw?url=${targetUrl}`;
+                const proxyUrl = `https://corsproxy.io/?${targetUrl}`;
 
                 const response = await fetch(proxyUrl, {
                     method: 'GET',
@@ -230,7 +230,7 @@
                 results.style.display = 'block';
 
             } catch (error) {
-                // INSTEAD OF FALLBACK, SHOW THE EXACT ERROR ON SCREEN
+                // If it fails again, we will see the exact reason
                 loader.style.display = 'none';
                 results.style.display = 'block';
                 dynamicContainer.innerHTML = `
