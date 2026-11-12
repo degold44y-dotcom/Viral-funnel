@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2-Odds Sniper | AI Prediction Engine</title>
+    <style>
+        :root {
+            --bg-main: #f8fafc; --bg-card: #ffffff; --primary: #2563eb; 
+            --accent: #10b981; --text-main: #0f172a; --text-muted: #64748b;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
+        .header { width: 100%; padding: 25px 20px; text-align: center; background: #ffffff; border-bottom: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px; color: #0f172a; }
+        .header h1 span { color: var(--primary); }
+        .hero-subtitle { font-size: 15px; color: var(--text-muted); max-width: 500px; margin: 10px auto 0 auto; line-height: 1.5; font-weight: 500; }
+        
+        .container { width: 90%; max-width: 600px; margin-top: 40px; padding-bottom: 50px; }
+        
+        .scanner-card { background: var(--bg-card); padding: 30px; border-radius: 16px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .scanner-card h2 { margin-top: 0; font-size: 22px; margin-bottom: 15px; }
+        
+        .btn-scan { background: var(--primary); color: white; width: 100%; padding: 18px; border: none; border-radius: 12px; font-weight: 900; font-size: 16px; cursor: pointer; text-transform: uppercase; transition: 0.2s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
+        .btn-scan:hover { background: #1d4ed8; transform: translateY(-2px); }
+        
+        /* Loading Animation */
+        #loading-zone { display: none; margin-top: 20px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .scan-status { font-size: 14px; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        
+        /* Results Section */
+        #results-box { display: none; margin-top: 30px; }
+        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        .results-header h3 { margin: 0; color: var(--text-main); font-size: 18px; }
+        
+        .match-card { background: #f1f5f9; border-radius: 12px; padding: 20px; margin-bottom: 15px; border-left: 5px solid var(--accent); position: relative; }
+        .match-card h4 { margin: 0 0 10px 0; font-size: 16px; }
+        .prediction { font-size: 18px; font-weight: 900; color: var(--text-main); margin-bottom: 5px; }
+        .prob-badge { position: absolute; top: 20px; right: 20px; background: rgba(16, 185, 129, 0.1); color: var(--accent); padding: 5px 10px; border-radius: 6px; font-weight: bold; font-size: 13px; border: 1px solid var(--accent); }
+        
+        .total-odds-box { background: var(--text-main); color: white; padding: 20px; border-radius: 12px; text-align: center; margin-top: 20px; }
+        .total-odds-box h3 { margin: 0 0 5px 0; font-size: 24px; color: var(--accent); }
+        .total-odds-box p { margin: 0; font-size: 14px; opacity: 0.8; }
+        
+        /* VIP LOCK */
+        .vip-lock { background: rgba(255,0,0,0.05); border: 1px dashed red; color: red; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; margin-top: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>2-Odds<span>Sniper</span></h1>
+        <p class="hero-subtitle">Stop guessing your accumulators. Our AI scans 100+ daily fixtures to carve out the safest <b>2.00+ Odds</b> combination based on pure statistical probability.</p>
+    </div>
+
+    <div class="container">
+        
+        <div class="scanner-card">
+            <h2>Generate Today's 2-Odds</h2>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 25px;">No sports knowledge required. One click scans team form, xG, and defensive gaps.</p>
+            
+            <button class="btn-scan" id="scan-btn" onclick="startScan()">Analyze Today's Matches</button>
+            
+            <div id="loading-zone">
+                <div class="spinner"></div>
+                <div class="scan-status" id="scan-text">Connecting to Live Data...</div>
+                <p style="font-size: 12px; color: var(--text-muted);">Analyzing Poisson distributions and Head-to-Head stats...</p>
+            </div>
+        </div>
+
+        <div id="results-box">
+            <div class="results-header">
+                <h3>🔥 AI Verified 2-Odds Acca</h3>
+                <span style="font-size: 12px; font-weight: bold; color: var(--text-muted);">Updated Today</span>
+            </div>
+            
+            <!-- Match 1 -->
+            <div class="match-card">
+                <div class="prob-badge">87.2% Safe</div>
+                <h4>Real Madrid vs. Valencia</h4>
+                <div class="prediction">Prediction: 1X (Home or Draw)</div>
+                <div style="font-size: 13px; color: var(--text-muted);">Odds: 1.28 | AI Confidence: Very High</div>
+            </div>
+
+            <!-- Match 2 -->
+            <div class="match-card">
+                <div class="prob-badge">84.5% Safe</div>
+                <h4>Arsenal vs. Everton</h4>
+                <div class="prediction">Prediction: Over 1.5 Goals</div>
+                <div style="font-size: 13px; color: var(--text-muted);">Odds: 1.22 | AI Confidence: High</div>
+            </div>
+            
+            <!-- Match 3 -->
+            <div class="match-card">
+                <div class="prob-badge">81.1% Safe</div>
+                <h4>Bayern Munich vs. Wolfsburg</h4>
+                <div class="prediction">Prediction: 1X (Home or Draw)</div>
+                <div style="font-size: 13px; color: var(--text-muted);">Odds: 1.30 | AI Confidence: High</div>
+            </div>
+
+            <div class="total-odds-box">
+                <h3>Total Accumulator: 2.03 Odds</h3>
+                <p>Stake wisely. Expected Probability: 82%</p>
+            </div>
+
+            <div class="vip-lock" onclick="alert('Connect this to your VIP Paywall!')">
+                🔒 Want Tomorrow's 2-Odds Code? Upgrade to VIP
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function startScan() {
+            const btn = document.getElementById('scan-btn');
+            const loader = document.getElementById('loading-zone');
+            const results = document.getElementById('results-box');
+            const scanText = document.getElementById('scan-text');
+            
+            btn.style.display = 'none';
+            loader.style.display = 'block';
+            results.style.display = 'none';
+
+            // Fake AI Scanning Sequence to build anticipation
+            setTimeout(() => { scanText.innerText = "Filtering Double Chance probabilities..."; }, 1500);
+            setTimeout(() => { scanText.innerText = "Calculating Expected Goals (xG)..."; }, 3000);
+            setTimeout(() => { scanText.innerText = "Finalizing optimal 2-Odds combination..."; }, 4500);
+            
+            setTimeout(() => {
+                loader.style.display = 'none';
+                results.style.display = 'block';
+                // Note: To make this real, you would connect an API here. Right now, it serves as a high-converting UI demo.
+            }, 6000);
+        }
+    </script>
+</body>
+</html>
