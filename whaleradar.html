@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PolySniper | Viral Signal Funnel</title>
+    <title>PolySniper | Live Whale Radar</title>
     <style>
         :root {
             --bg-base: #06090e;
@@ -13,7 +13,6 @@
             --text-muted: #9ca3af;
             --green-glow: #00ff66;
             --red-glow: #ff3366;
-            --blur-bg: rgba(6, 9, 14, 0.85);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'SF Pro Display', system-ui, sans-serif; }
@@ -23,14 +22,13 @@
 
         /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--bg-panel); border-bottom: 1px solid var(--border-dark); }
-        .logo { font-size: 18px; font-weight: 900; letter-spacing: 1px; color: white; display: flex; align-items: center; gap: 8px; }
+        .logo { font-size: 18px; font-weight: 900; letter-spacing: 1px; color: white; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
         .logo span { color: var(--green-glow); }
         
         .timeframes { background: rgba(0, 255, 102, 0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--green-glow); color: var(--green-glow); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
         .pulse-dot { width: 6px; height: 6px; background-color: var(--green-glow); border-radius: 50%; box-shadow: 0 0 8px var(--green-glow); animation: pulse 1.5s infinite; }
 
-        .auth-toggle { background: var(--green-glow); color: black; border: none; padding: 10px 15px; font-weight: 800; font-size: 12px; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .auth-toggle:hover { opacity: 0.8; }
+        .status-badge { background: var(--border-dark); color: white; border: none; padding: 10px 15px; font-weight: 800; font-size: 12px; border-radius: 6px; text-transform: uppercase; }
 
         /* SPLIT DASHBOARD */
         .dashboard { display: flex; flex: 1; overflow: hidden; }
@@ -43,7 +41,7 @@
         .feed { flex: 1; overflow-y: auto; padding: 15px 20px; }
 
         /* SIGNAL CARDS */
-        .signal-card { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 10px; padding: 15px; margin-bottom: 15px; position: relative; }
+        .signal-card { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         
         .market-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; line-height: 1.4; color: white; }
         .market-meta { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -57,25 +55,20 @@
         .outcome-name { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
         .outcome-price { font-size: 20px; font-weight: 900; }
 
-        /* VIRAL FUNNEL PADLOCK OVERLAY */
-        .freemium-lock { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--blur-bg); backdrop-filter: blur(6px); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px; z-index: 5; opacity: 0; pointer-events: none; transition: 0.3s; }
-        .locked .freemium-lock { opacity: 1; pointer-events: all; }
-        .lock-icon { font-size: 24px; margin-bottom: 8px; }
-        .lock-text { font-size: 14px; font-weight: 800; color: white; margin-bottom: 12px; line-height: 1.3; }
-        .affiliate-btn { background: white; color: black; text-decoration: none; padding: 10px 15px; border-radius: 6px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; width: 100%; box-sizing: border-box; }
-        .affiliate-btn:hover { background: var(--green-glow); }
-
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-        /* =========================================
-           MOBILE RESPONSIVE FIX
-           ========================================= */
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 4px; }
+
+        /* MOBILE RESPONSIVE FIX */
         @media (max-width: 768px) {
             body { height: auto; overflow-y: auto; display: block; }
             .header { flex-direction: column; align-items: stretch; gap: 12px; padding: 15px; }
             .logo { justify-content: center; margin-bottom: 5px; }
             .timeframes { justify-content: center; }
-            .auth-toggle { width: 100%; }
+            .status-badge { text-align: center; }
             
             .dashboard { flex-direction: column; display: block; overflow: visible; }
             .column { border-right: none; border-bottom: 4px solid #000; display: block; overflow: visible; }
@@ -90,11 +83,11 @@
 <body>
 
     <div class="header">
-        <div class="logo"><span>⚡</span> WHALERADAR <span>|</span> <span style="font-size: 11px; color: var(--text-muted);">VIRAL FUNNEL</span></div>
+        <div class="logo"><span>⚡</span> WHALERADAR <span>|</span> <span style="font-size: 11px; color: var(--text-muted);">LIVE TESTER</span></div>
         <div class="timeframes">
-            <div class="pulse-dot"></div> 1H & 1D Targets
+            <div class="pulse-dot"></div> 1H & 1D TARGETS
         </div>
-        <button class="auth-toggle" id="auth-btn" onclick="toggleVIP()">Status: Public (Click to Login)</button>
+        <div class="status-badge">SCANNER: UNRESTRICTED</div>
     </div>
 
     <div class="dashboard">
@@ -116,30 +109,20 @@
     </div>
 
     <script>
-        // App State
-        let isVIP = false;
         const TRIGGER_THRESHOLD = 0.70; // 70% Whale Conviction Trigger
-
-        function toggleVIP() {
-            isVIP = !isVIP;
-            document.getElementById('auth-btn').innerText = isVIP ? "Status: VIP Active" : "Status: Public (Click to Login)";
-            document.getElementById('auth-btn').style.background = isVIP ? "white" : "var(--green-glow)";
-            fetchMarkets(); // Refresh UI
-        }
 
         async function fetchMarkets() {
             const cryptoFeed = document.getElementById('crypto-feed');
             const sportsFeed = document.getElementById('sports-feed');
             
-            // Loading State
             if(cryptoFeed.innerHTML === '') {
                 cryptoFeed.innerHTML = '<div style="text-align:center; padding: 40px 0; color: var(--text-muted); font-size: 13px;">Scanning Markets...</div>';
                 sportsFeed.innerHTML = '<div style="text-align:center; padding: 40px 0; color: var(--text-muted); font-size: 13px;">Scanning Daily Sports...</div>';
             }
 
             try {
-                // Increased limit to 300 to catch a much wider array of daily sports events
-                const response = await fetch('https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=300');
+                // Fetching 500 markets to ensure broad daily coverage
+                const response = await fetch('https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=500');
                 const data = await response.json();
 
                 let cryptoHtml = '';
@@ -149,18 +132,15 @@
                     let outcomes = [];
                     let prices = [];
                     
-                    // CRITICAL FIX: Polymarket Gamma API returns prices as stringified arrays. We must parse them.
                     try {
                         outcomes = typeof market.outcomes === 'string' ? JSON.parse(market.outcomes) : (market.outcomes || []);
                         let rawPrices = typeof market.outcomePrices === 'string' ? JSON.parse(market.outcomePrices) : (market.outcomePrices || []);
                         prices = rawPrices.map(p => parseFloat(p));
-                    } catch(e) {
-                        return; // Skip if parsing fails
-                    }
+                    } catch(e) { return; }
                     
                     if (outcomes.length < 2 || prices.length < 2) return;
 
-                    // Check if market triggers the 70% threshold
+                    // Trigger Check
                     let hasSignal = prices.some(p => p >= TRIGGER_THRESHOLD);
                     if (!hasSignal) return; 
 
@@ -184,30 +164,22 @@
                         `;
                     });
 
-                    // Build Card
+                    // Build Unlocked Card Structure
                     let cardHtml = `
-                        <div class="signal-card ${!isVIP ? 'locked' : ''}">
+                        <div class="signal-card">
                             <div class="market-meta">
                                 <span class="tag">$${(market.volume || 0).toLocaleString(undefined, {maximumFractionDigits: 0})} Vol</span>
                             </div>
                             <div class="market-title">${market.question}</div>
                             <div class="odds-grid">${oddBoxes}</div>
-
-                            <!-- Viral Funnel Overlay -->
-                            <div class="freemium-lock">
-                                <div class="lock-icon">🔒</div>
-                                <div class="lock-text">70%+ Signal Detected</div>
-                                <a href="#" class="affiliate-btn">Trade / Bet to Unlock</a>
-                            </div>
                         </div>
                     `;
 
-                    // Broadened Route Matching for Crypto vs Daily Sports
+                    // Route to correct column
                     let category = (market.category || "").toLowerCase();
                     let question = (market.question || "").toLowerCase();
                     
                     let isCrypto = category.includes("crypto") || category.includes("bitcoin") || category.includes("eth") || question.includes("btc") || question.includes("eth");
-                    
                     let isSports = category.includes("sports") || category.includes("nfl") || category.includes("mlb") || category.includes("nba") || category.includes("soccer") || category.includes("tennis") || category.includes("nhl") || category.includes("ufc") || category.includes("esports") || question.includes(" vs ");
 
                     if (isCrypto) {
@@ -222,15 +194,11 @@
 
             } catch (error) {
                 console.error("API Error:", error);
-                // Fallback UI if the API is entirely disconnected
-                cryptoFeed.innerHTML = '<div style="color: var(--red-glow); text-align: center; margin-top:30px; font-size: 13px;">Error connecting to API. Retrying...</div>';
-                sportsFeed.innerHTML = '<div style="color: var(--red-glow); text-align: center; margin-top:30px; font-size: 13px;">Error connecting to API. Retrying...</div>';
             }
         }
 
-        // Init
+        // Init and refresh every 20 seconds
         fetchMarkets();
-        // Refresh API every 20 seconds
         setInterval(fetchMarkets, 20000);
     </script>
 </body>
