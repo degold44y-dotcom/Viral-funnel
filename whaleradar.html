@@ -146,8 +146,17 @@
                 let sportsHtml = '';
 
                 data.forEach(market => {
-                    let outcomes = market.outcomes || [];
-                    let prices = (market.outcomePrices || []).map(p => parseFloat(p));
+                    let outcomes = [];
+                    let prices = [];
+                    
+                    // CRITICAL FIX: Polymarket Gamma API returns prices as stringified arrays. We must parse them.
+                    try {
+                        outcomes = typeof market.outcomes === 'string' ? JSON.parse(market.outcomes) : (market.outcomes || []);
+                        let rawPrices = typeof market.outcomePrices === 'string' ? JSON.parse(market.outcomePrices) : (market.outcomePrices || []);
+                        prices = rawPrices.map(p => parseFloat(p));
+                    } catch(e) {
+                        return; // Skip if parsing fails
+                    }
                     
                     if (outcomes.length < 2 || prices.length < 2) return;
 
@@ -213,6 +222,9 @@
 
             } catch (error) {
                 console.error("API Error:", error);
+                // Fallback UI if the API is entirely disconnected
+                cryptoFeed.innerHTML = '<div style="color: var(--red-glow); text-align: center; margin-top:30px; font-size: 13px;">Error connecting to API. Retrying...</div>';
+                sportsFeed.innerHTML = '<div style="color: var(--red-glow); text-align: center; margin-top:30px; font-size: 13px;">Error connecting to API. Retrying...</div>';
             }
         }
 
