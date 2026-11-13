@@ -11,6 +11,7 @@
             --text-main: #f3f4f6; --text-muted: #9ca3af;
             --accent-green: #00ff66; --accent-green-dim: rgba(0, 255, 102, 0.1);
             --border-color: #374151; --blue-tag: #1e3a8a; --blue-tag-text: #60a5fa;
+            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
@@ -37,7 +38,7 @@
         
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
-        .form-group input, .form-group select { width: 100%; background-color: var(--bg-base); border: 1px solid var(--border-color); color: white; padding: 12px 15px; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; }
+        .form-group input { width: 100%; background-color: var(--bg-base); border: 1px solid var(--border-color); color: white; padding: 12px 15px; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; }
         .form-group input:focus { border-color: var(--accent-green); }
         
         .btn-scan { width: 100%; background-color: var(--accent-green-dim); color: var(--accent-green); border: 1px solid var(--accent-green); padding: 16px; border-radius: 8px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.2s; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -53,28 +54,34 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         #results-area { display: none; }
-        .result-card { background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 30px; position: relative; overflow: hidden; }
+        .result-card { background-color: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 30px; position: relative; overflow: hidden; transition: 0.2s; }
+        .result-card:hover { border-color: var(--accent-green); box-shadow: 0 4px 20px rgba(0, 255, 102, 0.05); }
         
         .tags { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .tag { background-color: var(--blue-tag); color: var(--blue-tag-text); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tag-dead { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid var(--warning); }
         
         .domain-name { font-size: 24px; font-weight: 700; margin-bottom: 25px; letter-spacing: -0.5px; word-break: break-all; }
         @media(min-width: 800px) { .domain-name { font-size: 28px; } }
         
-        .metrics-grid { display: grid; grid-template-columns: 1fr; gap: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 25px; margin-bottom: 25px; }
+        .metrics-grid { display: grid; grid-template-columns: 1fr; gap: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 25px; margin-bottom: 20px; }
         @media(min-width: 800px) { .metrics-grid { grid-template-columns: 1fr 1fr; } }
         
         .metric-block h4 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: 700; }
-        .traffic-large { font-size: 36px; font-weight: 900; color: var(--accent-green); line-height: 1; letter-spacing: -1px; margin-bottom: 10px; }
-        @media(min-width: 800px) { .traffic-large { font-size: 48px; } }
+        .traffic-large { font-size: 30px; font-weight: 900; color: var(--accent-green); line-height: 1; letter-spacing: -1px; margin-bottom: 10px; }
         .velocity-row { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 14px; font-weight: 600; }
         
-        .action-buttons { display: flex; gap: 15px; margin-top: 25px; flex-direction: column; }
-        @media(min-width: 800px) { .action-buttons { flex-direction: row; } }
-        .btn-outline { flex: 1; background: transparent; border: 1px solid var(--blue-tag-text); color: var(--blue-tag-text); padding: 15px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; }
-        .btn-outline:hover { background: rgba(96, 165, 250, 0.1); }
-        .btn-buy { flex: 1; background: white; color: black; border: none; padding: 15px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; text-align: center; }
-        .btn-buy:hover { background: #f3f4f6; opacity: 0.9; }
+        /* Due Diligence Panel */
+        .dd-panel { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px dashed var(--border-color); }
+        .dd-panel h4 { margin-top: 0; color: white; font-size: 14px; margin-bottom: 15px; }
+        .action-buttons { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        @media(min-width: 800px) { .action-buttons { grid-template-columns: 1fr 1fr; } }
+        
+        .btn-action { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: left; display: flex; align-items: center; gap: 10px; }
+        .btn-action:hover { background: var(--border-color); color: white; }
+        
+        .btn-buy { width: 100%; background: white; color: black; border: none; padding: 15px; border-radius: 8px; font-weight: 800; font-size: 15px; cursor: pointer; transition: 0.2s; text-align: center; text-transform: uppercase; margin-top: 10px; }
+        .btn-buy:hover { background: var(--accent-green); color: black; }
 
         /* PLAYBOOK SECTION */
         .playbook-card { background: rgba(16, 185, 129, 0.05); border: 1px solid var(--accent-green); border-radius: 12px; padding: 25px; margin-bottom: 30px; }
@@ -101,28 +108,23 @@
             <div class="section-title">Targeting Engine</div>
             
             <div class="form-group">
-                <label>Target Niche</label>
-                <input type="text" id="input-niche" placeholder="e.g. Roofing Dallas, Personal Finance" value="Crypto">
+                <label>Target Niche / Keywords</label>
+                <input type="text" id="input-niche" placeholder="e.g. Roofing Dallas, Crypto Trading" value="Roofing Repair">
             </div>
 
             <div class="section-title" style="margin-top: 35px;">Metrics Thresholds</div>
             
             <div class="form-group">
                 <label>Minimum Total Views</label>
-                <input type="number" id="input-views" value="100000">
+                <input type="number" id="input-views" value="50000">
             </div>
             <div class="form-group">
                 <label>Minimum Velocity (Views/Day)</label>
                 <input type="number" id="input-velocity" value="50">
             </div>
             <div class="form-group">
-                <label>Video Age Limit (Years)</label>
-                <select id="input-age">
-                    <option value="1">1 Year Old</option>
-                    <option value="2">2 Years Old</option>
-                    <option value="3" selected>3 Years Old</option>
-                    <option value="5">5 Years Old</option>
-                </select>
+                <label>Max Video Age (Years)</label>
+                <input type="number" id="input-age" value="4" placeholder="e.g. 2 to 5 years is ideal">
             </div>
 
             <button class="btn-scan" id="btn-scan" onclick="executeScan()">
@@ -139,30 +141,26 @@
                 <h3>📖 The Domain Monetization Playbook</h3>
                 <div class="playbook-step">
                     <h4>Exit 1: The "Retail" Flip (Maximum Profit)</h4>
-                    <p>Pitch directly to the local CEO (the roofer, the plumber, the lawyer). This yields the highest return ($1,000 to $2,500+) because you are selling them a direct pipeline of customers.</p>
+                    <p>Pitch directly to the local CEO (the roofer, the plumber). This yields the highest return ($1,000 to $2,500+) because you are selling them a direct pipeline of SEO customers.</p>
                 </div>
                 <div class="playbook-step">
                     <h4>Exit 2: The "Wholesale" Flip (Maximum Speed)</h4>
-                    <p>List the domain on GoDaddy Auctions or Flippa. Investors will quickly bid it up to $150 or $300 based purely on its high DA and YouTube traffic. Fast 1,500% ROI with zero manual outreach.</p>
+                    <p>List the domain on GoDaddy Auctions or Flippa. Investors will quickly bid it up to $150 or $300 based purely on its high DA. Fast 1,500% ROI with zero outreach.</p>
                 </div>
                 <div class="playbook-step">
                     <h4>Exit 3: The SEO Agency Play (The Hidden Market)</h4>
-                    <p>Email an SEO agency and say, "I have a DA 35 domain in your niche." They will buy it instantly for $500 to create powerful backlinks (PBNs) for their clients.</p>
-                </div>
-                <div class="playbook-step">
-                    <h4>Exit 4: The "Hold and Yield"</h4>
-                    <p>If the domain generates incredible daily traffic, don't sell it. Sign up for an affiliate or Pay-Per-Call network, redirect the domain to your affiliate link, and earn passive income every time a YouTube viewer clicks.</p>
+                    <p>Email an SEO agency and say, "I have a DA 30+ domain in your niche." They will buy it instantly for $500 to create powerful backlinks (PBNs) for their clients.</p>
                 </div>
             </div>
             
             <div id="loading-state">
                 <div class="spinner"></div>
-                <h3 style="color: white; margin-bottom: 10px;">Initializing Radar Protocol...</h3>
-                <p style="color: var(--text-muted); font-size: 14px;" id="loading-text">Scanning YouTube global index for target properties.</p>
+                <h3 style="color: white; margin-bottom: 10px;">Extracting & Pinging Domains...</h3>
+                <p style="color: var(--text-muted); font-size: 14px;" id="loading-text">Scanning up to 50 top videos and checking global DNS records.</p>
             </div>
 
             <div id="results-area">
-                <h3 style="margin-bottom: 20px; font-size: 16px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Intercepted Domains</h3>
+                <h3 style="margin-bottom: 20px; font-size: 16px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Intercepted Dead Domains</h3>
                 <div id="dynamic-results"></div>
             </div>
 
@@ -171,27 +169,23 @@
 
     <script>
         // --- 1. YOUTUBE API SETUP ---
-        // Using the API key from your previous ViralSniper setup
         const YOUTUBE_API_KEY = 'AIzaSyC7Nu3u8EWJTm2ytloAeep-BtD16s8X-g0';
         
-        // --- 2. CONFIGURATION ---
-        const ignoredDomains = ['youtube.com', 'youtu.be', 'facebook.com', 'instagram.com', 'twitter.com', 'tiktok.com', 'linktr.ee', 'amazon.com', 'amzn.to', 'bit.ly', 'goo.gl', 'apple.com', 'spotify.com'];
+        // Massive list of ignored generic domains
+        const ignoredDomains = ['youtube.com', 'youtu.be', 'facebook.com', 'instagram.com', 'twitter.com', 'tiktok.com', 'linktr.ee', 'amazon.com', 'amzn.to', 'bit.ly', 'goo.gl', 'apple.com', 'spotify.com', 'google.com', 'gmail.com', 'yahoo.com', 'discord.gg', 'twitch.tv', 'paypal.me', 'patreon.com', 'cash.app', 'venmo.com', 'wa.me', 'whatsapp.com', 't.me', 'telegram.org'];
 
-        // Format Numbers (e.g. 1.2M, 45K)
         function formatNumber(num) {
             if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
             if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
             return num;
         }
 
-        // Calculate Views Per Day
         function calculateVelocity(views, publishedAt) {
             const pubDate = new Date(publishedAt);
             const daysAlive = Math.max(1, Math.floor((new Date() - pubDate) / (1000 * 60 * 60 * 24)));
             return Math.round(views / daysAlive);
         }
 
-        // Extract Domains from Description
         function extractDomains(text) {
             const urlRegex = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})(?:\/[^\s]*)?/g;
             let domains = [];
@@ -202,13 +196,25 @@
                     domains.push(domain);
                 }
             }
-            return [...new Set(domains)]; // Return unique domains
+            return [...new Set(domains)]; 
+        }
+
+        // SECRET WEAPON: Live DNS Ping Check
+        // Uses Google's DNS-over-HTTPS. Status 3 means NXDOMAIN (Domain does not exist / likely expired)
+        async function isDomainDead(domain) {
+            try {
+                const res = await fetch(`https://dns.google/resolve?name=${domain}&type=A`);
+                const data = await res.json();
+                return data.Status === 3; 
+            } catch (e) {
+                return false; 
+            }
         }
 
         // Copy Domain to Clipboard
         function copyToClipboard(domain) {
             navigator.clipboard.writeText(domain).then(() => {
-                alert(`✅ ${domain} copied! You can now check it on GoDaddy, Namecheap, or any registrar.`);
+                alert(`✅ ${domain} copied!\nYou can now purchase this domain on GoDaddy, Namecheap, Porkbun, or any registrar you choose.`);
             }).catch(err => {
                 alert('Failed to copy. Please select and copy manually.');
             });
@@ -218,7 +224,7 @@
             const niche = document.getElementById('input-niche').value;
             const minViews = parseInt(document.getElementById('input-views').value) || 0;
             const minVelocity = parseInt(document.getElementById('input-velocity').value) || 0;
-            const ageLimit = parseInt(document.getElementById('input-age').value);
+            const maxAge = parseInt(document.getElementById('input-age').value) || 5;
 
             if(!niche) { alert("Please enter a Target Niche!"); return; }
 
@@ -231,92 +237,118 @@
             const playbook = document.getElementById('playbook-section');
             
             btn.disabled = true;
-            document.getElementById('scan-text').innerText = "Scanning...";
+            document.getElementById('scan-text').innerText = "Scanning 50 Videos...";
             playbook.style.display = 'none';
             loadState.style.display = 'block';
             resultsArea.style.display = 'none';
             dynamicResults.innerHTML = '';
-            
-            setTimeout(() => { loadText.innerText = "Extracting URLs & Calculating Velocity..."; }, 1500);
 
             try {
                 // Calculate Date Limit
                 const dateLimit = new Date();
-                dateLimit.setFullYear(dateLimit.getFullYear() - ageLimit); 
+                dateLimit.setFullYear(dateLimit.getFullYear() - maxAge); 
                 const publishedAfter = dateLimit.toISOString();
 
-                // 1. Search Videos API
-                const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${encodeURIComponent(niche)}&type=video&order=viewCount&publishedAfter=${publishedAfter}&key=${YOUTUBE_API_KEY}`);
+                // 1. Search Videos API (Max 50 Results for massive volume)
+                const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=${encodeURIComponent(niche)}&type=video&order=viewCount&publishedAfter=${publishedAfter}&key=${YOUTUBE_API_KEY}`);
                 const searchData = await searchRes.json();
 
                 if (!searchData.items || searchData.items.length === 0) {
-                    alert("No videos found matching this criteria. Try broadening your search.");
+                    alert("No videos found matching this criteria. Try broadening your search or niche.");
                     resetScanBtn(); return;
                 }
 
-                // 2. Get Video Stats & Descriptions
+                // 2. Get Video Stats
                 const videoIds = searchData.items.map(item => item.id.videoId).join(',');
                 const videoRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${videoIds}&key=${YOUTUBE_API_KEY}`);
                 const videoData = await videoRes.json();
 
                 let htmlOutput = "";
-                let domainsFound = 0;
+                let deadDomainsFound = 0;
 
-                // 3. Process Logic
-                videoData.items.forEach(video => {
+                loadText.innerText = "Analyzing descriptions and pinging DNS servers. This may take 5-10 seconds...";
+
+                // 3. Process & Filter Dead Domains
+                for (let video of videoData.items) {
                     let views = parseInt(video.statistics.viewCount) || 0;
-                    if (views < minViews) return;
+                    if (views < minViews) continue;
 
                     let velocity = calculateVelocity(views, video.snippet.publishedAt);
-                    if (velocity < minVelocity) return;
+                    if (velocity < minVelocity) continue;
 
                     let domains = extractDomains(video.snippet.description || "");
                     
-                    domains.forEach(domain => {
-                        domainsFound++;
-                        htmlOutput += `
-                        <div class="result-card">
-                            <div class="tags">
-                                <span class="tag">${niche}</span>
-                                <span class="tag">YOUTUBE SOURCE</span>
-                            </div>
-                            <div class="domain-name">${domain}</div>
+                    for (let domain of domains) {
+                        // THE FILTER: Only show domains that fail the DNS check (meaning they are dead)
+                        let isDead = await isDomainDead(domain);
+                        
+                        if (isDead) {
+                            deadDomainsFound++;
                             
-                            <div class="metrics-grid">
-                                <div class="metric-block">
-                                    <h4>Source Video Traffic</h4>
-                                    <div class="traffic-large">${formatNumber(views)}</div>
-                                    <div class="velocity-row">
-                                        <span style="color:var(--accent-green);">📈</span> ${velocity.toLocaleString()} views / day
+                            // Keyword for Trademark Search (strips the .com)
+                            let tmKeyword = domain.split('.')[0];
+
+                            htmlOutput += `
+                            <div class="result-card">
+                                <div class="tags">
+                                    <span class="tag">${niche}</span>
+                                    <span class="tag-dead">⚠️ DNS OFFLINE (LIKELY EXPIRED)</span>
+                                </div>
+                                <div class="domain-name">${domain}</div>
+                                
+                                <div class="metrics-grid">
+                                    <div class="metric-block">
+                                        <h4>Source Video Traffic</h4>
+                                        <div class="traffic-large">${formatNumber(views)}</div>
+                                        <div class="velocity-row">
+                                            <span style="color:var(--accent-green);">📈</span> ${velocity.toLocaleString()} views / day
+                                        </div>
+                                        <a href="https://www.youtube.com/watch?v=${video.id}" target="_blank" style="color: var(--blue-tag-text); font-size: 12px; text-decoration: none; margin-top: 5px; display: inline-block;">▶️ View Source Video</a>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div class="action-buttons">
-                                <button class="btn-outline" onclick="window.open('https://www.youtube.com/watch?v=${video.id}', '_blank')">▶️ View Source Video</button>
-                                <button class="btn-buy" onclick="copyToClipboard('${domain}')">📋 Copy Domain for Registrar</button>
-                            </div>
-                        </div>`;
-                    });
-                });
 
-                if (domainsFound === 0) {
+                                <!-- DUE DILIGENCE PANEL -->
+                                <div class="dd-panel">
+                                    <h4>🔍 Pre-Purchase Due Diligence</h4>
+                                    <div class="action-buttons">
+                                        <button class="btn-action" onclick="window.open('https://web.archive.org/web/*/${domain}', '_blank')">
+                                            🏛️ Check Wayback Machine (Past Site)
+                                        </button>
+                                        <button class="btn-action" onclick="window.open('https://www.google.com/search?q=site:${domain}+OR+%22${domain}%22', '_blank')">
+                                            🔎 Check SERP Index (Google Rank)
+                                        </button>
+                                        <button class="btn-action" onclick="window.open('https://ahrefs.com/backlink-checker/?target=${domain}', '_blank')">
+                                            📊 Check SEO / DA / Backlinks
+                                        </button>
+                                        <button class="btn-action" onclick="window.open('https://trademarkia.com/search?q=${tmKeyword}', '_blank')">
+                                            ⚖️ Check Trademarks (USPTO)
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <button class="btn-buy" onclick="copyToClipboard('${domain}')">📋 Copy Domain to Buy at Any Registrar</button>
+                            </div>`;
+                        }
+                    }
+                }
+
+                if (deadDomainsFound === 0) {
                     htmlOutput = `
-                    <div style="text-align:center; padding: 30px; color: var(--text-muted);">
-                        <p>No external domains were found in the video descriptions for this batch.</p>
-                        <p style="font-size: 12px; margin-top: 10px;">Try lowering your minimum views/velocity, or scanning a different niche.</p>
+                    <div style="text-align:center; padding: 30px; color: var(--text-muted); border: 1px dashed var(--border-color); border-radius: 12px;">
+                        <p style="font-size: 18px; color: white; margin-bottom: 10px;">No Dead Domains Found in this Batch</p>
+                        <p>We scanned 50 top videos, but all extracted domains are currently active and owned.</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Try changing your niche keyword, or expanding the Max Video Age to 5+ years.</p>
                     </div>`;
                 }
 
                 dynamicResults.innerHTML = htmlOutput;
                 
-                setTimeout(() => {
-                    loadState.style.display = 'none';
-                    resultsArea.style.display = 'block';
-                    resetScanBtn();
-                }, 2000);
+                loadState.style.display = 'none';
+                resultsArea.style.display = 'block';
+                resetScanBtn();
 
             } catch (error) {
+                console.error(error);
                 alert("API Error: Unable to fetch data from YouTube. Check your API key limits.");
                 resetScanBtn();
             }
@@ -326,7 +358,6 @@
             const btn = document.getElementById('btn-scan');
             btn.disabled = false;
             document.getElementById('scan-text').innerText = "Execute Scan";
-            document.getElementById('loading-text').innerText = "Scanning YouTube global index for target properties.";
             document.getElementById('loading-state').style.display = 'none';
         }
     </script>
