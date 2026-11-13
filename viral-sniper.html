@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamDrop | Live Arbitrage Radar</title>
-    
-    <!-- FIREBASE CDNs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <title>StreamDrop | Domain Flipping Radar</title>
     
     <style>
         :root {
@@ -15,7 +11,6 @@
             --text-main: #f3f4f6; --text-muted: #9ca3af;
             --accent-green: #00ff66; --accent-green-dim: rgba(0, 255, 102, 0.1);
             --border-color: #374151; --blue-tag: #1e3a8a; --blue-tag-text: #60a5fa;
-            --vip-red: #ef4444;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
@@ -26,24 +21,17 @@
         .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background-color: var(--bg-base); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
         .logo { display: flex; align-items: center; font-size: 22px; font-weight: 900; letter-spacing: 1px; color: white; }
         .logo span { color: var(--accent-green); margin-right: 10px; font-size: 26px; }
-        .header-title { text-align: center; display: none; }
-        @media(min-width: 768px) { .header-title { display: block; } }
-        .header-title h1 { font-size: 20px; font-weight: 700; margin: 0; }
-        .header-title p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-        
-        .mogul-badge { display: flex; align-items: center; text-align: right; cursor: pointer; }
-        .mogul-text { margin-right: 15px; }
-        .mogul-text div:first-child { font-weight: bold; font-size: 14px; }
-        #vip-status-text { color: var(--text-muted); font-size: 12px; }
-        .avatar { width: 35px; height: 35px; background: var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent-green); }
+        .header-title { text-align: right; }
+        .header-title h1 { font-size: 18px; font-weight: 700; margin: 0; color: var(--accent-green); }
+        .header-title p { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
         /* MAIN LAYOUT */
         .dashboard-container { display: flex; flex: 1; overflow: hidden; flex-direction: column; }
-        @media(min-width: 768px) { .dashboard-container { flex-direction: row; } }
+        @media(min-width: 800px) { .dashboard-container { flex-direction: row; } }
 
         /* SIDEBAR / TARGETING ENGINE */
         .sidebar { width: 100%; background-color: var(--bg-panel); border-right: 1px solid var(--border-color); padding: 25px; overflow-y: auto; }
-        @media(min-width: 768px) { .sidebar { width: 350px; } }
+        @media(min-width: 800px) { .sidebar { width: 350px; flex-shrink: 0; } }
         
         .section-title { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px; margin-top: 10px; }
         
@@ -52,16 +40,13 @@
         .form-group input, .form-group select { width: 100%; background-color: var(--bg-base); border: 1px solid var(--border-color); color: white; padding: 12px 15px; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; }
         .form-group input:focus { border-color: var(--accent-green); }
         
-        .flex-row { display: flex; gap: 10px; align-items: center; }
-        .flex-row span { color: var(--text-muted); font-size: 14px; }
-        
-        .btn-scan { width: 100%; background-color: var(--accent-green-dim); color: var(--accent-green); border: 1px solid var(--accent-green); padding: 16px; border-radius: 8px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.2s; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-scan { width: 100%; background-color: var(--accent-green-dim); color: var(--accent-green); border: 1px solid var(--accent-green); padding: 16px; border-radius: 8px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.2s; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-scan:hover { background-color: var(--accent-green); color: black; }
         .btn-scan:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* MAIN CONTENT / RADAR RESULTS */
         .main-content { flex: 1; padding: 20px; overflow-y: auto; background-color: var(--bg-base); }
-        @media(min-width: 768px) { .main-content { padding: 40px; } }
+        @media(min-width: 800px) { .main-content { padding: 40px; } }
         
         #loading-state { display: none; text-align: center; margin-top: 50px; }
         .spinner { width: 50px; height: 50px; border: 3px solid var(--border-color); border-top: 3px solid var(--accent-green); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
@@ -74,39 +59,29 @@
         .tag { background-color: var(--blue-tag); color: var(--blue-tag-text); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
         
         .domain-name { font-size: 24px; font-weight: 700; margin-bottom: 25px; letter-spacing: -0.5px; word-break: break-all; }
-        @media(min-width: 768px) { .domain-name { font-size: 28px; } }
+        @media(min-width: 800px) { .domain-name { font-size: 28px; } }
         
         .metrics-grid { display: grid; grid-template-columns: 1fr; gap: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 25px; margin-bottom: 25px; }
-        @media(min-width: 768px) { .metrics-grid { grid-template-columns: 1fr 1fr; } }
+        @media(min-width: 800px) { .metrics-grid { grid-template-columns: 1fr 1fr; } }
         
         .metric-block h4 { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; font-weight: 700; }
         .traffic-large { font-size: 36px; font-weight: 900; color: var(--accent-green); line-height: 1; letter-spacing: -1px; margin-bottom: 10px; }
-        @media(min-width: 768px) { .traffic-large { font-size: 48px; } }
+        @media(min-width: 800px) { .traffic-large { font-size: 48px; } }
         .velocity-row { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 14px; font-weight: 600; }
         
-        .secondary-metrics { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px; }
-        .metric-value { font-size: 20px; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; }
-        
         .action-buttons { display: flex; gap: 15px; margin-top: 25px; flex-direction: column; }
-        @media(min-width: 768px) { .action-buttons { flex-direction: row; } }
+        @media(min-width: 800px) { .action-buttons { flex-direction: row; } }
         .btn-outline { flex: 1; background: transparent; border: 1px solid var(--blue-tag-text); color: var(--blue-tag-text); padding: 15px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; text-align: center; }
         .btn-outline:hover { background: rgba(96, 165, 250, 0.1); }
         .btn-buy { flex: 1; background: white; color: black; border: none; padding: 15px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; text-align: center; }
         .btn-buy:hover { background: #f3f4f6; opacity: 0.9; }
 
-        /* VIP MODAL */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 17, 32, 0.95); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(8px); }
-        .modal-content { background: var(--bg-card); padding: 30px; border-radius: 20px; text-align: center; width: 90%; max-width: 450px; border: 1px solid var(--accent-green); box-shadow: 0 0 40px rgba(0, 255, 102, 0.1); box-sizing: border-box; }
-        .modal-content h2 { margin-top: 0; color: white; font-size: 24px; margin-bottom: 15px; }
-        .btn-upgrade { width: 100%; background: var(--accent-green); color: black; padding: 18px; border: none; border-radius: 12px; font-weight: 900; font-size: 16px; text-transform: uppercase; cursor: pointer; transition: 0.2s; margin-bottom: 20px; }
-        .btn-upgrade:hover { opacity: 0.9; }
-        
-        .key-input-group { background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin-top: 15px; }
-        .key-input-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-base); color: white; margin-bottom: 10px; text-align: center; font-family: monospace; font-size: 16px; box-sizing: border-box; }
-        .btn-verify { background: var(--border-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
-        .btn-verify:hover { background: #4b5563; }
-        
-        #key-error { color: var(--vip-red); font-size: 12px; display: none; margin-bottom: 0; margin-top: 10px; font-weight: bold; }
+        /* PLAYBOOK SECTION */
+        .playbook-card { background: rgba(16, 185, 129, 0.05); border: 1px solid var(--accent-green); border-radius: 12px; padding: 25px; margin-bottom: 30px; }
+        .playbook-card h3 { color: var(--accent-green); margin-top: 0; margin-bottom: 20px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        .playbook-step { margin-bottom: 15px; }
+        .playbook-step h4 { color: white; font-size: 14px; margin-bottom: 5px; }
+        .playbook-step p { color: var(--text-muted); font-size: 13px; line-height: 1.5; margin: 0; }
     </style>
 </head>
 <body>
@@ -114,15 +89,8 @@
     <div class="header">
         <div class="logo"><span>⚡</span> STREAMDROP</div>
         <div class="header-title">
-            <h1>Live Arbitrage Radar</h1>
-            <p>Intercepting high-velocity dropped domains.</p>
-        </div>
-        <div class="mogul-badge" onclick="showPaywall()">
-            <div class="mogul-text">
-                <div>Mogul Mode</div>
-                <div id="vip-status-text">Disconnected (Click to Link)</div>
-            </div>
-            <div class="avatar" id="avatar-icon">?</div>
+            <h1>Domain Arbitrage Engine</h1>
+            <p>Unrestricted Local Access</p>
         </div>
     </div>
 
@@ -134,7 +102,7 @@
             
             <div class="form-group">
                 <label>Target Niche</label>
-                <input type="text" id="input-niche" placeholder="e.g. Roofing, Crypto" value="Crypto">
+                <input type="text" id="input-niche" placeholder="e.g. Roofing Dallas, Personal Finance" value="Crypto">
             </div>
 
             <div class="section-title" style="margin-top: 35px;">Metrics Thresholds</div>
@@ -161,11 +129,31 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l5.67-1.35"/></svg>
                 <span id="scan-text">Execute Scan</span>
             </button>
-            <p id="free-uses-text" style="color: var(--vip-red); font-size: 12px; margin-top: 10px; text-align: center; display: none;">Free Limits Exhausted. Upgrade to VIP.</p>
         </div>
 
         <!-- MAIN CONTENT -->
         <div class="main-content">
+
+            <!-- MONETIZATION PLAYBOOK -->
+            <div class="playbook-card" id="playbook-section">
+                <h3>📖 The Domain Monetization Playbook</h3>
+                <div class="playbook-step">
+                    <h4>Exit 1: The "Retail" Flip (Maximum Profit)</h4>
+                    <p>Pitch directly to the local CEO (the roofer, the plumber, the lawyer). This yields the highest return ($1,000 to $2,500+) because you are selling them a direct pipeline of customers.</p>
+                </div>
+                <div class="playbook-step">
+                    <h4>Exit 2: The "Wholesale" Flip (Maximum Speed)</h4>
+                    <p>List the domain on GoDaddy Auctions or Flippa. Investors will quickly bid it up to $150 or $300 based purely on its high DA and YouTube traffic. Fast 1,500% ROI with zero manual outreach.</p>
+                </div>
+                <div class="playbook-step">
+                    <h4>Exit 3: The SEO Agency Play (The Hidden Market)</h4>
+                    <p>Email an SEO agency and say, "I have a DA 35 domain in your niche." They will buy it instantly for $500 to create powerful backlinks (PBNs) for their clients.</p>
+                </div>
+                <div class="playbook-step">
+                    <h4>Exit 4: The "Hold and Yield"</h4>
+                    <p>If the domain generates incredible daily traffic, don't sell it. Sign up for an affiliate or Pay-Per-Call network, redirect the domain to your affiliate link, and earn passive income every time a YouTube viewer clicks.</p>
+                </div>
+            </div>
             
             <div id="loading-state">
                 <div class="spinner"></div>
@@ -181,50 +169,13 @@
         </div>
     </div>
 
-    <!-- VIP PAYWALL MODAL -->
-    <div id="paywall-modal" class="modal">
-        <div class="modal-content">
-            <div style="font-size: 40px; margin-bottom: 10px;">⚡</div>
-            <h2>Activate Mogul Mode</h2>
-            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px; line-height: 1.5;">Unlock unlimited WHOIS intercept scans and intercept high-velocity domains before competitors find them.</p>
-            
-            <button class="btn-upgrade" onclick="window.open('https://selar.co/', '_blank')">Get Access Key</button>
-            
-            <div class="key-input-group">
-                <p style="margin-top: 0; font-size: 13px; color: var(--text-muted);">Already have an Access Key?</p>
-                <input type="text" id="vip-key-input" placeholder="Paste Key Here">
-                <button class="btn-verify" onclick="verifyFirebaseKey()">Link Account</button>
-                <p id="key-error">Invalid Key. Please try again.</p>
-            </div>
-            <p style="margin-top: 20px; font-size: 12px; color: var(--text-muted); cursor: pointer;" onclick="document.getElementById('paywall-modal').style.display='none'">Close</p>
-        </div>
-    </div>
-
     <script>
-        // --- 1. FIREBASE CONFIGURATION ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyAMuWAC8kNbGPdmlkngHUA7yG_f0vB_l4U",
-            authDomain: "global-match-99b4e.firebaseapp.com",
-            databaseURL: "https://global-match-99b4e-default-rtdb.firebaseio.com",
-            projectId: "global-match-99b4e",
-            storageBucket: "global-match-99b4e.firebasestorage.app",
-            messagingSenderId: "816808980244",
-            appId: "1:816808980244:web:832c3852ead2b707bb9c01"
-        };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        // --- 2. YOUTUBE API SETUP ---
+        // --- 1. YOUTUBE API SETUP ---
+        // Using the API key from your previous ViralSniper setup
         const YOUTUBE_API_KEY = 'AIzaSyC7Nu3u8EWJTm2ytloAeep-BtD16s8X-g0';
         
-        // --- 3. STATE MANAGEMENT ---
-        let searchCount = 0;
-        let isVIP = localStorage.getItem("streamdrop_vip") === "true";
+        // --- 2. CONFIGURATION ---
         const ignoredDomains = ['youtube.com', 'youtu.be', 'facebook.com', 'instagram.com', 'twitter.com', 'tiktok.com', 'linktr.ee', 'amazon.com', 'amzn.to', 'bit.ly', 'goo.gl', 'apple.com', 'spotify.com'];
-
-        window.onload = () => {
-            if (isVIP) unlockVIPInterface();
-        };
 
         // Format Numbers (e.g. 1.2M, 45K)
         function formatNumber(num) {
@@ -254,6 +205,15 @@
             return [...new Set(domains)]; // Return unique domains
         }
 
+        // Copy Domain to Clipboard
+        function copyToClipboard(domain) {
+            navigator.clipboard.writeText(domain).then(() => {
+                alert(`✅ ${domain} copied! You can now check it on GoDaddy, Namecheap, or any registrar.`);
+            }).catch(err => {
+                alert('Failed to copy. Please select and copy manually.');
+            });
+        }
+
         async function executeScan() {
             const niche = document.getElementById('input-niche').value;
             const minViews = parseInt(document.getElementById('input-views').value) || 0;
@@ -261,7 +221,6 @@
             const ageLimit = parseInt(document.getElementById('input-age').value);
 
             if(!niche) { alert("Please enter a Target Niche!"); return; }
-            if(!isVIP && searchCount >= 1) { showPaywall(); return; }
 
             // UI Loading State
             const btn = document.getElementById('btn-scan');
@@ -269,9 +228,11 @@
             const loadText = document.getElementById('loading-text');
             const resultsArea = document.getElementById('results-area');
             const dynamicResults = document.getElementById('dynamic-results');
+            const playbook = document.getElementById('playbook-section');
             
             btn.disabled = true;
             document.getElementById('scan-text').innerText = "Scanning...";
+            playbook.style.display = 'none';
             loadState.style.display = 'block';
             resultsArea.style.display = 'none';
             dynamicResults.innerHTML = '';
@@ -333,13 +294,12 @@
                             
                             <div class="action-buttons">
                                 <button class="btn-outline" onclick="window.open('https://www.youtube.com/watch?v=${video.id}', '_blank')">▶️ View Source Video</button>
-                                <button class="btn-buy" onclick="window.open('https://www.namecheap.com/domains/registration/results/?domain=${domain}', '_blank')">Check Domain Availability</button>
+                                <button class="btn-buy" onclick="copyToClipboard('${domain}')">📋 Copy Domain for Registrar</button>
                             </div>
                         </div>`;
                     });
                 });
 
-                // Fallback Simulator (If API finds zero domains in this specific small sample, inject a realistic demo so the UI works)
                 if (domainsFound === 0) {
                     htmlOutput = `
                     <div style="text-align:center; padding: 30px; color: var(--text-muted);">
@@ -354,15 +314,10 @@
                     loadState.style.display = 'none';
                     resultsArea.style.display = 'block';
                     resetScanBtn();
-                    
-                    if(!isVIP) {
-                        searchCount++;
-                        document.getElementById('free-uses-text').style.display = "block";
-                    }
-                }, 2500);
+                }, 2000);
 
             } catch (error) {
-                alert("API Error: Unable to fetch data from YouTube.");
+                alert("API Error: Unable to fetch data from YouTube. Check your API key limits.");
                 resetScanBtn();
             }
         }
@@ -373,51 +328,6 @@
             document.getElementById('scan-text').innerText = "Execute Scan";
             document.getElementById('loading-text').innerText = "Scanning YouTube global index for target properties.";
             document.getElementById('loading-state').style.display = 'none';
-        }
-
-        // --- 4. VIP VERIFICATION ---
-        function verifyFirebaseKey() {
-            const inputKey = document.getElementById('vip-key-input').value.trim();
-            const errorMsg = document.getElementById('key-error');
-            
-            if(!inputKey) return;
-
-            if (inputKey === "GOLDMASTER2026") {
-                localStorage.setItem("streamdrop_vip", "true");
-                isVIP = true;
-                unlockVIPInterface();
-                document.getElementById('paywall-modal').style.display = 'none';
-                alert("Master Key Accepted! Mogul Mode Unlocked.");
-                return;
-            }
-
-            database.ref('vip_keys/' + inputKey).once('value').then((snapshot) => {
-                if (snapshot.exists() && snapshot.val() === true) {
-                    localStorage.setItem("streamdrop_vip", "true");
-                    isVIP = true;
-                    database.ref('vip_keys/' + inputKey).set("used");
-                    unlockVIPInterface();
-                    document.getElementById('paywall-modal').style.display = 'none';
-                    alert("VIP Key Accepted!");
-                } else if (snapshot.exists() && snapshot.val() === "used") {
-                    errorMsg.innerText = "Key already used on another device.";
-                    errorMsg.style.display = 'block';
-                } else {
-                    errorMsg.innerText = "Invalid Key.";
-                    errorMsg.style.display = 'block';
-                }
-            });
-        }
-
-        function unlockVIPInterface() {
-            document.getElementById('vip-status-text').innerText = "Connected";
-            document.getElementById('vip-status-text').style.color = "var(--accent-green)";
-            document.getElementById('avatar-icon').innerText = "M";
-            document.getElementById('free-uses-text').style.display = 'none';
-        }
-
-        function showPaywall() {
-            if(!isVIP) document.getElementById('paywall-modal').style.display = 'flex';
         }
     </script>
 </body>
