@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PolySniper | Dual-Engine Signal Terminal</title>
+    <title>PolySniper | Viral Signal Funnel</title>
     <style>
         :root {
             --bg-base: #06090e;
             --bg-panel: #11151c;
             --border-dark: #1f2937;
             --text-main: #e5e7eb;
-            --text-muted: #6b7280;
+            --text-muted: #9ca3af;
             --green-glow: #00ff66;
             --red-glow: #ff3366;
             --blur-bg: rgba(6, 9, 14, 0.85);
@@ -18,70 +18,81 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'SF Pro Display', system-ui, sans-serif; }
         
+        /* Desktop Base */
         body { background-color: var(--bg-base); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         /* HEADER */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background-color: var(--bg-panel); border-bottom: 1px solid var(--border-dark); }
-        .logo { font-size: 20px; font-weight: 900; letter-spacing: 2px; color: white; display: flex; align-items: center; gap: 10px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--bg-panel); border-bottom: 1px solid var(--border-dark); }
+        .logo { font-size: 18px; font-weight: 900; letter-spacing: 1px; color: white; display: flex; align-items: center; gap: 8px; }
         .logo span { color: var(--green-glow); }
         
-        .timeframe-filters { display: flex; gap: 10px; background: var(--bg-base); padding: 5px; border-radius: 8px; border: 1px solid var(--border-dark); }
-        .tf-btn { background: transparent; border: none; color: var(--text-muted); padding: 8px 16px; cursor: pointer; font-weight: 700; font-size: 13px; border-radius: 4px; transition: 0.2s; }
-        .tf-btn.active, .tf-btn:hover { background: var(--border-dark); color: white; }
+        .timeframes { background: rgba(0, 255, 102, 0.1); padding: 6px 12px; border-radius: 6px; border: 1px solid var(--green-glow); color: var(--green-glow); font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+        .pulse-dot { width: 6px; height: 6px; background-color: var(--green-glow); border-radius: 50%; box-shadow: 0 0 8px var(--green-glow); animation: pulse 1.5s infinite; }
 
-        .auth-toggle { background: var(--green-glow); color: black; border: none; padding: 10px 20px; font-weight: 800; font-size: 12px; border-radius: 6px; cursor: pointer; text-transform: uppercase; }
+        .auth-toggle { background: var(--green-glow); color: black; border: none; padding: 10px 15px; font-weight: 800; font-size: 12px; border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .auth-toggle:hover { opacity: 0.8; }
 
         /* SPLIT DASHBOARD */
         .dashboard { display: flex; flex: 1; overflow: hidden; }
         .column { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border-dark); }
         .column:last-child { border-right: none; }
         
-        .col-header { padding: 20px 30px; background: var(--bg-base); border-bottom: 1px solid var(--border-dark); position: sticky; top: 0; z-index: 10; }
-        .col-header h2 { font-size: 14px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; display: flex; justify-content: space-between; align-items: center; }
-        .live-indicator { width: 8px; height: 8px; background-color: var(--green-glow); border-radius: 50%; box-shadow: 0 0 10px var(--green-glow); animation: pulse 2s infinite; }
+        .col-header { padding: 15px 20px; background: var(--bg-base); border-bottom: 1px solid var(--border-dark); position: sticky; top: 0; z-index: 10; }
+        .col-header h2 { font-size: 13px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; display: flex; justify-content: space-between; align-items: center; }
 
-        .feed { flex: 1; overflow-y: auto; padding: 20px 30px; }
+        .feed { flex: 1; overflow-y: auto; padding: 15px 20px; }
 
         /* SIGNAL CARDS */
-        .signal-card { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 12px; padding: 20px; margin-bottom: 15px; position: relative; }
+        .signal-card { background: var(--bg-panel); border: 1px solid var(--border-dark); border-radius: 10px; padding: 15px; margin-bottom: 15px; position: relative; }
         
-        .market-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; line-height: 1.4; }
-        .market-meta { display: flex; gap: 10px; margin-bottom: 15px; }
-        .tag { font-size: 11px; padding: 4px 8px; background: var(--border-dark); border-radius: 4px; font-weight: 700; text-transform: uppercase; }
+        .market-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; line-height: 1.4; color: white; }
+        .market-meta { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+        .tag { font-size: 10px; padding: 3px 6px; background: var(--border-dark); border-radius: 4px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
         
-        .odds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .odd-box { padding: 15px; border-radius: 8px; border: 1px solid var(--border-dark); text-align: center; }
+        .odds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .odd-box { padding: 12px; border-radius: 8px; border: 1px solid var(--border-dark); text-align: center; }
         .odd-box.trigger-up { background: rgba(0, 255, 102, 0.1); border-color: var(--green-glow); color: var(--green-glow); }
         .odd-box.trigger-down { background: rgba(255, 51, 102, 0.1); border-color: var(--red-glow); color: var(--red-glow); }
         
-        .outcome-name { font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; }
-        .outcome-price { font-size: 24px; font-weight: 900; }
+        .outcome-name { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; }
+        .outcome-price { font-size: 20px; font-weight: 900; }
 
-        /* FREEMIUM PADLOCK OVERLAY */
-        .freemium-lock { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--blur-bg); backdrop-filter: blur(8px); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 5; opacity: 0; pointer-events: none; transition: 0.3s; }
+        /* VIRAL FUNNEL PADLOCK OVERLAY */
+        .freemium-lock { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--blur-bg); backdrop-filter: blur(6px); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 15px; z-index: 5; opacity: 0; pointer-events: none; transition: 0.3s; }
         .locked .freemium-lock { opacity: 1; pointer-events: all; }
-        .lock-icon { font-size: 30px; margin-bottom: 10px; }
-        .lock-text { font-size: 16px; font-weight: 700; color: white; margin-bottom: 15px; }
-        .affiliate-btn { background: white; color: black; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 800; font-size: 13px; text-transform: uppercase; }
+        .lock-icon { font-size: 24px; margin-bottom: 8px; }
+        .lock-text { font-size: 14px; font-weight: 800; color: white; margin-bottom: 12px; line-height: 1.3; }
+        .affiliate-btn { background: white; color: black; text-decoration: none; padding: 10px 15px; border-radius: 6px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; width: 100%; box-sizing: border-box; }
         .affiliate-btn:hover { background: var(--green-glow); }
 
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-base); }
-        ::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 4px; }
+        /* =========================================
+           MOBILE RESPONSIVE FIX
+           ========================================= */
+        @media (max-width: 768px) {
+            body { height: auto; overflow-y: auto; display: block; }
+            .header { flex-direction: column; align-items: stretch; gap: 12px; padding: 15px; }
+            .logo { justify-content: center; margin-bottom: 5px; }
+            .timeframes { justify-content: center; }
+            .auth-toggle { width: 100%; }
+            
+            .dashboard { flex-direction: column; display: block; overflow: visible; }
+            .column { border-right: none; border-bottom: 4px solid #000; display: block; overflow: visible; }
+            
+            .col-header { position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-dark); }
+            .feed { overflow-y: visible; padding: 15px; }
+            
+            .odds-grid { gap: 10px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="logo"><span>⚡</span> POLYSNIPER <span>|</span> <span style="font-size: 12px; color: var(--text-muted);">WHALE RADAR</span></div>
+        <div class="logo"><span>⚡</span> WHALERADAR <span>|</span> <span style="font-size: 11px; color: var(--text-muted);">VIRAL FUNNEL</span></div>
         <div class="timeframes">
-            <button class="tf-btn">5m</button>
-            <button class="tf-btn">15m</button>
-            <button class="tf-btn active">1h</button>
-            <button class="tf-btn">1D</button>
+            <div class="pulse-dot"></div> 1H & 1D Targets
         </div>
         <button class="auth-toggle" id="auth-btn" onclick="toggleVIP()">Status: Public (Click to Login)</button>
     </div>
@@ -90,7 +101,7 @@
         <!-- CRYPTO COLUMN -->
         <div class="column" id="crypto-col">
             <div class="col-header">
-                <h2>Crypto Pulse <div class="live-indicator"></div></h2>
+                <h2>Crypto Pulse <div class="pulse-dot"></div></h2>
             </div>
             <div class="feed" id="crypto-feed"></div>
         </div>
@@ -98,7 +109,7 @@
         <!-- SPORTS COLUMN -->
         <div class="column" id="sports-col">
             <div class="col-header">
-                <h2>Sports Radar <div class="live-indicator"></div></h2>
+                <h2>Daily Sports <div class="pulse-dot"></div></h2>
             </div>
             <div class="feed" id="sports-feed"></div>
         </div>
@@ -119,19 +130,22 @@
         async function fetchMarkets() {
             const cryptoFeed = document.getElementById('crypto-feed');
             const sportsFeed = document.getElementById('sports-feed');
-            cryptoFeed.innerHTML = '<div style="text-align:center; margin-top: 50px; color: var(--text-muted);">Syncing with Gamma API...</div>';
-            sportsFeed.innerHTML = '<div style="text-align:center; margin-top: 50px; color: var(--text-muted);">Syncing with Gamma API...</div>';
+            
+            // Loading State
+            if(cryptoFeed.innerHTML === '') {
+                cryptoFeed.innerHTML = '<div style="text-align:center; padding: 40px 0; color: var(--text-muted); font-size: 13px;">Scanning Markets...</div>';
+                sportsFeed.innerHTML = '<div style="text-align:center; padding: 40px 0; color: var(--text-muted); font-size: 13px;">Scanning Daily Sports...</div>';
+            }
 
             try {
-                // Fetch live open markets from Polymarket's free Gamma API
-                const response = await fetch('https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=100');
+                // Increased limit to 300 to catch a much wider array of daily sports events
+                const response = await fetch('https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=300');
                 const data = await response.json();
 
                 let cryptoHtml = '';
                 let sportsHtml = '';
 
                 data.forEach(market => {
-                    // Extract prices and outcomes
                     let outcomes = market.outcomes || [];
                     let prices = (market.outcomePrices || []).map(p => parseFloat(p));
                     
@@ -139,20 +153,18 @@
 
                     // Check if market triggers the 70% threshold
                     let hasSignal = prices.some(p => p >= TRIGGER_THRESHOLD);
-                    if (!hasSignal) return; // Only show markets where whales are making a move
+                    if (!hasSignal) return; 
 
-                    // Determine formatting based on Yes/No or team names
                     let oddBoxes = '';
                     outcomes.forEach((outcome, index) => {
                         let price = prices[index];
                         let percent = Math.round(price * 100);
                         
-                        // Styling the trigger
                         let boxClass = 'odd-box';
                         let signalIcon = '';
                         if (price >= TRIGGER_THRESHOLD) {
                             boxClass += (outcome.toLowerCase() === 'no') ? ' trigger-down' : ' trigger-up';
-                            signalIcon = (outcome.toLowerCase() === 'no') ? '🔴 BUY DOWN ' : '🟢 BUY UP ';
+                            signalIcon = (outcome.toLowerCase() === 'no') ? '🔴 DOWN ' : '🟢 UP ';
                         }
 
                         oddBoxes += `
@@ -164,7 +176,6 @@
                     });
 
                     // Build Card
-                    // Public users get the "locked" class, VIPs see the raw data
                     let cardHtml = `
                         <div class="signal-card ${!isVIP ? 'locked' : ''}">
                             <div class="market-meta">
@@ -173,38 +184,42 @@
                             <div class="market-title">${market.question}</div>
                             <div class="odds-grid">${oddBoxes}</div>
 
-                            <!-- Freemium Overlay -->
+                            <!-- Viral Funnel Overlay -->
                             <div class="freemium-lock">
                                 <div class="lock-icon">🔒</div>
-                                <div class="lock-text">70%+ Whale Signal Detected</div>
-                                <a href="#" class="affiliate-btn">Trade on Pocket Option to Unlock</a>
+                                <div class="lock-text">70%+ Signal Detected</div>
+                                <a href="#" class="affiliate-btn">Trade / Bet to Unlock</a>
                             </div>
                         </div>
                     `;
 
-                    // Route to correct column based on Polymarket tags
+                    // Broadened Route Matching for Crypto vs Daily Sports
                     let category = (market.category || "").toLowerCase();
-                    if (category.includes("crypto") || category.includes("bitcoin") || category.includes("eth")) {
+                    let question = (market.question || "").toLowerCase();
+                    
+                    let isCrypto = category.includes("crypto") || category.includes("bitcoin") || category.includes("eth") || question.includes("btc") || question.includes("eth");
+                    
+                    let isSports = category.includes("sports") || category.includes("nfl") || category.includes("mlb") || category.includes("nba") || category.includes("soccer") || category.includes("tennis") || category.includes("nhl") || category.includes("ufc") || category.includes("esports") || question.includes(" vs ");
+
+                    if (isCrypto) {
                         cryptoHtml += cardHtml;
-                    } else if (category.includes("sports") || category.includes("nfl") || category.includes("mlb") || category.includes("nba")) {
+                    } else if (isSports) {
                         sportsHtml += cardHtml;
                     }
                 });
 
-                cryptoFeed.innerHTML = cryptoHtml || '<div style="color: var(--text-muted); text-align: center; margin-top:20px;">No Crypto signals >= 70% right now.</div>';
-                sportsFeed.innerHTML = sportsHtml || '<div style="color: var(--text-muted); text-align: center; margin-top:20px;">No Sports signals >= 70% right now.</div>';
+                cryptoFeed.innerHTML = cryptoHtml || '<div style="color: var(--text-muted); text-align: center; margin-top:30px; font-size: 13px;">No Crypto signals >= 70% right now.</div>';
+                sportsFeed.innerHTML = sportsHtml || '<div style="color: var(--text-muted); text-align: center; margin-top:30px; font-size: 13px;">No Sports signals >= 70% right now.</div>';
 
             } catch (error) {
                 console.error("API Error:", error);
-                cryptoFeed.innerHTML = "Error connecting to Polymarket API.";
-                sportsFeed.innerHTML = "Error connecting to Polymarket API.";
             }
         }
 
         // Init
         fetchMarkets();
-        // Refresh API every 30 seconds
-        setInterval(fetchMarkets, 30000);
+        // Refresh API every 20 seconds
+        setInterval(fetchMarkets, 20000);
     </script>
 </body>
 </html>
