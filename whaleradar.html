@@ -17,7 +17,6 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'SF Pro Display', system-ui, sans-serif; }
         
-        /* Desktop Base */
         body { background-color: var(--bg-base); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         /* HEADER */
@@ -109,7 +108,8 @@
     </div>
 
     <script>
-        const TRIGGER_THRESHOLD = 0.70; // 70% Whale Conviction Trigger
+        const TRIGGER_THRESHOLD = 0.70; // 70% Minimum Whale Conviction 
+        const MAX_THRESHOLD = 0.98;     // Ignore 99% or 100% markets (event already over)
 
         async function fetchMarkets() {
             const cryptoFeed = document.getElementById('crypto-feed');
@@ -140,8 +140,15 @@
                     
                     if (outcomes.length < 2 || prices.length < 2) return;
 
-                    // Trigger Check
-                    let hasSignal = prices.some(p => p >= TRIGGER_THRESHOLD);
+                    // STRICT FILTER: Block politics completely
+                    let category = (market.category || "").toLowerCase();
+                    let question = (market.question || "").toLowerCase();
+                    
+                    let isPolitics = category === "politics" || category === "elections" || question.includes("election") || question.includes("president") || question.includes("trump") || question.includes("kamala") || question.includes("biden");
+                    if (isPolitics) return;
+
+                    // Trigger Check: Must be between 70% and 98%
+                    let hasSignal = prices.some(p => p >= TRIGGER_THRESHOLD && p <= MAX_THRESHOLD);
                     if (!hasSignal) return; 
 
                     let oddBoxes = '';
@@ -151,7 +158,7 @@
                         
                         let boxClass = 'odd-box';
                         let signalIcon = '';
-                        if (price >= TRIGGER_THRESHOLD) {
+                        if (price >= TRIGGER_THRESHOLD && price <= MAX_THRESHOLD) {
                             boxClass += (outcome.toLowerCase() === 'no') ? ' trigger-down' : ' trigger-up';
                             signalIcon = (outcome.toLowerCase() === 'no') ? '🔴 DOWN ' : '🟢 UP ';
                         }
@@ -164,11 +171,14 @@
                         `;
                     });
 
+                    // VOLUME FORMATTING FIX: Parse float and remove decimals
+                    let cleanVolume = parseFloat(market.volume || 0).toLocaleString('en-US', {maximumFractionDigits: 0});
+
                     // Build Unlocked Card Structure
                     let cardHtml = `
                         <div class="signal-card">
                             <div class="market-meta">
-                                <span class="tag">$${(market.volume || 0).toLocaleString(undefined, {maximumFractionDigits: 0})} Vol</span>
+                                <span class="tag">$${cleanVolume} Vol</span>
                             </div>
                             <div class="market-title">${market.question}</div>
                             <div class="odds-grid">${oddBoxes}</div>
@@ -176,11 +186,8 @@
                     `;
 
                     // Route to correct column
-                    let category = (market.category || "").toLowerCase();
-                    let question = (market.question || "").toLowerCase();
-                    
-                    let isCrypto = category.includes("crypto") || category.includes("bitcoin") || category.includes("eth") || question.includes("btc") || question.includes("eth");
-                    let isSports = category.includes("sports") || category.includes("nfl") || category.includes("mlb") || category.includes("nba") || category.includes("soccer") || category.includes("tennis") || category.includes("nhl") || category.includes("ufc") || category.includes("esports") || question.includes(" vs ");
+                    let isCrypto = category.includes("crypto") || question.includes("bitcoin") || question.includes("btc") || question.includes("eth") || question.includes("solana");
+                    let isSports = category.includes("sports") || question.includes(" vs ");
 
                     if (isCrypto) {
                         cryptoHtml += cardHtml;
